@@ -1,0 +1,41 @@
+.DS_Store
+Thumbs.db
+
+# Office temporary files
+~$*
+
+# Java build outputs
+*.class
+*.jar
+*.war
+*.ear
+bin/
+build/
+out/
+target/
+
+# Logs
+*.log
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS files
+desktop.ini
+
+# Local coursework materials and temp files
+.waylog/
+EBU6304_*.pdf
+product backlog template.xlsx
+
+# Local tool downloads
+tools/
+gh_*.zip
+gh-auth.out
+gh-auth.err
+gh-auth.pid

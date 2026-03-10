@@ -52,3 +52,12 @@
   - `US09 Apply for a job`
   - `US15 View applicants for a job`
 - Optional AI-assisted features are deliberately delayed until Sprint 4 so they do not endanger the core delivery.
+## Notes from Requirements Review
+
+Based on the current requirements review, the backlog should continue to prioritise the core needs of the three main stakeholder groups:
+
+- Applicants need to create a profile, view available TA roles, submit applications, and check application status.
+- Module Organisers need to post roles, review applicants, and update decisions.
+- Admin staff need to monitor workload, keep records, and identify possible conflicts.
+
+These points should be treated as the main scope for the first version of the system.

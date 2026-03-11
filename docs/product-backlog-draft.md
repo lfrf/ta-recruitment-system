@@ -1,6 +1,6 @@
 # Product Backlog Draft
 
-## Planning assumptions
+## Planning Assumptions
 - `Sprint 1`: 2026-03-09 to 2026-03-22
 - `Sprint 2`: 2026-03-23 to 2026-04-12
 - `Sprint 3`: 2026-04-13 to 2026-05-03
@@ -8,13 +8,14 @@
 - Priority uses `Must / Should / Could`
 - Estimation uses story points: `1, 2, 3, 5, 8`
 
-## Sprint goals
-- `Sprint 1`: define scope, collect evidence, produce backlog and prototype, prepare the first assessment package
-- `Sprint 2`: deliver the core recruitment workflow from job posting to application review
-- `Sprint 3`: improve administration, stability, error handling, and overall quality
-- `Sprint 4`: add optional explainable intelligence and prepare final delivery
+## Sprint Goals
+- `Sprint 1`: define scope, collect evidence, prepare the backlog and prototype, and complete the first assessment package
+- `Sprint 2`: deliver the core recruitment workflow from vacancy posting to application review
+- `Sprint 3`: improve administration support, stability, validation, and overall quality
+- `Sprint 4`: add optional explainable intelligence features and prepare the final delivery
 
-## Story list
+## Story List
+
 | ID | Story name | Role | Priority | Sprint | SP | Notes |
 |---|---|---|---|---|---|---|
 | US01 | Register account | Applicant | Must | 1 | 3 | Epic: Applicant onboarding |
@@ -43,17 +44,18 @@
 | US24 | Show explainable skill match | MO | Could | 4 | 5 | Epic: Explainable support |
 | US25 | Suggest missing skills | Applicant | Could | 4 | 3 | Epic: Explainable support |
 
-## Notes for the team
-- The backlog is larger than Sprint 1 on purpose. Sprint 1 defines the scope; it does not implement every story.
-- The first software version should focus on the minimum end-to-end workflow:
+## Notes for the Team
+- The backlog is intentionally larger than the work planned for Sprint 1. Sprint 1 is mainly for defining scope, collecting evidence, preparing the prototype, and producing the first assessment materials.
+- The first implementable software version should focus on the minimum end-to-end workflow:
   - `US13 Post a job`
   - `US06 Browse open jobs`
   - `US07 View job details`
   - `US09 Apply for a job`
   - `US15 View applicants for a job`
-- Optional AI-assisted features are deliberately delayed until Sprint 4 so they do not endanger the core delivery.
+  - `US17 Accept or reject an applicant`
+- Optional AI-assisted or explainable features are deliberately delayed until Sprint 4 so that they do not put the core delivery at risk.
 
-## Team requirements workshop note
-- The current backlog should be treated as a team-produced draft rather than a single-author document.
+## Team Requirements Workshop Note
+- The current backlog should be treated as a team-produced draft rather than as a single-author document.
 - The requirements evidence comes from shared Applicant, Module Organiser, and Admin discussions.
-- The backlog coordinator should continue refining these stories with input from all members, especially when updating acceptance criteria and Sprint 1 scope.
+- The backlog coordinator should continue refining the stories with input from all members, especially when adding acceptance criteria and confirming Sprint 1 boundaries.

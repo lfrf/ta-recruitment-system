@@ -1,56 +1,26 @@
-# Interview Record Template
+# Interview Record – [Stakeholder Role]
 
-## Basic Information
-- Session date:
-- Session type: individual interview / group workshop / role-based discussion
-- Stakeholder focus: Applicant / Module Organiser / Admin
-- Facilitator:
-- Participants:
-- Notes owner:
+**Project:** TA Recruitment System  
+**Stakeholder role:** [Applicant / Module Organiser / Admin]  
+**Interview type:** Semi-structured discussion  
+**Date:** [YYYY-MM-DD]  
+**Recorded by:** Group 27
 
-## Questions and Answers
+## Summary of Discussion
+[Write a concise summary of what the stakeholder said, what they need, and what problems they face in the current process.]
 
-### Question 1
-**Question:**  
-**Answer summary:**  
+## Main Pain Points
+- [pain point 1]
+- [pain point 2]
+- [pain point 3]
 
-### Question 2
-**Question:**  
-**Answer summary:**  
+## Derived Requirements
+- The system shall [requirement 1].
+- The system shall [requirement 2].
+- The system should [requirement 3].
 
-### Question 3
-**Question:**  
-**Answer summary:**  
-
-### Question 4
-**Question:**  
-**Answer summary:**  
-
-### Question 5
-**Question:**  
-**Answer summary:**  
-
-## Key Findings
-- 
-- 
-- 
-
-## Pain Points
-- 
-- 
-- 
-
-## Candidate Requirements
-
-### Functional
-- 
-- 
-- 
-
-### Non-functional
-- 
-- 
-- 
+## Notes
+[Optional note about context, assumptions, or limits of the discussion.]
 
 ## Backlog and Report Notes
 - related user stories:

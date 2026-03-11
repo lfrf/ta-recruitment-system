@@ -56,6 +56,7 @@
 - Optional AI-assisted or explainable features are deliberately delayed until Sprint 4 so that they do not put the core delivery at risk.
 
 ## Team Requirements Workshop Note
-- The current backlog should be treated as a team-produced draft rather than as a single-author document.
-- The requirements evidence comes from shared Applicant, Module Organiser, and Admin discussions.
-- The backlog coordinator should continue refining the stories with input from all members, especially when adding acceptance criteria and confirming Sprint 1 boundaries.
+- The current backlog should be treated as a collaborative team draft rather than a single-author document.
+- The requirements evidence comes from shared discussion of Applicant, Module Organiser, and Admin needs.
+- Individual user stories may have been initially drafted by different members, but the backlog priorities and story direction were refined through team discussion.
+- This reflects the Agile expectation that user stories should emerge from collaborative understanding rather than isolated authorship.

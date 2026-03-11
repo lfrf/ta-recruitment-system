@@ -1,66 +1,29 @@
-# Interview Record Sample
+# Interview Record – Applicant Stakeholder
 
-## Basic Information
-- Interview date: 11 March 2026
-- Interviewer: Yuzhang Wu
-- Interviewee: Sample Applicant
-- Stakeholder type: Applicant
-- Interview format: Informal discussion
-- Duration: 10 minutes
+**Project:** TA Recruitment System  
+**Stakeholder role:** Applicant  
+**Interview type:** Semi-structured role-based discussion  
+**Date:** 2026-03-10  
+**Recorded by:** Group 27
 
----
+## Summary of Discussion
+The discussion suggested that applicants usually hear about TA opportunities through teachers, course groups, or direct announcements. Before applying, they want to see clear vacancy information, especially the module name, responsibilities, required skills, expected workload, and deadline.
 
-## Why this interview was done
-This interview was carried out to understand the applicant's needs and problems in the current TA application process.
+Applicants indicated that repeated form filling is inconvenient, particularly when applying for more than one role. A reusable profile would reduce repetition and make the process more efficient. They also want to upload a CV once and reuse it across applications where appropriate.
 
----
+After submitting an application, applicants expect confirmation that the submission was successful. They also want to track progress through visible status values such as `Submitted`, `Accepted`, or `Rejected`. A lack of visibility after submission is seen as one of the main weaknesses of the current manual process.
 
-## Questions and Answers
+## Main Pain Points
+- vacancy information is not always presented clearly in one place;
+- repeated entry of the same information is inconvenient;
+- applicants cannot easily track progress after submission.
 
-### Question 1
-**Question:** How do you usually find out about TA opportunities?  
-**Answer:** Usually through messages from teachers or course groups.
+## Derived Requirements
+- The system shall allow an applicant to create and maintain a reusable profile.
+- The system shall allow an applicant to upload a CV.
+- The system shall show clear vacancy details before application.
+- The system shall allow an applicant to apply for multiple roles.
+- The system shall display application status clearly after submission.
 
-### Question 2
-**Question:** What information do you want to see before applying?  
-**Answer:** I want to know the module name, the work required, and the expected time commitment.
-
-### Question 3
-**Question:** What is inconvenient in the current process?  
-**Answer:** The information is spread out and it is not easy to track what I have already applied for.
-
-### Question 4
-**Question:** Would you like to reuse your profile for multiple applications?  
-**Answer:** Yes, because filling in the same details again is repetitive.
-
-### Question 5
-**Question:** How would you like to check your application status?  
-**Answer:** I would like to see a clear status such as submitted, under review, accepted, or rejected.
-
----
-
-## Main Findings
-- Applicants want clear job information.
-- Applicants want a simpler application process.
-- Applicants want visible status tracking.
-
----
-
-## Pain Points
-- Job information is not always clear.
-- The current process feels repetitive.
-- Application status is hard to track.
-
----
-
-## Possible Requirements
-- The system should show clear job details.
-- The system should allow profile reuse.
-- The system should display application status clearly.
-
----
-
-## Notes for Backlog or Report
-- Related user stories: applicant profile, browse jobs, apply for job, check application status
-- Useful points for report writing: applicant pain points and expected workflow
-- Follow-up actions: compare with MO and admin findings
+## Notes
+This record is intended as evidence for early requirements analysis rather than as a formal transcript.

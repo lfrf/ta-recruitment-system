@@ -90,3 +90,17 @@
 - Screenshot of issues for the first assessment
 - Screenshot of branch or pull request activity
 - Screenshot of meeting notes or decision log committed to the repository
+
+## A8. User Story Collaboration Evidence
+
+The team treated user story creation as a collaborative refinement activity rather than as a single-author task. Stakeholder findings were first gathered from workshop discussion and interview preparation, then converted into backlog items through group discussion.
+
+Different members contributed to the user stories in different ways:
+- Yuzhang Wu contributed stakeholder evidence and proposed applicant- and admin-related stories.
+- Chensiyuan Qing structured the backlog and converted requirement statements into standard user story wording.
+- Fuhe Huang checked whether stories aligned with the intended interface and page flow.
+- Mu Du contributed validation, data consistency, reliability, and workload-risk stories from an implementation and testing perspective.
+- Tao Li refined wording and alignment with the main report and appendix.
+- Yifu Feng reviewed scope, priority, and consistency with overall project coordination.
+
+The final backlog therefore represents shared team understanding. Individual stories may have had different initial proposers, but wording, merging, prioritisation, and backlog structure were agreed collaboratively.

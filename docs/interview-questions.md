@@ -1,67 +1,52 @@
-# Interview Questions
+# Interview Questions for Stakeholder Fact-Finding
 
-## Why we made this document
-We made these questions to understand what different users need from the TA recruitment system. The questions focus on three main groups:
-- Applicants
-- Module Organisers (MO)
-- Admin staff
-
-The answers will help the team understand user needs, improve the backlog, and support the report.
+## Purpose
+These questions are designed to support early stakeholder fact-finding for the **TA Recruitment System**. They are intended for semi-structured discussion rather than rigid formal interviews. The goal is to understand stakeholder needs, current pain points, and the most important requirements for the first software version.
 
 ---
 
-## Questions for Applicants
+## 1. Questions for Applicants
 
-These questions are used to understand how applicants look for TA jobs, apply for them, and check their results.
-
-1. How do you usually find out about TA opportunities?
-2. What information do you want to see before applying for a TA role?
-3. What parts of the current application process are inconvenient or confusing?
-4. What information do you think should be included in your profile?
-5. Do you think uploading a CV is important? Why?
-6. Would you like to reuse the same profile for more than one application?
-7. How would you like to check the status of your application?
-8. Have you ever applied for more than one TA role at the same time? If yes, what problems did you have?
-9. What is the most important thing the system should do for applicants?
-10. What part of the process should be improved first?
+1. How do you usually hear about TA opportunities?
+2. What information do you want to see before deciding whether to apply?
+3. What information do you usually need to provide during an application?
+4. What parts of the current process feel inconvenient or repetitive?
+5. Would you prefer to reuse one profile for multiple applications? Why?
+6. What would you expect to see after submitting an application?
+7. Which application status updates would be most useful to you?
+8. What would make the application process clearer or easier?
 
 ---
 
-## Questions for Module Organisers (MO)
+## 2. Questions for Module Organisers
 
-These questions are used to understand how MOs post jobs, review applications, and choose applicants.
-
-1. What information do you need to include when posting a TA role?
-2. What do you usually look at when choosing a TA?
-3. What applicant information is the most useful to you?
-4. How do you currently keep track of different applicants?
-5. What is the hardest part of reviewing applicants?
-6. Do you need to see an applicant's workload before making a decision? Why?
-7. How would you like to accept or reject applicants in the system?
-8. Would it be useful to sort or filter applicants? If yes, by what?
-9. What would make the review process easier for you?
-10. What is the most important thing the system should do for MOs?
+1. What information do you need when posting a TA vacancy?
+2. What information do you look at when reviewing applicants?
+3. What difficulties do you face in the current recruitment process?
+4. How do you currently compare multiple applicants?
+5. What would make applicant review more efficient?
+6. What decision outcomes do you need to record?
+7. Do you need to see any workload or commitment information before making a decision?
+8. What functions would be essential in the first version of the system?
 
 ---
 
-## Questions for Admin Staff
+## 3. Questions for Admin Users
 
-These questions are used to understand how admin staff monitor workload and manage the whole process.
-
-1. How do you currently check the workload of TAs?
-2. When do you think a TA has too much workload?
-3. What kind of overview or summary would be most useful to you?
-4. Do you need to check one applicant across different jobs or modules?
-5. What records do you think the system should keep?
-6. What kinds of problems or conflicts do you need to spot?
-7. What part of the current process takes the most time?
-8. What information should admin staff be able to see?
-9. What would make the process easier to manage?
-10. What is the most important thing the system should do for admin staff?
+1. What recruitment information do you need to monitor overall?
+2. What problems do you face when workload information is stored manually?
+3. What kinds of conflict or overload cases are important to detect?
+4. What information should be visible in an admin overview?
+5. What level of detail is necessary in the first system version?
+6. How important are consistency and traceability in recruitment records?
+7. What would make admin checking faster and more reliable?
+8. Which admin functions are essential, and which can be postponed?
 
 ---
 
-## Notes
-- These are semi-structured interview questions.
-- Follow-up questions can be asked if needed.
-- The findings should be shared with the backlog owner and the report owner.
+## 4. Closing Questions for Any Stakeholder
+
+1. What is the biggest problem in the current recruitment process?
+2. What is the single most valuable feature the new system should provide?
+3. Are there any features that are unnecessary for the first release?
+4. Is there anything else you think the team should consider?

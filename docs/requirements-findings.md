@@ -25,6 +25,19 @@ The requirements process was organised as a collaborative workshop rather than a
 
 All members contributed to the discussion of stakeholder needs and the identification of core stories. Individual members may have drafted or edited specific stories, but the stories themselves were shaped through team discussion and review.
 
+## User Story Co-Creation Approach
+
+After the stakeholder findings were collected, the team collaboratively converted the requirements into user stories. Instead of treating backlog creation as a single-person writing task, the group used the findings as shared evidence and discussed how they should be represented in backlog form.
+
+The co-creation process followed four steps:
+
+1. stakeholder findings were grouped by role, including Applicant, Module Organiser, and Admin;
+2. different team members proposed candidate stories from the perspective most closely related to their work;
+3. overlapping or similar stories were merged and rewritten into the format “As a..., I want..., so that...”;
+4. priorities were then agreed collectively based on business value, feasibility, and importance to the first usable version.
+
+This means that although individual members may have suggested or drafted particular stories first, the final wording, scope, and priority of the stories were shaped through collaborative review. The product backlog therefore reflects shared team understanding rather than isolated authorship.
+
 ## Stakeholder Findings
 
 ### 1. TA Applicant

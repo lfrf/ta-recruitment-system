@@ -1,58 +1,29 @@
-# Applicant Requirements Discussion Record
+# Interview Record – Applicant Stakeholder
 
-## Basic Information
-- Session date: 2026-03-11
-- Session type: role-based discussion
-- Stakeholder focus: Applicant
-- Facilitator: Requirements and evidence coordinator
-- Participants: all six team members
-- Notes owner: Requirements and evidence coordinator
+**Project:** TA Recruitment System  
+**Stakeholder role:** Applicant  
+**Interview type:** Semi-structured role-based discussion  
+**Date:** 2026-03-10  
+**Recorded by:** Group 27
 
-## Questions and Answers
+## Summary of Discussion
+The discussion suggested that applicants usually hear about TA opportunities through teachers, course groups, or direct announcements. Before applying, they want to see clear vacancy information, especially the module name, responsibilities, required skills, expected workload, and deadline.
 
-### Question 1
-**Question:** How do you currently find available TA opportunities?  
-**Answer summary:** Usually through messages from teachers, course groups, or direct announcements.
+Applicants indicated that repeated form filling is inconvenient, particularly when applying for more than one role. A reusable profile would reduce repetition and make the process more efficient. They also want to upload a CV once and reuse it across applications where appropriate.
 
-### Question 2
-**Question:** What information do you need before deciding whether to apply?  
-**Answer summary:** Module name, job duties, required skills, expected workload, and deadline are the most important items.
+After submitting an application, applicants expect confirmation that the submission was successful. They also want to track progress through visible status values such as `Submitted`, `Accepted`, or `Rejected`. A lack of visibility after submission is seen as one of the main weaknesses of the current manual process.
 
-### Question 3
-**Question:** Which part of the current application process is the most inconvenient?  
-**Answer summary:** Re-entering the same personal details and checking different places for job information make the process repetitive.
+## Main Pain Points
+- vacancy information is not always presented clearly in one place;
+- repeated entry of the same information is inconvenient;
+- applicants cannot easily track progress after submission.
 
-### Question 4
-**Question:** Would you like to reuse the same profile for multiple applications? Why?  
-**Answer summary:** Yes. Reusing one profile and one CV would save time and reduce repeated form filling.
+## Derived Requirements
+- The system shall allow an applicant to create and maintain a reusable profile.
+- The system shall allow an applicant to upload a CV.
+- The system shall show clear vacancy details before application.
+- The system shall allow an applicant to apply for multiple roles.
+- The system shall display application status clearly after submission.
 
-### Question 5
-**Question:** How would you like to check your application status?  
-**Answer summary:** A simple status list such as `Submitted`, `Accepted`, or `Rejected` would be the clearest.
-
-## Key Findings
-- applicants want clear job details in one place
-- applicants want a reusable profile and CV record
-- applicants want visible application status
-
-## Pain Points
-- job information is scattered
-- repeated form filling wastes time
-- application progress is hard to track
-
-## Candidate Requirements
-
-### Functional
-- The system shall allow an applicant to create and edit a profile.
-- The system shall allow an applicant to upload and reuse a CV.
-- The system shall show job details clearly before application.
-- The system shall display application status after submission.
-
-### Non-functional
-- The application process should be simple and easy to understand.
-- Status labels should be consistent across the system.
-
-## Backlog and Report Notes
-- related user stories: profile, CV upload, browse jobs, view job details, apply for job, view application status
-- useful points for the brief report: repeated data entry and weak status visibility are major applicant pain points
-- follow-up actions: align prototype screens with the agreed applicant workflow
+## Notes
+This record is intended as evidence for early requirements analysis rather than as a formal transcript.

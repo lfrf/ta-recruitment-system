@@ -1,28 +1,29 @@
 # Team Requirements Findings for Group 27
 
 ## Purpose
-This document summarises the current requirements findings for the **TA Recruitment System**. It is intended to show that requirements work was carried out as a team activity rather than as an isolated individual task. The team used a combination of background reading, role-based discussion, and shared review to identify stakeholder needs and convert them into backlog items.
+This document summarises the requirements findings for the **TA Recruitment System**. The purpose of the document is not only to record stakeholder needs, but also to show that the requirements work was carried out collaboratively. In line with Agile practice, the team treated requirement discovery and user story formation as a shared activity. While some members were responsible for coordination or documentation, the understanding of stakeholder needs and the refinement of user stories came from team discussion.
 
 ## Evidence Sources
-The findings in this document are based on the following sources:
-
-- project brief and course lecture material;
-- group discussion of the current recruitment workflow;
-- role-based requirements workshop covering Applicant, Module Organiser, and Admin perspectives;
-- draft interview questions and discussion records;
-- backlog review based on the first set of candidate stories.
+The findings in this document are based on:
+- the project brief and lecture material;
+- collaborative workshop discussion of the recruitment workflow;
+- stakeholder-oriented discussion covering Applicant, Module Organiser, and Admin perspectives;
+- draft interview questions and interview records;
+- shared review of the first set of user stories and backlog items.
 
 ## Team Participation Summary
-The team used a shared workshop format so that all six members could contribute to the requirements stage from different perspectives.
+The requirements process was organised as a collaborative workshop rather than a one-person task.
 
-| Team role | Contribution to requirements work |
+| Team member | Main contribution |
 |---|---|
-| Leader and GitHub coordination | Confirmed project scope, technical constraints, and iteration boundaries |
-| Requirements and evidence coordinator | Collected questions, notes, and findings from the requirements discussion |
-| Product backlog and prioritisation coordinator | Converted agreed needs into user stories, priorities, and sprint planning inputs |
-| Prototype and UX coordinator | Checked whether the early page flow matched the identified user needs |
-| Report and appendix coordinator | Integrated the findings into the brief report and supporting materials |
-| Testing and implementation preparation coordinator | Identified validation, consistency, and reliability concerns for later implementation |
+| Yifu Feng | Confirmed project scope, technical direction, and coordination arrangements |
+| Yuzhang Wu | Initiated stakeholder fact-finding and recorded the workshop and interview outputs |
+| Chensiyuan Qing | Refined early backlog items and helped structure user stories |
+| Fuhe Huang | Checked whether proposed stories were aligned with the intended interface and page flow |
+| Tao Li | Integrated requirements findings into the report and supporting appendix |
+| Mu Du | Considered implementation and testing implications such as validation and reliability |
+
+All members contributed to the discussion of stakeholder needs and the identification of core stories. Individual members may have drafted or edited specific stories, but the stories themselves were shaped through team discussion and review.
 
 ## Stakeholder Findings
 
@@ -128,4 +129,4 @@ These findings support treating the following as the highest-priority backlog it
 - applicant review and decision update;
 - admin workload checking.
 
-The findings also support delaying advanced matching or recommendation features until the core workflow is stable.
+The team used these findings to shape the initial backlog collaboratively. Some stories were first drafted by individual members, but the final direction, wording, and priority were discussed and reviewed as a group. This is consistent with the Agile principle that what matters most is not who first wrote a user story, but who took part in discussing and refining it.

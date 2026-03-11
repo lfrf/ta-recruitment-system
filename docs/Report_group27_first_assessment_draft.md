@@ -21,7 +21,7 @@ The team used three fact-finding techniques introduced in the module: **backgrou
 
 Background reading was used to understand the project brief, mandatory constraints, and the high-level recruitment workflow. This helped the team identify the likely users, core functions, and delivery restrictions before writing any stories.
 
-Interviewing was used to gather role-specific needs from the three stakeholder groups. Semi-structured questions were prepared for applicants, MOs, and Admin users. The interviews focused on current pain points, required information, important actions, and expected outputs. Early findings suggest that applicants care most about clear job information and visible status updates, MOs care most about efficient review and decision recording, and Admin users care most about workload visibility and fairness.
+Interviewing was used in the form of a team requirements workshop and role-based discussion. Semi-structured questions were prepared for applicants, MOs, and Admin users, and all six team members contributed to the discussion and review of the findings. The interviews focused on pain points, required information, important actions, and expected outputs. The main findings were that applicants care most about clear job information and status visibility, MOs care most about efficient review and decision recording, and Admin users care most about workload visibility and consistency.
 
 Document analysis was used to examine the manual workflow and the likely data items required by the system. This helped identify key entities such as applicant profile, vacancy, application, decision, and workload record. It also supported the identification of non-functional concerns, especially consistency, traceability, and validation.
 
@@ -35,7 +35,7 @@ Key non-functional requirements were also identified. The system must comply wit
 
 The team organised the requirements into epics and then decomposed them into user stories. For example, **Applicant Onboarding** includes registering an account, maintaining a profile, and uploading a CV. **MO Recruitment** includes posting a job, viewing applicants, and recording decisions. This structure makes large requirements easier to estimate, prioritise, and allocate across iterations.
 
-Each story was written in the form **“As a..., I want..., so that...”** and supported by acceptance criteria. For example, the job application story requires the application to be stored correctly, the initial status to be set to *Submitted*, and duplicate applications to be prevented. Acceptance criteria reduce ambiguity and create a clear link between requirements, implementation, and later testing.
+Each story was written in the form **"As a..., I want..., so that..."** and supported by acceptance criteria. For example, the job application story requires the application to be stored correctly, the initial status to be set to *Submitted*, and duplicate applications to be prevented. Acceptance criteria reduce ambiguity and create a clear link between requirements, implementation, and later testing.
 
 ## 4. Prioritisation and Estimation
 

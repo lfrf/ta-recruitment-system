@@ -52,3 +52,8 @@
   - `US09 Apply for a job`
   - `US15 View applicants for a job`
 - Optional AI-assisted features are deliberately delayed until Sprint 4 so they do not endanger the core delivery.
+
+## Team requirements workshop note
+- The current backlog should be treated as a team-produced draft rather than a single-author document.
+- The requirements evidence comes from shared Applicant, Module Organiser, and Admin discussions.
+- The backlog coordinator should continue refining these stories with input from all members, especially when updating acceptance criteria and Sprint 1 scope.

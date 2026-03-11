@@ -1,26 +1,58 @@
 # Interview Record Template
 
-- Interview date:
-- Interviewer:
-- Interviewee role:
-- Interviewee identifier:
+## Basic Information
+- Session date:
+- Session type: individual interview / group workshop / role-based discussion
+- Stakeholder focus: Applicant / Module Organiser / Admin
+- Facilitator:
+- Participants:
+- Notes owner:
 
-## Questions asked
-1. 
-2. 
-3. 
-4. 
-5. 
+## Questions and Answers
 
-## Key findings
+### Question 1
+**Question:**  
+**Answer summary:**  
+
+### Question 2
+**Question:**  
+**Answer summary:**  
+
+### Question 3
+**Question:**  
+**Answer summary:**  
+
+### Question 4
+**Question:**  
+**Answer summary:**  
+
+### Question 5
+**Question:**  
+**Answer summary:**  
+
+## Key Findings
+- 
+- 
 - 
 
-## Problems mentioned
+## Pain Points
+- 
+- 
 - 
 
-## Candidate requirements derived
-- Functional:
-- Non-functional:
+## Candidate Requirements
 
-## Follow-up actions
+### Functional
 - 
+- 
+- 
+
+### Non-functional
+- 
+- 
+- 
+
+## Backlog and Report Notes
+- related user stories:
+- useful points for the brief report:
+- follow-up actions:

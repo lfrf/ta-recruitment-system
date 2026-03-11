@@ -2,11 +2,21 @@
 
 **Project:** TA Recruitment System  
 **Date:** 2026-03-10  
-**Participants:** All six team members  
-**Format:** Role-based requirements discussion
+**Participants:** Yifu Feng, Yuzhang Wu, Chensiyuan Qing, Fuhe Huang, Tao Li, Mu Du  
+**Workshop format:** Team-based role discussion  
+**Notes recorded by:** Yuzhang Wu
 
 ## Workshop Purpose
-The purpose of this workshop was to collect early requirements evidence for the TA Recruitment System by discussing the needs of three main stakeholder groups: **Applicant**, **Module Organiser**, and **Admin**. The session focused on the current recruitment workflow, existing pain points, important data items, and the most valuable features for the first release.
+The purpose of this workshop was to collect early requirements evidence for the TA Recruitment System through a collaborative team discussion. Rather than assigning requirement discovery to only one person, the whole team participated in analysing the needs of the three main stakeholder groups: **Applicant**, **Module Organiser**, and **Admin**. This approach helped ensure that the resulting user stories and backlog items were shaped through shared discussion rather than individual interpretation.
+
+## How the workshop was conducted
+The team discussed the recruitment process from three stakeholder perspectives. Different members contributed examples, questions, and candidate feature ideas based on the project brief and the expected workflow. Yuzhang Wu was responsible for initiating the stakeholder fact-finding activity and recording the discussion outcomes, while all team members contributed to identifying pain points, clarifying priorities, and refining the initial user story ideas.
+
+The workshop focused on:
+- the current manual recruitment workflow;
+- the main difficulties faced by each stakeholder group;
+- the most useful features for an early software version;
+- the boundaries between essential functionality and optional future enhancements.
 
 ## Stakeholder 1: Applicant
 
@@ -14,7 +24,7 @@ The purpose of this workshop was to collect early requirements evidence for the 
 - Applicants need clear vacancy information before deciding whether to apply.
 - Important vacancy details include module name, job responsibilities, required skills, workload, and deadline.
 - Applicants do not want to repeatedly enter the same personal information for different applications.
-- Applicants want to know whether their application has been submitted successfully and how its status changes later.
+- Applicants want confirmation after submission and visible status updates later.
 
 ### Main needs identified
 - reusable applicant profile;
@@ -29,7 +39,7 @@ The purpose of this workshop was to collect early requirements evidence for the 
 - MOs need a simple way to create and publish TA vacancies.
 - They need to review applicants using consistent information rather than scattered files.
 - Applicant profile information and CV content are both important during review.
-- MOs need to record decisions clearly and avoid confusion across multiple applicants.
+- MOs need to record decisions clearly and consistently.
 
 ### Main needs identified
 - vacancy creation and publishing;
@@ -52,15 +62,16 @@ The purpose of this workshop was to collect early requirements evidence for the 
 - overload/conflict visibility;
 - consistent recruitment records.
 
-## Common Findings
-Across all roles, the team identified the following recurring requirements:
+## Common Findings from Team Discussion
+Across all stakeholder perspectives, the team identified the following recurring needs:
 
 - the workflow should be easier to track than the current manual process;
 - information should be stored in a more consistent and structured way;
 - status values should be clear and visible;
-- the first version should focus on the core recruitment flow rather than optional advanced features.
+- the first version should focus on the core recruitment flow rather than advanced optional features.
 
 ## Early Scope Decision
+The team agreed that the first version should focus on a realistic minimum end-to-end workflow.
 
 ### In scope
 - applicant profile and CV handling;
@@ -76,9 +87,10 @@ Across all roles, the team identified the following recurring requirements:
 - complex role and permission frameworks.
 
 ## Workshop Outcome
-The workshop results were used as the evidence base for:
-
+The workshop results were used as a shared evidence base for:
 - drafting stakeholder interview records;
 - producing the requirements findings summary;
 - shaping the initial product backlog;
 - writing the first assessment brief report.
+
+The discussion also informed the first set of user stories. Although different team members may draft individual stories, the team agreed that user stories should reflect collaborative discussion and shared understanding rather than isolated authorship.

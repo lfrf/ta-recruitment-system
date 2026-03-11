@@ -26,7 +26,11 @@ Interviewing was carried out through a team requirements workshop supported by s
 Document analysis was used to examine the current manual workflow and the likely data items required by the proposed system. This helped the team identify key entities such as applicant profile, vacancy, application, review decision, and workload record. It also supported the identification of non-functional concerns, particularly consistency, traceability, validation, and usability.
 
 Using these three techniques together allowed the team to move from a broad problem statement to a more focused, evidence-based set of requirements and backlog items.
+## Team Collaboration in Requirements Work
 
+The team approached requirement discovery as a collaborative activity. Although responsibilities were allocated across members for coordination and documentation, the requirements were not treated as the work of one individual alone. Stakeholder perspectives were discussed in a shared workshop, and the resulting user stories were reviewed and refined by the group.
+
+Yuzhang Wu was responsible for initiating the stakeholder fact-finding activity and completing the interview records, which provided the evidence base for the next stage. However, the interpretation of stakeholder needs, the identification of priorities, and the drafting of backlog items involved the participation of all team members. This approach is consistent with Agile practice, where the value of a user story depends less on who first writes it and more on who contributes to discussing and refining it.
 ## 3. Requirements and Backlog Formation
 
 The findings from fact-finding were converted into both functional and non-functional requirements. The main functional requirements are that applicants can register, maintain profiles, upload CVs, browse vacancies, apply for roles, and view application status; MOs can post vacancies, review applicants, and record decisions; and admin users can review overall TA workload.

@@ -1,5 +1,10 @@
 # TA Recruitment System
 
+## 📋 Group Name-list
+
+- Norman-Ou: 190898878 (Support TA)
+- {Github ID}: {QMID} (Lead/Member)
+
 Software Engineering group project for `EBU6304`.
 
 ## Project focus

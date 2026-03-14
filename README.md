@@ -3,7 +3,7 @@
 ## 📋 Group Name-list
 
 - Norman-Ou: 190898878 (Support TA)
-- {Github ID}: {QMID} (Lead/Member)
+- Fuhe-Huang: 2023213214 (member)
 
 Software Engineering group project for `EBU6304`.
 

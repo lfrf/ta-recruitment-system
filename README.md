@@ -5,6 +5,7 @@
 - Norman-Ou: 190898878 (Support TA)
 - lfrf: 231222017 (Lead)
 - TsingChen: 231220806 (Member)
+- fuhehuang111: 231221054 (Member) 
 - {Github ID}: {QMID} (Lead/Member)
 
 Software Engineering group project for `EBU6304`.

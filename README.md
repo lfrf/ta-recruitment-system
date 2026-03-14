@@ -6,7 +6,8 @@
 - lfrf: 231222017 (Lead)
 - TsingChen: 231220806 (Member)
 - fuhehuang111: 231221054 (Member)
-- SIMON48623:23122272 (Member)
+- SIMON48623:231222729 (Member)
+- dm742：231220297 (Member)
 - {Github ID}: {QMID} (Lead/Member)
 
 Software Engineering group project for `EBU6304`.

@@ -8,7 +8,7 @@
 - fuhehuang111: 231221054 (Member)
 - SIMON48623:231222729 (Member)
 - dm742：231220297 (Member)
-- {Github ID}: {QMID} (Lead/Member)
+- 2023213300： 231221582
 
 Software Engineering group project for `EBU6304`.
 

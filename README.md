@@ -3,6 +3,7 @@
 ## 📋 Group Name-list
 
 - Norman-Ou: 190898878 (Support TA)
+- lfrf: 231222017 (Lead)
 - {Github ID}: {QMID} (Lead/Member)
 
 Software Engineering group project for `EBU6304`.

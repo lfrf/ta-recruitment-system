@@ -57,12 +57,6 @@
 
 ## P05 Job List
 - Title: `Available TA Jobs`
-- Search placeholder:
-  - `Search by module or skill`
-- Filter labels:
-  - `Module`
-  - `Required Skill`
-  - `Status`
 - Example card text:
   - `TA for Software Engineering Lab`
   - `Module: EBU6304`
@@ -81,6 +75,9 @@
   - `Required Skills`
   - `Expected Workload`
   - `Application Deadline`
+  - `Current Applicants`
+- Example transparency text:
+  - `12 applicants have already applied for this role.`
 - Buttons:
   - `Apply for This Job`
   - `Back to Job List`
@@ -96,13 +93,15 @@
   - `Module`
   - `Submitted On`
   - `Status`
+  - `Optional Feedback`
   - `Last Updated`
 - Example statuses:
   - `Submitted`
-  - `Accepted`
-  - `Rejected`
-- Optional button:
-  - `Withdraw`
+  - `Offered`
+  - `Unsuccessful`
+- Example optional feedback:
+  - `Good overall fit for the module.`
+  - `No additional comment provided.`
 
 ## P08 MO Dashboard
 - Title: `Module Organiser Dashboard`
@@ -112,8 +111,6 @@
   - `Review Applicants`
 - Buttons:
   - `Post Job`
-  - `Edit`
-  - `Close Job`
   - `View Applicants`
 
 ## P09 Post Job Form
@@ -140,14 +137,15 @@
   - `Availability`
 - Right panel labels:
   - `CV`
+  - `Applicant Workload`
   - `Review Notes`
   - `Decision`
 - Buttons:
-  - `Accept`
-  - `Reject`
+  - `Offer`
+  - `Mark Unsuccessful`
   - `Save Notes`
 - Success copy:
-  - `Application status updated successfully.`
+  - `Application outcome updated successfully.`
 
 ## P11 Admin Workload Dashboard
 - Title: `TA Workload Overview`
@@ -168,14 +166,14 @@
   - `This field cannot be empty.`
   - `Duplicate application detected.`
   - `The selected file could not be read. Please try again.`
-  - `No jobs match your search criteria.`
-  - `This action is not available because the job is closed.`
+  - `No jobs match the current data condition.`
+  - `This action is not available because the vacancy is closed or unavailable.`
 
 ## Consistency rules
 - Use the same status terms everywhere:
   - `Submitted`
-  - `Accepted`
-  - `Rejected`
+  - `Offered`
+  - `Unsuccessful`
 - Use the same role names everywhere:
   - `Applicant`
   - `Module Organiser`

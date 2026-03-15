@@ -7,7 +7,7 @@
 
 ## Main user flows to cover
 - `MO posts a job -> Applicant browses jobs -> Applicant views details -> Applicant applies -> MO reviews applicants`
-- `Applicant checks application status`
+- `Applicant checks application status and optional feedback`
 - `Admin checks TA workload`
 
 ## Page list
@@ -21,8 +21,7 @@
   - register button
   - error message area
 - Linked stories:
-  - `US01`
-  - `US02`
+  - supporting access screen for role-based flows
 
 ### P02 Applicant Registration
 - Purpose: create a new applicant account
@@ -46,10 +45,10 @@
   - application status button
   - logout button
 - Linked stories:
+  - `US01`
+  - `US02`
   - `US03`
-  - `US04`
-  - `US06`
-  - `US11`
+  - `US07`
 
 ### P04 Applicant Profile
 - Purpose: create or edit applicant information
@@ -63,23 +62,20 @@
   - upload CV button
   - save button
 - Linked stories:
-  - `US03`
-  - `US04`
-  - `US05`
+  - `US01`
+  - `US02`
 
 ### P05 Job List
 - Purpose: browse open vacancies
 - Main elements:
-  - search box
-  - filter dropdown
   - job cards or table
   - module name
   - deadline
   - required skills
   - view details button
 - Linked stories:
+  - `US03`
   - `US06`
-  - `US08`
 
 ### P06 Job Details
 - Purpose: allow the applicant to decide whether to apply
@@ -90,22 +86,24 @@
   - required skills
   - workload
   - deadline
+  - current applicant count
   - apply button
   - back to list button
 - Linked stories:
-  - `US07`
-  - `US09`
+  - `US04`
+  - `US05`
+  - `US23`
 
 ### P07 Application Status
 - Purpose: show the applicant's application history and current status
 - Main elements:
   - application list
-  - status labels: `Submitted`, `Accepted`, `Rejected`
+  - status labels: `Submitted`, `Offered`, `Unsuccessful`
+  - optional short feedback area
   - last updated date
-  - optional withdraw button for pending cases
 - Linked stories:
-  - `US11`
-  - `US12`
+  - `US07`
+  - `US22`
 
 ### P08 MO Dashboard
 - Purpose: central page for Module Organisers
@@ -113,12 +111,10 @@
   - post job button
   - current job list
   - applicant review shortcut
-  - close or edit job action
   - logout button
 - Linked stories:
-  - `US13`
-  - `US14`
-  - `US15`
+  - `US09`
+  - `US10`
 
 ### P09 Post Job Form
 - Purpose: create a new TA vacancy
@@ -130,9 +126,9 @@
   - expected workload
   - deadline
   - post button
-  - save draft or cancel button
+  - cancel button
 - Linked stories:
-  - `US13`
+  - `US09`
 
 ### P10 Applicant Review Page
 - Purpose: review candidates for one job
@@ -141,14 +137,16 @@
   - applicant list
   - applicant profile preview
   - CV link or view button
-  - accept button
-  - reject button
+  - applicant workload summary
+  - offer button
+  - mark unsuccessful button
   - notes field
 - Linked stories:
-  - `US15`
-  - `US16`
-  - `US17`
-  - `US18`
+  - `US10`
+  - `US11`
+  - `US12`
+  - `US13`
+  - `US21`
 
 ### P11 Admin Workload Dashboard
 - Purpose: show accepted workload across TAs
@@ -159,9 +157,9 @@
   - filter by TA or module
   - overload flag
 - Linked stories:
-  - `US19`
-  - `US20`
-  - `US21`
+  - `US14`
+  - `US15`
+  - `US16`
 
 ### P12 Validation and Error States
 - Purpose: demonstrate usability and robustness
@@ -170,10 +168,10 @@
   - duplicate application warning
   - invalid login message
   - file error message
+  - no matching or unavailable action message
 - Linked stories:
-  - `US10`
-  - `US22`
-  - `US23`
+  - `US17`
+  - `US18`
 
 ## Navigation summary
 - `P01 -> P02` for new applicant registration
@@ -203,4 +201,5 @@
 - Clear navigation
 - Required fields and validation
 - Visible status changes
-- Workload visibility for admin
+- Optional transparency features such as applicant count and lightweight feedback
+- Workload visibility for admin and MO review

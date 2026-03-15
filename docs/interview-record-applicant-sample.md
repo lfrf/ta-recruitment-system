@@ -1,4 +1,4 @@
-# Interview Record – Applicant Stakeholder
+# Interview Record - Applicant Stakeholder
 
 **Project:** TA Recruitment System  
 **Stakeholder role:** Applicant  
@@ -11,7 +11,7 @@ The discussion suggested that applicants usually hear about TA opportunities thr
 
 Applicants indicated that repeated form filling is inconvenient, particularly when applying for more than one role. A reusable profile would reduce repetition and make the process more efficient. They also want to upload a CV once and reuse it across applications where appropriate.
 
-After submitting an application, applicants expect confirmation that the submission was successful. They also want to track progress through visible status values such as `Submitted`, `Accepted`, or `Rejected`. A lack of visibility after submission is seen as one of the main weaknesses of the current manual process.
+After submitting an application, applicants expect confirmation that the submission was successful. They also want to track progress through visible status values such as `Submitted`, `Offered`, or `Unsuccessful`. A lack of visibility after submission is seen as one of the main weaknesses of the current manual process. Some applicants may also find it useful to see how many people have already applied for a vacancy.
 
 ## Main Pain Points
 - vacancy information is not always presented clearly in one place;
@@ -24,6 +24,7 @@ After submitting an application, applicants expect confirmation that the submiss
 - The system shall show clear vacancy details before application.
 - The system shall allow an applicant to apply for multiple roles.
 - The system shall display application status clearly after submission.
+- The system should allow applicant-visible vacancy application counts when this transparency feature is enabled.
 
 ## Notes
 This record is intended as evidence for early requirements analysis rather than as a formal transcript.

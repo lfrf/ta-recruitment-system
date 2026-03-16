@@ -1,4 +1,4 @@
-# Requirements Workshop Notes – Group 27
+# Requirements Workshop Notes - Group 27
 
 **Project:** TA Recruitment System  
 **Date:** 2026-03-10  
@@ -70,6 +70,17 @@ Across all stakeholder perspectives, the team identified the following recurring
 - status values should be clear and visible;
 - the first version should focus on the core recruitment flow rather than advanced optional features.
 
+## Later Refinement from the Follow-Up TA Interview
+On 2026-03-13, the team added a follow-up interview with an experienced TA to validate the real workflow. This later evidence clarified that:
+
+- vacancies are often announced through the Information Portal or QR-code forms;
+- module-specific skills and prior course knowledge matter in practice;
+- successful applicants are commonly informed by email;
+- detailed rejection reasons are usually not provided;
+- tutorial-support scheduling happens later and should not expand the early system scope.
+
+This follow-up did not replace the workshop results. Instead, it refined the scope and helped the team align the backlog with the real process. The interview evidence was treated as one important input to team decision-making rather than as a complete definition of what the final system must do.
+
 ## Early Scope Decision
 The team agreed that the first version should focus on a realistic minimum end-to-end workflow.
 
@@ -83,8 +94,10 @@ The team agreed that the first version should focus on a realistic minimum end-t
 ### Out of scope
 - database integration;
 - third-party platform integration;
+- automated email integration;
 - advanced AI recommendation or ranking;
-- complex role and permission frameworks.
+- complex role and permission frameworks;
+- post-recruitment tutorial-support scheduling.
 
 ## Workshop Outcome
 The workshop results were used as a shared evidence base for:

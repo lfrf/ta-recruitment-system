@@ -1,4 +1,4 @@
-# Prototype Plan for Group 27
+﻿# Prototype Plan for Group 27
 
 ## Recommended prototype level
 - Use `medium-fidelity`.
@@ -6,14 +6,14 @@
 - Focus on workflow clarity, not visual polish.
 
 ## Main user flows to cover
-- `Applicant logs in -> browses jobs -> views details -> applies within the current limit -> checks status`
+- `Visitor browses jobs -> views details -> logs in when needed -> applicant applies -> checks status`
 - `MO posts a job -> reviews applicants -> sees profile, CV, and workload context -> records outcome`
 - `Admin reviews workload -> updates max_workload -> manages blacklist entries`
 
 ## Page list
 
 ### P01 Login
-- Purpose: entry point for all users
+- Purpose: sign-in page opened from the visitor interface or role-specific access
 - Main elements:
   - email or username field
   - password field
@@ -38,7 +38,7 @@
   - `US24`
 
 ### P03 Applicant Dashboard
-- Purpose: central navigation page for applicants
+- Purpose: central navigation page for authenticated applicants
 - Main elements:
   - profile shortcut
   - uploaded CV status
@@ -50,7 +50,6 @@
 - Linked stories:
   - `US01`
   - `US02`
-  - `US03`
   - `US06`
   - `US07`
   - `US24`
@@ -75,9 +74,11 @@
   - `US01`
   - `US02`
 
-### P05 Job List
-- Purpose: browse open vacancies
+### P05 Visitor Job List
+- Purpose: allow browsing of open vacancies before login
 - Main elements:
+  - visitor header
+  - top-right login button
   - job cards or table
   - module name
   - deadline
@@ -86,11 +87,12 @@
   - view details button
 - Linked stories:
   - `US03`
-  - `US06`
+  - `US24`
 
 ### P06 Job Details
-- Purpose: allow the applicant to decide whether to apply
+- Purpose: allow the visitor or applicant to decide whether to apply
 - Main elements:
+  - top-right login button
   - job title
   - module
   - description
@@ -106,6 +108,7 @@
   - `US05`
   - `US06`
   - `US23`
+  - `US24`
 
 ### P07 Application Status
 - Purpose: show the applicant's application history and current status
@@ -186,6 +189,7 @@
   - empty required field warning
   - duplicate application warning
   - invalid login message
+  - login-required prompt for restricted actions
   - max-workload-reached message
   - blacklist-related restriction message
   - file error message
@@ -199,8 +203,8 @@
   - `US26`
 
 ## Navigation summary
+- `P05 -> P06 -> P01 -> P03`
 - `P01 -> P02` for new applicant registration
-- `P01 -> P03` for applicant login
 - `P03 -> P04 -> P03`
 - `P03 -> P05 -> P06 -> P07`
 - `P01 -> P08 -> P09 -> P08`
@@ -208,12 +212,12 @@
 - `P01 -> P11`
 
 ## Recommended export order for the PDF
-1. Login
-2. Registration
-3. Applicant dashboard
-4. Applicant profile
-5. Job list
-6. Job details
+1. Visitor job list
+2. Job details
+3. Login
+4. Registration
+5. Applicant dashboard
+6. Applicant profile
 7. Application status
 8. MO dashboard
 9. Post job form
@@ -222,8 +226,9 @@
 12. Validation and error states
 
 ## What to show during marking
-- Consistent role-based flows
-- Login before role-specific access
+- Public browsing before login
+- Visible login entry from the visitor interface
+- Login only when the user attempts a protected action
 - Detailed applicant profile structure, not only CV upload
 - Required fields and validation
 - Visible status changes

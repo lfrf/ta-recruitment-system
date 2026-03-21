@@ -1,4 +1,4 @@
-# Prototype Page Copy for Group 27
+﻿# Prototype Page Copy for Group 27
 
 ## P01 Login
 - Title: `TA Recruitment System`
@@ -62,20 +62,24 @@
   - `Please complete all required profile fields before saving.`
   - `Student ID, email, degree/programme, and availability are required.`
 
-## P05 Job List
-- Title: `Available TA Jobs`
+## P05 Visitor Job List
+- Title: `Visitor Interface`
+- Subtitle: `Please log in first to access personal features`
+- Top-right action:
+  - `Log In`
 - Example card text:
-  - `TA for Software Engineering Lab`
-  - `Module: EBU6304`
-  - `Deadline: 20 March 2026`
-  - `Skills: Java, communication, lab support`
-  - `Expected Workload: 1 role`
+  - `Teaching Assistant`
+  - `Assist with lab sessions, grade assignments, and provide student support for the introductory programming course.`
+  - `Required Skills: Python, Communication, Problem Solving`
+  - `12 applicants`
+  - `Open`
 - Buttons:
   - `View Details`
-  - `Back to Dashboard`
 
 ## P06 Job Details
 - Title: `Job Details`
+- Top-right action:
+  - `Log In`
 - Fields:
   - `Job Title`
   - `Module`
@@ -94,6 +98,7 @@
 - Success copy:
   - `Your application has been submitted successfully.`
 - Warning copy:
+  - `Please log in to apply for this vacancy.`
   - `You have already applied for this job.`
   - `You have reached the current maximum of 3 applications.`
 
@@ -191,6 +196,8 @@
   - `This field cannot be empty.`
   - `Duplicate application detected.`
   - `Invalid email or password. Please try again.`
+  - `Please log in to apply for this vacancy.`
+  - `Please log in to view your profile or application status.`
   - `You have reached the current maximum of 3 applications.`
   - `This applicant is currently blacklisted for future recruitment.`
   - `The selected file could not be read. Please try again.`
@@ -203,6 +210,7 @@
   - `Offered`
   - `Unsuccessful`
 - Use the same role names everywhere:
+  - `Visitor`
   - `Applicant`
   - `Module Organiser`
   - `Admin`

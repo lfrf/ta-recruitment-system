@@ -1,7 +1,7 @@
-# Team Requirements Findings for Group 27
+﻿# Team Requirements Findings for Group 27
 
 ## Purpose
-This document records the latest requirements findings for the **TA Recruitment System** after the earlier workshop, the 2026-03-13 follow-up TA interview, the later teaching-staff review, and the analysis of a sample TA CV/resume. The new feedback was treated as supporting evidence to refine the backlog, not as a direct specification that must be copied blindly.
+This document records the latest requirements findings for the **TA Recruitment System** after the earlier workshop, the 2026-03-13 follow-up TA interview, the later teaching-staff review, the 2026-03-21 visitor-access feedback, and the analysis of a sample TA CV/resume. The new feedback was treated as supporting evidence to refine the backlog, not as a direct specification that must be copied blindly.
 
 ## Evidence Sources
 - project brief and lecture material;
@@ -9,6 +9,7 @@ This document records the latest requirements findings for the **TA Recruitment 
 - stakeholder-oriented questions for Applicant, MO, and Admin;
 - follow-up interview with an experienced TA on 2026-03-13;
 - teaching-staff backlog review on 2026-03-20;
+- teaching-staff interface feedback on 2026-03-21;
 - document analysis of a sample TA CV/resume.
 
 ## Team Participation Summary
@@ -26,6 +27,7 @@ This document records the latest requirements findings for the **TA Recruitment 
 ### TA Applicant
 Main findings:
 - Applicants need clear vacancy details: module, duties, skills, workload, deadline, and optionally current applicant count.
+- Applicants should be able to browse vacancy information before logging in. A visible login entry should remain available from the public browsing interface.
 - The applicant profile should be more structured than a simple name-and-skills form. Based on the sample CV, it should include:
   - full name, student ID, email, and phone number;
   - degree/programme and year of study;
@@ -35,14 +37,16 @@ Main findings:
   - project or leadership experience;
   - availability;
   - CV reference.
-- Applicants need login so that their profile and applications are linked to the correct account.
+- Applicants need login for restricted actions so that their profile, applications, and status records are linked to the correct account.
 - Applicants may apply for more than one role, but the later review suggested the system should show and enforce a configurable role limit from the start. The initial default can be `3`, controlled by an admin parameter.
 - Applicants want clear application status and may benefit from optional short feedback.
 
 Derived requirements:
 - The system shall support detailed reusable applicant profiles.
 - The system shall support CV upload.
-- The system shall support login.
+- The system shall allow public browsing of vacancy lists and vacancy details before login.
+- The system shall provide a visible login entry from the public vacancy interface.
+- The system shall require login before profile, application, or status actions are allowed.
 - The system shall show clear vacancy details.
 - The system shall allow multiple applications only within the current `max_workload` limit.
 - The system shall show application status clearly.
@@ -80,6 +84,7 @@ Derived requirements:
 ## Cross-Cutting Functional Requirements
 - The system shall support three roles: Applicant, Module Organiser, and Admin.
 - The system shall support role-based login.
+- The system shall allow public access to vacancy browsing while protecting personal or restricted actions behind login.
 - The system shall keep status values consistent across views.
 - The system shall preserve records in a structured and traceable form.
 - The system shall enforce the current admin-defined `max_workload` rule consistently.
@@ -95,7 +100,8 @@ Derived requirements:
 
 ## Scope Decision
 ### In scope for the early version
-- login;
+- public vacancy browsing before login;
+- login and protected applicant actions;
 - detailed applicant profile and CV handling;
 - vacancy details and application flow;
 - workload overview and configurable `max_workload` control;
@@ -116,7 +122,8 @@ Derived requirements:
 ## Backlog Implications
 The latest refinement adds or strengthens the following requirement themes:
 - detailed applicant profile fields;
-- login;
+- public vacancy browsing with a visible login entry;
+- protected actions that require login;
 - configurable `max_workload` limit;
 - blacklist support;
 - low-priority AI-assisted features such as skill matching, missing-skill identification, and workload balancing suggestions.

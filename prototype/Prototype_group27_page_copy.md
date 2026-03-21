@@ -35,16 +35,22 @@
   - `My Applications`
 - Small status text:
   - `Welcome back, [Applicant Name].`
-  - `You have 2 active applications.`
+  - `You are using 2 of 3 allowed applications.`
+  - `Current application limit: 3`
 
 ## P04 Applicant Profile
 - Title: `My Profile`
 - Field labels:
   - `Full Name`
-  - `Programme`
-  - `Year of Study`
+  - `Student ID`
+  - `Email`
   - `Phone Number`
-  - `Skills`
+  - `Degree or Programme`
+  - `Year of Study`
+  - `Relevant Modules or Grades`
+  - `Technical Skills and Tools`
+  - `Previous TA Experience`
+  - `Project or Leadership Experience`
   - `Availability`
 - CV area:
   - `Upload CV`
@@ -54,20 +60,16 @@
   - `Back`
 - Validation copy:
   - `Please complete all required profile fields before saving.`
+  - `Student ID, email, degree/programme, and availability are required.`
 
 ## P05 Job List
 - Title: `Available TA Jobs`
-- Search placeholder:
-  - `Search by module or skill`
-- Filter labels:
-  - `Module`
-  - `Required Skill`
-  - `Status`
 - Example card text:
   - `TA for Software Engineering Lab`
   - `Module: EBU6304`
   - `Deadline: 20 March 2026`
   - `Skills: Java, communication, lab support`
+  - `Expected Workload: 1 role`
 - Buttons:
   - `View Details`
   - `Back to Dashboard`
@@ -81,6 +83,11 @@
   - `Required Skills`
   - `Expected Workload`
   - `Application Deadline`
+  - `Current Applicants`
+  - `Current Application Limit`
+- Example transparency text:
+  - `12 applicants have already applied for this role.`
+  - `You can apply for up to 3 roles under the current setting.`
 - Buttons:
   - `Apply for This Job`
   - `Back to Job List`
@@ -88,6 +95,7 @@
   - `Your application has been submitted successfully.`
 - Warning copy:
   - `You have already applied for this job.`
+  - `You have reached the current maximum of 3 applications.`
 
 ## P07 Application Status
 - Title: `My Applications`
@@ -96,13 +104,15 @@
   - `Module`
   - `Submitted On`
   - `Status`
+  - `Optional Feedback`
   - `Last Updated`
 - Example statuses:
   - `Submitted`
-  - `Accepted`
-  - `Rejected`
-- Optional button:
-  - `Withdraw`
+  - `Offered`
+  - `Unsuccessful`
+- Example optional feedback:
+  - `Good overall fit for the module.`
+  - `No additional comment provided.`
 
 ## P08 MO Dashboard
 - Title: `Module Organiser Dashboard`
@@ -112,8 +122,6 @@
   - `Review Applicants`
 - Buttons:
   - `Post Job`
-  - `Edit`
-  - `Close Job`
   - `View Applicants`
 
 ## P09 Post Job Form
@@ -135,30 +143,45 @@
 - Title: `Applicants for [Job Title]`
 - Left panel labels:
   - `Applicant Name`
-  - `Programme`
-  - `Skills`
+  - `Student ID`
+  - `Degree or Programme`
+  - `Relevant Modules or Grades`
+  - `Technical Skills and Tools`
+  - `Previous TA Experience`
+  - `Project or Leadership Experience`
   - `Availability`
 - Right panel labels:
   - `CV`
+  - `Current Role Count`
+  - `Applicant Workload`
+  - `Blacklist Status`
   - `Review Notes`
   - `Decision`
 - Buttons:
-  - `Accept`
-  - `Reject`
+  - `Offer`
+  - `Mark Unsuccessful`
   - `Save Notes`
 - Success copy:
-  - `Application status updated successfully.`
+  - `Application outcome updated successfully.`
+- Warning copy:
+  - `This applicant has been flagged on the blacklist and needs admin review before selection.`
 
 ## P11 Admin Workload Dashboard
 - Title: `TA Workload Overview`
 - Column labels:
   - `TA Name`
-  - `Accepted Jobs`
+  - `Offered Roles`
   - `Total Workload`
   - `Risk Flag`
+  - `Blacklist Status`
 - Filter labels:
   - `Filter by TA`
   - `Filter by Module`
+- Admin controls:
+  - `Current Max Workload`
+  - `Update Limit`
+  - `Add to Blacklist`
+  - `Remove from Blacklist`
 - Example risk text:
   - `Overload Risk`
   - `Normal`
@@ -167,15 +190,18 @@
 - Example messages:
   - `This field cannot be empty.`
   - `Duplicate application detected.`
+  - `Invalid email or password. Please try again.`
+  - `You have reached the current maximum of 3 applications.`
+  - `This applicant is currently blacklisted for future recruitment.`
   - `The selected file could not be read. Please try again.`
-  - `No jobs match your search criteria.`
-  - `This action is not available because the job is closed.`
+  - `No jobs match the current data condition.`
+  - `This action is not available because the vacancy is closed or unavailable.`
 
 ## Consistency rules
 - Use the same status terms everywhere:
   - `Submitted`
-  - `Accepted`
-  - `Rejected`
+  - `Offered`
+  - `Unsuccessful`
 - Use the same role names everywhere:
   - `Applicant`
   - `Module Organiser`

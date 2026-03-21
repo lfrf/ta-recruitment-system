@@ -7,7 +7,7 @@
 
 | Stakeholder | Main goals | Main concerns |
 |---|---|---|
-| TA Applicant | Log in, keep one reusable profile, apply efficiently, track progress | Missing information, repeated data entry, unclear outcome visibility, unclear role-limit rules |
+| TA Applicant | Browse vacancies easily, log in only when needed, keep one reusable profile, apply efficiently, track progress | Missing information, repeated data entry, unclear outcome visibility, unclear role-limit rules |
 | Module Organiser | Post jobs, review applicants, record decisions | Slow screening, weak traceability, inconsistent data, manual workload and blacklist checking |
 | Admin | Monitor workload, control policy parameters, later manage blacklist | Over-allocation, poor visibility across jobs, manual checking effort |
 
@@ -39,12 +39,14 @@
 17. Should the system enforce a configurable maximum number of roles per applicant from the start?
 18. Should blacklist support be included for unsuitable applicants?
 19. Which low-priority AI-assisted features should still be recorded in the backlog?
+20. Should applicants be able to browse vacancies before login with a visible login entry?
 
 ## A3. Summary of Findings
 
 ### Applicant findings
 - Applicants need a clear job list with module, skills, and deadline.
-- Applicants want one place to store profile and CV information.
+- Applicants should be able to browse vacancies and vacancy details before logging in.
+- The public browsing interface should keep a visible `Log In` entry so the user can move into authenticated features when needed.
 - After reviewing a sample CV, the team expanded the profile to include identity, contact details, academic background, relevant courses, technical skills, TA experience, project or leadership experience, availability, and CV reference.
 - Applicants also need login so that their profile and applications remain linked to the correct account.
 - Applicants should be able to apply for multiple roles only within the current admin-defined limit.
@@ -64,12 +66,14 @@
 
 ### Later feedback findings
 - Low-priority future ideas should still be captured in the backlog, including skill matching, missing-skill identification, and workload-balancing suggestions.
+- The browsing interface should not force login too early; login should be prompted only when the user attempts restricted actions such as applying or opening personal features.
 - These points were used to refine the proposed system scope and priorities, not to force the system to reproduce the current process unchanged.
 
 ## A4. Scope Notes
 
 ### In scope for the early version
-- login
+- public vacancy browsing before login
+- login and protected applicant actions
 - detailed applicant profile and CV handling
 - job list and vacancy details
 - job application and status tracking
@@ -98,6 +102,7 @@
 | Student reviewer 3 | Workload screen should highlight overload | Add visual flag for high workload |
 | Teaching-staff review | Profile is too vague and should be more structured | Expand reusable profile fields in requirements and backlog |
 | Teaching-staff review | Login and max workload control are missing from the backlog | Add explicit stories for login and admin-configurable `max_workload` |
+| Teaching-staff review | Applicants should browse vacancies before login and log in only when trying to act | Add visitor-style vacancy browsing with a visible login entry and login prompts for restricted actions |
 
 ## A6. Backlog and Planning Evidence
 

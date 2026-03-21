@@ -1,4 +1,4 @@
-# Appendix for First Assessment
+﻿# Appendix for First Assessment
 
 **Group:** `Group 27`  
 **Project:** `TA Recruitment System`
@@ -7,11 +7,11 @@
 
 | Stakeholder | Main goals | Main concerns |
 |---|---|---|
-| TA Applicant | Find suitable jobs, submit applications, track progress | Missing information, repeated data entry, unclear status |
-| Module Organiser | Post jobs, review applicants, record decisions | Slow screening, weak traceability, inconsistent data |
-| Admin | Monitor TA allocation and workload | Over-allocation, poor visibility across jobs, manual checking effort |
+| TA Applicant | Log in, keep one reusable profile, apply efficiently, track progress | Missing information, repeated data entry, unclear outcome visibility, unclear role-limit rules |
+| Module Organiser | Post jobs, review applicants, record decisions | Slow screening, weak traceability, inconsistent data, manual workload and blacklist checking |
+| Admin | Monitor workload, control policy parameters, later manage blacklist | Over-allocation, poor visibility across jobs, manual checking effort |
 
-## A2. Interview Questions Used
+## A2. Interview Questions and Review Points Used
 
 ### TA Applicant
 1. How do you currently find TA opportunities?
@@ -33,46 +33,71 @@
 13. What summary information is most useful for management?
 14. Which failures in the current process cause the biggest problem?
 
+### Later Teaching-Staff Feedback and CV Review
+15. Which profile fields should be structured instead of left only in the CV?
+16. Should login be represented explicitly in the backlog?
+17. Should the system enforce a configurable maximum number of roles per applicant from the start?
+18. Should blacklist support be included for unsuitable applicants?
+19. Which low-priority AI-assisted features should still be recorded in the backlog?
+
 ## A3. Summary of Findings
 
 ### Applicant findings
 - Applicants need a clear job list with module, skills, and deadline.
 - Applicants want one place to store profile and CV information.
-- Status visibility is important after submission.
+- After reviewing a sample CV, the team expanded the profile to include identity, contact details, academic background, relevant courses, technical skills, TA experience, project or leadership experience, availability, and CV reference.
+- Applicants also need login so that their profile and applications remain linked to the correct account.
+- Applicants should be able to apply for multiple roles only within the current admin-defined limit.
+- Status visibility is important after submission, and applicant-visible application counts may improve transparency.
 
 ### MO findings
 - MOs need a simple way to publish vacancies and compare applicants.
+- Vacancy records should include module-specific skills or prior-course expectations.
 - Decision recording should be traceable and easy to update.
-- Reviewing applicants is harder when profile, CV, and status are split across files.
+- Workload and blacklist information should be visible where they affect review decisions.
 
 ### Admin findings
-- Admin users need a quick view of accepted workload, not just raw applications.
-- Overload should be visible without checking each module separately.
+- Admin users need a quick view of workload, not just raw applications.
+- A configurable `max_workload` parameter is preferable to relying only on later manual balancing; the initial default can be `3` roles.
+- Blacklist handling is a real requirement because unsuitable applicants are currently screened manually.
 - Consistent file structure is important because the project cannot use a database.
+
+### Later feedback findings
+- Low-priority future ideas should still be captured in the backlog, including skill matching, missing-skill identification, and workload-balancing suggestions.
+- These points were used to refine the proposed system scope and priorities, not to force the system to reproduce the current process unchanged.
 
 ## A4. Scope Notes
 
-### In scope
-- Applicant registration and profile
-- CV upload
-- Job list and job details
-- Job application and status tracking
+### In scope for the early version
+- login
+- detailed applicant profile and CV handling
+- job list and vacancy details
+- job application and status tracking
 - MO job posting and applicant review
-- Admin workload view
+- admin workload view and configurable `max_workload` limit
 
-### Out of scope
-- Database integration
-- External system integration
-- Advanced role-permission framework
-- Unexplainable AI-based decision support
+### Later but still in overall project scope
+- blacklist support
+- optional short outcome feedback
+- applicant-visible application counts
+- explainable low-priority AI-assisted features
+
+### Out of scope for the early version
+- database integration
+- external system integration
+- automated email sending
+- tutorial-support scheduling after recruitment
+- complex black-box AI-assisted decision support
 
 ## A5. Prototype Feedback Record
 
 | Feedback source | Observation | Planned change |
 |---|---|---|
 | Student reviewer 1 | Job list should show deadline clearly | Add deadline to job cards |
-| Student reviewer 2 | Application status needs clearer labels | Use Submitted / Accepted / Rejected consistently |
+| Student reviewer 2 | Application status needs clearer labels | Use Submitted / Offered / Unsuccessful consistently |
 | Student reviewer 3 | Workload screen should highlight overload | Add visual flag for high workload |
+| Teaching-staff review | Profile is too vague and should be more structured | Expand reusable profile fields in requirements and backlog |
+| Teaching-staff review | Login and max workload control are missing from the backlog | Add explicit stories for login and admin-configurable `max_workload` |
 
 ## A6. Backlog and Planning Evidence
 
@@ -81,7 +106,8 @@
 - Acceptance criteria added to each story
 - MoSCoW used for prioritisation
 - Story points used for estimation
-- Stories allocated across four iterations
+- Stories revised after the follow-up TA interview, later teaching-staff feedback, and sample CV analysis
+- Low-priority AI-assisted ideas recorded explicitly as `Could` stories rather than left undocumented
 
 ## A7. GitHub Evidence to Attach
 
@@ -90,3 +116,4 @@
 - Screenshot of issues for the first assessment
 - Screenshot of branch or pull request activity
 - Screenshot of meeting notes or decision log committed to the repository
+- Screenshot or note of the later requirements review feedback

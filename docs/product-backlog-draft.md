@@ -9,54 +9,56 @@
 - Estimation uses story points: `1, 2, 3, 5, 8`
 
 ## Sprint Goals
-- `Sprint 1`: define scope, collect evidence, prepare the backlog and prototype, and complete the first assessment package
-- `Sprint 2`: deliver the core recruitment workflow from vacancy posting to application review
-- `Sprint 3`: improve administration support, stability, validation, and overall quality
-- `Sprint 4`: add optional explainable intelligence features and prepare the final delivery
+- `Sprint 1`: refine requirements, prototype, and first assessment deliverables
+- `Sprint 2`: deliver the core workflow from login and vacancy posting to application review and workload-limit control
+- `Sprint 3`: improve admin support, blacklist handling, validation, and traceability
+- `Sprint 4`: add optional explainable support features and prepare the final delivery
+
+## Backlog Refinement from Later Feedback
+Later teaching-staff feedback and sample CV analysis led to several requirement changes:
+- the applicant profile should be more structured and should not rely only on CV upload;
+- login must appear explicitly in the backlog;
+- applicants should not choose unlimited roles and rely only on later admin balancing;
+- admin should configure a simple `max_workload` parameter, with `3` as the initial default;
+- blacklist support should be included as a later feature;
+- low-priority AI-assisted ideas should still be recorded as `Could` stories.
 
 ## Story List
 
 | ID | Story name | Role | Priority | Sprint | SP | Notes |
 |---|---|---|---|---|---|---|
-| US01 | Register account | Applicant | Must | 1 | 3 | Epic: Applicant onboarding |
-| US02 | Log in and log out | Applicant | Must | 1 | 3 | Epic: Applicant onboarding |
-| US03 | Maintain applicant profile | Applicant | Must | 1 | 5 | Epic: Applicant onboarding |
-| US04 | Upload CV | Applicant | Must | 1 | 3 | Epic: Applicant onboarding |
-| US05 | Record skills and availability | Applicant | Should | 2 | 3 | Epic: Applicant onboarding |
-| US06 | Browse open jobs | Applicant | Must | 1 | 3 | Epic: Job discovery |
-| US07 | View job details | Applicant | Must | 1 | 2 | Epic: Job discovery |
-| US08 | Filter and search jobs | Applicant | Should | 2 | 5 | Epic: Job discovery |
-| US09 | Apply for a job | Applicant | Must | 2 | 5 | Epic: Application flow |
-| US10 | Block duplicate applications | Applicant | Should | 2 | 2 | Epic: Application flow |
-| US11 | View application status | Applicant | Must | 2 | 3 | Epic: Application flow |
-| US12 | Withdraw a pending application | Applicant | Should | 3 | 3 | Epic: Application flow |
-| US13 | Post a job | MO | Must | 2 | 5 | Epic: MO recruitment |
-| US14 | Edit or close a job | MO | Should | 3 | 3 | Epic: MO recruitment |
-| US15 | View applicants for a job | MO | Must | 2 | 3 | Epic: MO recruitment |
-| US16 | Review applicant details and CV | MO | Must | 2 | 3 | Epic: MO recruitment |
-| US17 | Accept or reject an applicant | MO | Must | 2 | 5 | Epic: MO recruitment |
-| US18 | Add review notes | MO | Should | 3 | 2 | Epic: MO recruitment |
-| US19 | View TA workload dashboard | Admin | Must | 2 | 5 | Epic: Workload management |
-| US20 | Filter workload data | Admin | Should | 3 | 3 | Epic: Workload management |
-| US21 | Highlight overload risk | Admin | Should | 3 | 3 | Epic: Workload management |
-| US22 | Validate input data | All roles | Must | 2 | 5 | Epic: Quality and reliability |
-| US23 | Handle file errors gracefully | All roles | Should | 3 | 5 | Epic: Quality and reliability |
-| US24 | Show explainable skill match | MO | Could | 4 | 5 | Epic: Explainable support |
-| US25 | Suggest missing skills | Applicant | Could | 4 | 3 | Epic: Explainable support |
+| US01 | Maintain detailed reusable applicant profile | Applicant | Must | 1 | 8 | Epic: Applicant profile and application |
+| US02 | Upload CV | Applicant | Must | 1 | 3 | Epic: Applicant profile and application |
+| US03 | Browse available vacancies | Applicant | Must | 1 | 3 | Epic: Applicant profile and application |
+| US04 | View vacancy details | Applicant | Must | 1 | 2 | Epic: Applicant profile and application |
+| US05 | Apply for vacancy | Applicant | Must | 2 | 5 | Epic: Applicant profile and application |
+| US06 | Apply within configurable role limit | Applicant | Must | 2 | 3 | Epic: Applicant profile and application |
+| US07 | View application status | Applicant | Must | 2 | 3 | Epic: Applicant profile and application |
+| US08 | Prevent duplicate applications | Applicant | Should | 2 | 2 | Epic: Applicant profile and application |
+| US09 | Create and publish vacancy | MO | Must | 2 | 5 | Epic: Vacancy posting and applicant review |
+| US10 | View applicants for a vacancy | MO | Must | 2 | 3 | Epic: Vacancy posting and applicant review |
+| US11 | Review applicant profile and CV | MO | Must | 2 | 3 | Epic: Vacancy posting and applicant review |
+| US12 | Record offer or rejection outcome | MO | Must | 2 | 5 | Epic: Vacancy posting and applicant review |
+| US13 | View workload when needed | MO | Should | 3 | 3 | Epic: Vacancy posting and applicant review |
+| US14 | View workload overview | Admin | Must | 2 | 5 | Epic: Admin workload monitoring |
+| US15 | Filter workload records | Admin | Should | 3 | 3 | Epic: Admin workload monitoring |
+| US16 | Highlight overload or conflict risk | Admin | Should | 3 | 3 | Epic: Admin workload monitoring |
+| US17 | Show validation messages | All roles | Must | 2 | 3 | Epic: System quality and data reliability |
+| US18 | Reject duplicate or inconsistent data | All roles | Must | 3 | 5 | Epic: System quality and data reliability |
+| US19 | Keep status values consistent | All roles | Must | 3 | 3 | Epic: System quality and data reliability |
+| US20 | Keep decisions traceable | Stakeholder | Must | 3 | 3 | Epic: System quality and data reliability |
+| US21 | Add review notes | MO | Should | 3 | 2 | Epic: Vacancy posting and applicant review |
+| US22 | Show optional outcome feedback | Applicant | Should | 3 | 2 | Epic: Applicant profile and application |
+| US23 | Show applicant count for a vacancy | Applicant | Could | 3 | 2 | Epic: Applicant profile and application |
+| US24 | Log in to the system | All roles | Must | 2 | 3 | Epic: Applicant profile and application |
+| US25 | Configure max_workload parameter | Admin | Must | 2 | 3 | Epic: Admin workload monitoring |
+| US26 | Manage blacklist for unsuitable applicants | Admin | Should | 3 | 3 | Epic: Admin workload monitoring |
+| US27 | Match skills between jobs and applicants | MO | Could | 4 | 5 | Epic: Explainable and AI-assisted enhancements |
+| US28 | Identify missing skills for applicants | Applicant | Could | 4 | 3 | Epic: Explainable and AI-assisted enhancements |
+| US29 | Suggest workload balancing | Admin | Could | 4 | 5 | Epic: Explainable and AI-assisted enhancements |
 
 ## Notes for the Team
-- The backlog is intentionally larger than the work planned for Sprint 1. Sprint 1 is mainly for defining scope, collecting evidence, preparing the prototype, and producing the first assessment materials.
-- The first implementable software version should focus on the minimum end-to-end workflow:
-  - `US13 Post a job`
-  - `US06 Browse open jobs`
-  - `US07 View job details`
-  - `US09 Apply for a job`
-  - `US15 View applicants for a job`
-  - `US17 Accept or reject an applicant`
-- Optional AI-assisted or explainable features are deliberately delayed until Sprint 4 so that they do not put the core delivery at risk.
-
-## Team Requirements Workshop Note
-- The current backlog should be treated as a collaborative team draft rather than a single-author document.
-- The requirements evidence comes from shared discussion of Applicant, Module Organiser, and Admin needs.
-- Individual user stories may have been initially drafted by different members, but the backlog priorities and story direction were refined through team discussion.
-- This reflects the Agile expectation that user stories should emerge from collaborative understanding rather than isolated authorship.
+- The first working version should focus on `US24`, `US01`, `US09`, `US03`, `US04`, `US05`, `US06`, `US10`, `US12`, and `US25`.
+- The initial default assumption is `max_workload = 3`, but the value must remain configurable.
+- Blacklist support and AI-assisted features belong to later iterations rather than the first working version.
+- The backlog should remain a collaborative team artefact rather than a single-author document.

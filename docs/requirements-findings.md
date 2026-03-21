@@ -1,132 +1,122 @@
 # Team Requirements Findings for Group 27
 
 ## Purpose
-This document summarises the requirements findings for the **TA Recruitment System**. The purpose of the document is not only to record stakeholder needs, but also to show that the requirements work was carried out collaboratively. In line with Agile practice, the team treated requirement discovery and user story formation as a shared activity. While some members were responsible for coordination or documentation, the understanding of stakeholder needs and the refinement of user stories came from team discussion.
+This document records the latest requirements findings for the **TA Recruitment System** after the earlier workshop, the 2026-03-13 follow-up TA interview, the later teaching-staff review, and the analysis of a sample TA CV/resume. The new feedback was treated as supporting evidence to refine the backlog, not as a direct specification that must be copied blindly.
 
 ## Evidence Sources
-The findings in this document are based on:
-- the project brief and lecture material;
-- collaborative workshop discussion of the recruitment workflow;
-- stakeholder-oriented discussion covering Applicant, Module Organiser, and Admin perspectives;
-- draft interview questions and interview records;
-- shared review of the first set of user stories and backlog items.
+- project brief and lecture material;
+- team workshop discussion;
+- stakeholder-oriented questions for Applicant, MO, and Admin;
+- follow-up interview with an experienced TA on 2026-03-13;
+- teaching-staff backlog review on 2026-03-20;
+- document analysis of a sample TA CV/resume.
 
 ## Team Participation Summary
-The requirements process was organised as a collaborative workshop rather than a one-person task.
-
 | Team member | Main contribution |
 |---|---|
-| Yifu Feng | Confirmed project scope, technical direction, and coordination arrangements |
-| Yuzhang Wu | Initiated stakeholder fact-finding and recorded the workshop and interview outputs |
-| Chensiyuan Qing | Refined early backlog items and helped structure user stories |
-| Fuhe Huang | Checked whether proposed stories were aligned with the intended interface and page flow |
-| Tao Li | Integrated requirements findings into the report and supporting appendix |
-| Mu Du | Considered implementation and testing implications such as validation and reliability |
-
-All members contributed to the discussion of stakeholder needs and the identification of core stories. Individual members may have drafted or edited specific stories, but the stories themselves were shaped through team discussion and review.
+| Yifu Feng | revised scope, backlog direction, and later corrections |
+| Yuzhang Wu | organised requirement-finding and interview recording |
+| Chensiyuan Qing | refined user stories and backlog structure |
+| Fuhe Huang | checked alignment with UI and page flow |
+| Tao Li | integrated findings into report and appendix |
+| Mu Du | reviewed validation, workload, and reliability implications |
 
 ## Stakeholder Findings
 
-### 1. TA Applicant
+### TA Applicant
+Main findings:
+- Applicants need clear vacancy details: module, duties, skills, workload, deadline, and optionally current applicant count.
+- The applicant profile should be more structured than a simple name-and-skills form. Based on the sample CV, it should include:
+  - full name, student ID, email, and phone number;
+  - degree/programme and year of study;
+  - relevant modules or grades where useful;
+  - technical skills and tools;
+  - previous TA experience;
+  - project or leadership experience;
+  - availability;
+  - CV reference.
+- Applicants need login so that their profile and applications are linked to the correct account.
+- Applicants may apply for more than one role, but the later review suggested the system should show and enforce a configurable role limit from the start. The initial default can be `3`, controlled by an admin parameter.
+- Applicants want clear application status and may benefit from optional short feedback.
 
-#### Main points gathered from discussion
-- Applicants usually learn about TA opportunities through teachers, course groups, or direct announcements.
-- Before applying, they want to see the module name, responsibilities, required skills, expected workload, and deadline.
-- They find repeated form filling inconvenient and prefer to reuse one profile across multiple applications.
-- After submission, they want to see a visible application status such as `Submitted`, `Accepted`, or `Rejected`.
+Derived requirements:
+- The system shall support detailed reusable applicant profiles.
+- The system shall support CV upload.
+- The system shall support login.
+- The system shall show clear vacancy details.
+- The system shall allow multiple applications only within the current `max_workload` limit.
+- The system shall show application status clearly.
+- The system should show applicant count for a vacancy when transparency is enabled.
 
-#### Main pain points
-- job information is not always presented clearly in one place;
-- the process feels repetitive when applying for multiple roles;
-- application progress is difficult to track after submission.
+### Module Organiser
+Main findings:
+- MOs need to publish vacancies with structured module-specific requirements.
+- MOs need to review applicant profile information and CV together.
+- MOs may need to see workload-limit information before making decisions.
+- Blacklist checking is currently manual and should be supported later.
+- Later tutorial support scheduling should remain outside the early system.
 
-#### Derived requirements
-- The system shall allow an applicant to create and maintain a reusable profile.
-- The system shall allow an applicant to upload a CV.
-- The system shall present clear vacancy details before application.
-- The system shall allow an applicant to apply for more than one role.
-- The system shall display application status clearly.
+Derived requirements:
+- The system shall allow vacancy creation and publishing.
+- The system shall allow viewing applicants for a vacancy.
+- The system shall show profile and CV together during review.
+- The system shall allow organisers to record `Offered` or `Unsuccessful` outcomes.
+- The system should allow organisers to view workload and optional review notes.
+- The system should expose blacklist information where it affects review.
 
-### 2. Module Organiser
+### Admin
+Main findings:
+- Admin need a workload overview across applicants and modules.
+- Admin should configure a simple `max_workload` parameter instead of relying only on later manual balancing.
+- The initial default can be `3`, but the value should be editable.
+- Admin also need blacklist support because unsuitable TAs are currently screened manually.
 
-#### Main points gathered from discussion
-- MOs need to enter job title, module, duties, required skills, workload, and deadline when posting a TA role.
-- They rely on profile information, CV content, and relevant skills when reviewing applicants.
-- They want a more efficient way to compare applicants and update decisions without switching between multiple files.
-- They may also need to know whether an applicant is already heavily committed elsewhere.
-
-#### Main pain points
-- applicant review becomes slow when information is split across several places;
-- tracking multiple applications manually is inconvenient;
-- decisions are harder to trace when they are not recorded consistently.
-
-#### Derived requirements
-- The system shall allow an MO to create and publish a TA role.
-- The system shall allow an MO to view applicants for a selected role.
-- The system shall show the relevant applicant profile and CV reference during review.
-- The system shall allow an MO to accept or reject applicants and record the decision.
-- The system should allow an MO to view workload information when needed.
-
-### 3. Admin
-
-#### Main points gathered from discussion
-- Admin users need to see accepted TA workload across applicants rather than only raw application records.
-- They want to identify overload or conflict risks across different jobs or modules.
-- They need a simple overview of records and statuses without manually checking multiple spreadsheets.
-- In the first version, they value consistency and traceability more than advanced analytics.
-
-#### Main pain points
-- workload visibility is weak in the current manual process;
-- records are harder to verify when data is distributed across files;
-- cross-module conflicts are not easy to identify quickly.
-
-#### Derived requirements
-- The system shall provide an overview of TA workload for admin users.
-- The system should allow workload filtering by applicant or module.
-- The system should highlight possible overload or conflict cases.
-- The system shall preserve recruitment records in a consistent file structure.
+Derived requirements:
+- The system shall provide workload overview and filtering.
+- The system shall allow admin to configure the `max_workload` parameter.
+- The system shall use the same parameter when checking applications and overload warnings.
+- The system should allow admin to maintain a blacklist of unsuitable applicants.
 
 ## Cross-Cutting Functional Requirements
-The workshop also identified several requirements that apply across roles rather than to a single stakeholder only:
-
-- The system shall support three user perspectives: Applicant, Module Organiser, and Admin.
-- The system shall support the end-to-end recruitment flow from vacancy posting to decision update.
-- The system shall keep status values consistent across the applicant and MO views.
-- The system shall preserve recruitment information in a structured and traceable way.
+- The system shall support three roles: Applicant, Module Organiser, and Admin.
+- The system shall support role-based login.
+- The system shall keep status values consistent across views.
+- The system shall preserve records in a structured and traceable form.
+- The system shall enforce the current admin-defined `max_workload` rule consistently.
+- The system should support blacklist flagging or blocking where policy requires it.
 
 ## Non-Functional Requirements
-The following non-functional requirements were identified during the discussion:
-
 - The system shall be implemented as a stand-alone Java application.
 - The system shall use text-based storage only and shall not rely on a database.
-- The system shall provide clear validation messages for invalid input.
+- The system shall provide clear validation messages.
 - The system shall reject duplicate or inconsistent data where appropriate.
-- The system shall make recruitment decisions traceable.
-- The system should remain simple to use for first-time users.
+- The system shall keep recruitment decisions traceable.
+- Any later AI-assisted features should remain lightweight, explainable, and optional.
 
 ## Scope Decision
-
 ### In scope for the early version
-- applicant profile and CV handling;
-- job browsing and vacancy details;
-- job application and status tracking;
-- MO vacancy posting and applicant review;
-- admin workload overview.
+- login;
+- detailed applicant profile and CV handling;
+- vacancy details and application flow;
+- workload overview and configurable `max_workload` control;
+- organiser review and decision recording.
+
+### In scope for later iterations
+- blacklist support;
+- optional short outcome feedback;
+- applicant-visible application counts;
+- explainable low-priority AI-assisted features.
 
 ### Out of scope for the early version
 - database integration;
-- third-party platform integration;
-- advanced AI-assisted decision support;
-- complex access-control mechanisms.
+- automated email sending;
+- tutorial-support scheduling and TA lead task allocation;
+- complex black-box AI decision support.
 
 ## Backlog Implications
-These findings support treating the following as the highest-priority backlog items:
-
-- applicant profile management;
-- job listing and vacancy details;
-- job application submission;
-- MO job posting;
-- applicant review and decision update;
-- admin workload checking.
-
-The team used these findings to shape the initial backlog collaboratively. Some stories were first drafted by individual members, but the final direction, wording, and priority were discussed and reviewed as a group. This is consistent with the Agile principle that what matters most is not who first wrote a user story, but who took part in discussing and refining it.
+The latest refinement adds or strengthens the following requirement themes:
+- detailed applicant profile fields;
+- login;
+- configurable `max_workload` limit;
+- blacklist support;
+- low-priority AI-assisted features such as skill matching, missing-skill identification, and workload balancing suggestions.

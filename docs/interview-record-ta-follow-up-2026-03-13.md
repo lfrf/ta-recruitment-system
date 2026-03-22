@@ -1,32 +1,33 @@
-# Follow-Up Interview Record - Experienced TA
+# Follow-up Interview Record - Experienced TA
 
 **Project:** TA Recruitment System  
-**Stakeholder role:** Experienced TA / operational stakeholder  
-**Interview type:** Informal follow-up clarification interview  
-**Date:** 2026-03-13  
-**Recorded by:** Group 27
+**Interview date:** 2026-03-13  
+**Stakeholder type:** Experienced TA representative  
+**Interview type:** Follow-up clarification interview  
+**Recorded by:** Yuzhang Wu  
+**Used by:** Group 27
 
 ## Purpose
-This follow-up interview was used to validate whether the team's earlier requirements assumptions matched the real TA recruitment workflow. It was not intended to replace the earlier stakeholder workshop. Instead, it was used to refine scope and remove assumptions that were not supported by practice. The interviewee's description of current practice was treated as operational evidence rather than as the final design specification.
+This follow-up interview was conducted to validate whether the team's early assumptions matched the real recruitment process. The goal was not to copy the current workflow blindly, but to identify which details should influence scope decisions, backlog wording, and prototype refinement.
 
-## Summary of Discussion
-- TA vacancies are usually announced through the Information Portal, QR-code forms, or course groups.
-- Application forms may include module-specific skill or prior-course questions, so skill information matters during screening.
-- Successful applicants are commonly informed by email.
-- Detailed rejection reasons are not usually provided in the current process. This does not prevent the proposed system from offering lightweight optional feedback as an improvement.
-- Recruitment normally finishes before the semester starts.
-- Later tutorial-support arrangements and detailed task allocation are handled by the MO or TA lead after recruitment.
-- A practical view of workload is knowing which modules or roles a TA has already accepted, rather than building a full schedule-management tool in the first version.
-- Applicant-visible application counts were also considered a potentially useful transparency feature.
+## Main Points Confirmed
+- Vacancy announcements are often distributed through information portals, course groups, or form links rather than through one central system.
+- Module-specific skills and background knowledge matter in practice when MOs select TAs.
+- Successful applicants are commonly informed by email, but automated email sending is not essential for the early system.
+- Detailed rejection explanations are not always provided in the current process, so this should not be treated as a mandatory MVP feature.
+- Tutorial support scheduling and later TA lead coordination happen after recruitment and should remain outside the early scope.
 
-## Main Implications for the System
-- Vacancy details should be clear and structured.
-- Applicant profiles should capture reusable skills or relevant experience.
-- The first version should support visible application outcome tracking, but not full email integration.
-- The first version should stop at recruitment outcome management and not include later timetable allocation.
-- Admin workload views should focus on accepted assignments across modules.
+## Team Interpretation
+- Vacancy pages should show structured module-specific information clearly.
+- The system should support outcome recording, but automated email integration can remain outside the early version.
+- The project should stay focused on recruitment rather than expand into post-recruitment scheduling.
+- Optional feedback can exist as a lighter feature later, but a heavy rejection workflow is unnecessary at this stage.
 
-## Backlog Impact
-- Strengthen stories related to vacancy details, applicant skills, outcome visibility, and useful transparency indicators such as applicant counts.
-- Keep tutorial-support scheduling outside the early scope.
-- Avoid adding unnecessary features such as detailed rejection explanation or automatic email sending to the first release.
+## Resulting Changes
+- strengthened vacancy-detail stories and prototype content;
+- kept email integration out of scope for the early version;
+- kept post-recruitment scheduling out of scope;
+- clarified the difference between realistic future improvements and first-release essentials.
+
+## Note
+This interview was used as supporting evidence to validate and narrow the backlog, not as a direct specification that must be copied into the system unchanged.

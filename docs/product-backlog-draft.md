@@ -1,4 +1,4 @@
-# Product Backlog Draft
+﻿# Product Backlog Draft
 
 ## Planning Assumptions
 - `Sprint 1`: 2026-03-09 to 2026-03-22
@@ -9,32 +9,32 @@
 - Estimation uses story points: `1, 2, 3, 5, 8`
 
 ## Sprint Goals
-- `Sprint 1`: define scope, collect evidence, refine requirements, prepare the backlog and prototype, and complete the first assessment package
-- `Sprint 2`: deliver the core recruitment workflow from vacancy posting to application review
-- `Sprint 3`: improve administration support, validation, traceability, and overall quality
+- `Sprint 1`: refine requirements, prototype, and first assessment deliverables
+- `Sprint 2`: deliver the core workflow from public vacancy browsing and login to application review and workload-limit control
+- `Sprint 3`: improve admin support, blacklist handling, validation, and traceability
 - `Sprint 4`: add optional explainable support features and prepare the final delivery
 
-## Backlog Refinement from the Follow-Up TA Interview
-The follow-up TA interview on 2026-03-13 did not change the core direction of the backlog, but it clarified several important scope decisions. These points were treated as evidence about the current process and used to refine priorities and boundaries rather than copied mechanically as mandatory system behaviour:
-
-- vacancies are currently announced through the Information Portal, QR-code forms, or course groups, so vacancy details must be especially clear;
-- module-specific skills and prior course knowledge matter in the real process, so applicant profiles and vacancy records should capture them;
-- successful applicants are usually informed by email, but automated email sending is not necessary for the early version;
-- detailed rejection reasons are not usually provided, so they are not required in the early backlog;
-- tutorial-support scheduling and TA lead task allocation happen after recruitment and should stay out of early scope;
-- workload visibility mainly means knowing which modules a TA has already been accepted for, not building a full scheduling system;
-- applicant-side visibility of how many people have applied for a vacancy can be a useful transparency feature.
+## Backlog Refinement from Later Feedback
+Later teaching-staff feedback, visitor-access feedback, and sample CV analysis led to several requirement changes:
+- the applicant profile should be more structured and should not rely only on CV upload;
+- login must appear explicitly in the backlog;
+- public vacancy browsing should remain available before login, with a visible login entry;
+- restricted actions should prompt login rather than blocking vacancy browsing entirely;
+- applicants should not choose unlimited roles and rely only on later admin balancing;
+- admin should configure a simple `max_workload` parameter, with `3` as the initial default;
+- blacklist support should be included as a later feature;
+- low-priority AI-assisted ideas should still be recorded as `Could` stories.
 
 ## Story List
 
 | ID | Story name | Role | Priority | Sprint | SP | Notes |
 |---|---|---|---|---|---|---|
-| US01 | Maintain reusable applicant profile | Applicant | Must | 1 | 5 | Epic: Applicant profile and application |
+| US01 | Maintain detailed reusable applicant profile | Applicant | Must | 1 | 8 | Epic: Applicant profile and application |
 | US02 | Upload CV | Applicant | Must | 1 | 3 | Epic: Applicant profile and application |
-| US03 | Browse available vacancies | Applicant | Must | 1 | 3 | Epic: Applicant profile and application |
-| US04 | View vacancy details | Applicant | Must | 1 | 2 | Epic: Applicant profile and application |
+| US03 | Browse vacancies before login | Visitor | Must | 1 | 3 | Epic: Applicant profile and application |
+| US04 | View vacancy details before login | Visitor | Must | 1 | 2 | Epic: Applicant profile and application |
 | US05 | Apply for vacancy | Applicant | Must | 2 | 5 | Epic: Applicant profile and application |
-| US06 | Apply for multiple roles | Applicant | Must | 2 | 3 | Epic: Applicant profile and application |
+| US06 | Apply within configurable role limit | Applicant | Must | 2 | 3 | Epic: Applicant profile and application |
 | US07 | View application status | Applicant | Must | 2 | 3 | Epic: Applicant profile and application |
 | US08 | Prevent duplicate applications | Applicant | Should | 2 | 2 | Epic: Applicant profile and application |
 | US09 | Create and publish vacancy | MO | Must | 2 | 5 | Epic: Vacancy posting and applicant review |
@@ -51,22 +51,17 @@ The follow-up TA interview on 2026-03-13 did not change the core direction of th
 | US20 | Keep decisions traceable | Stakeholder | Must | 3 | 3 | Epic: System quality and data reliability |
 | US21 | Add review notes | MO | Should | 3 | 2 | Epic: Vacancy posting and applicant review |
 | US22 | Show optional outcome feedback | Applicant | Should | 3 | 2 | Epic: Applicant profile and application |
-| US23 | Show applicant count for a vacancy | Applicant | Should | 3 | 2 | Epic: Applicant profile and application |
+| US23 | Show applicant count for a vacancy | Applicant | Could | 3 | 2 | Epic: Applicant profile and application |
+| US24 | Log in from the public interface | All roles | Must | 2 | 3 | Epic: Applicant profile and application |
+| US25 | Configure max_workload parameter | Admin | Must | 2 | 3 | Epic: Admin workload monitoring |
+| US26 | Manage blacklist for unsuitable applicants | Admin | Should | 3 | 3 | Epic: Admin workload monitoring |
+| US27 | Match skills between jobs and applicants | MO | Could | 4 | 5 | Epic: Explainable and AI-assisted enhancements |
+| US28 | Identify missing skills for applicants | Applicant | Could | 4 | 3 | Epic: Explainable and AI-assisted enhancements |
+| US29 | Suggest workload balancing | Admin | Could | 4 | 5 | Epic: Explainable and AI-assisted enhancements |
 
 ## Notes for the Team
-- The backlog is intentionally larger than the work planned for Sprint 1. Sprint 1 is mainly for refining requirements, preparing the prototype, and producing the first assessment materials.
-- The first implementable software version should focus on the minimum end-to-end workflow:
-  - `US09 Create and publish vacancy`
-  - `US03 Browse available vacancies`
-  - `US04 View vacancy details`
-  - `US05 Apply for vacancy`
-  - `US10 View applicants for a vacancy`
-  - `US12 Record offer or rejection outcome`
-- The early system should stop at recruitment outcome management. Lightweight organiser notes, optional outcome feedback, and applicant-visible vacancy application counts can be included, but post-recruitment tutorial scheduling, TA lead coordination, and automated email integration are outside the first release.
-- Optional AI-assisted or explainable features are deliberately delayed until the core workflow is stable.
-
-## Team Requirements Workshop Note
-- The backlog should be treated as a collaborative team draft rather than a single-author document.
-- The requirements evidence comes from shared discussion of Applicant, Module Organiser, and Admin needs, plus a follow-up interview with an experienced TA.
-- Individual user stories may have been initially drafted by different members, but the backlog priorities and story direction were refined through team discussion.
-- This reflects the Agile expectation that user stories should emerge from collaborative understanding rather than isolated authorship.
+- The first working version should focus on `US03`, `US04`, `US24`, `US01`, `US09`, `US05`, `US06`, `US10`, `US12`, and `US25`.
+- The initial default assumption is `max_workload = 3`, but the value must remain configurable.
+- Public browsing should remain available even when the user is not logged in.
+- Blacklist support and AI-assisted features belong to later iterations rather than the first working version.
+- The backlog should remain a collaborative team artefact rather than a single-author document.

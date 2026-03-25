@@ -1,0 +1,2 @@
+package com.group27.tarecruitment.model;
+public class AdminConfig { private int maxWorkload; private boolean allowVisitorBrowsing; public int getMaxWorkload(){return maxWorkload;} public void setMaxWorkload(int maxWorkload){this.maxWorkload=maxWorkload;} public boolean isAllowVisitorBrowsing(){return allowVisitorBrowsing;} public void setAllowVisitorBrowsing(boolean allowVisitorBrowsing){this.allowVisitorBrowsing=allowVisitorBrowsing;} }

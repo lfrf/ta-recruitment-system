@@ -1,0 +1,29 @@
+[
+  {
+    "userId": "u-app-01",
+    "username": "applicant01",
+    "password": "pass123",
+    "role": "APPLICANT",
+    "displayName": "Alice Zhang",
+    "email": "alice@example.com",
+    "active": true
+  },
+  {
+    "userId": "u-mo-01",
+    "username": "mo01",
+    "password": "pass123",
+    "role": "MO",
+    "displayName": "Dr Chen",
+    "email": "chen@example.com",
+    "active": true
+  },
+  {
+    "userId": "u-admin-01",
+    "username": "admin01",
+    "password": "pass123",
+    "role": "ADMIN",
+    "displayName": "Admin Lee",
+    "email": "admin@example.com",
+    "active": true
+  }
+]

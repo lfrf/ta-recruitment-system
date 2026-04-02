@@ -64,6 +64,20 @@ public class ApplicantProfileServlet extends HttpServlet {
             return;
         }
 
+        if (!ValidationUtil.isValidEmail(profile.getEmail())) {
+            attachProfileAttributes(request, currentUser, profile);
+            request.setAttribute("flashError", "Please enter a valid email address.");
+            request.getRequestDispatcher("/WEB-INF/views/applicant/profile.jsp").forward(request, response);
+            return;
+        }
+
+        if (!ValidationUtil.isPositiveInteger(profile.getYearOfStudy())) {
+            attachProfileAttributes(request, currentUser, profile);
+            request.setAttribute("flashError", "Year of study must be a positive integer.");
+            request.getRequestDispatcher("/WEB-INF/views/applicant/profile.jsp").forward(request, response);
+            return;
+        }
+
         applicantProfileService.saveProfile(profile);
         SessionUtil.storeFlashMessage(request, "Applicant profile saved successfully.");
         response.sendRedirect(request.getContextPath() + "/applicant/profile");

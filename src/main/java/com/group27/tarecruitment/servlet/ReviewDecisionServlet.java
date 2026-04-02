@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import com.group27.tarecruitment.util.ValidationUtil;
 
 @WebServlet("/mo/review")
 public class ReviewDecisionServlet extends HttpServlet {
@@ -29,11 +30,11 @@ public class ReviewDecisionServlet extends HttpServlet {
             return;
         }
 
-        String vacancyId = request.getParameter("vacancyId");
-        String applicationId = request.getParameter("applicationId");
-        String decision = request.getParameter("decision");
-        String reviewNote = request.getParameter("reviewNote");
-        String optionalFeedback = request.getParameter("optionalFeedback");
+        String vacancyId = ValidationUtil.trimToEmpty(request.getParameter("vacancyId"));
+        String applicationId = ValidationUtil.trimToEmpty(request.getParameter("applicationId"));
+        String decision = ValidationUtil.trimToEmpty(request.getParameter("decision"));
+        String reviewNote = ValidationUtil.trimToEmpty(request.getParameter("reviewNote"));
+        String optionalFeedback = ValidationUtil.trimToEmpty(request.getParameter("optionalFeedback"));
 
         String error = reviewService.updateDecision(currentUser, vacancyId, applicationId, decision, reviewNote, optionalFeedback);
         if (error != null) {

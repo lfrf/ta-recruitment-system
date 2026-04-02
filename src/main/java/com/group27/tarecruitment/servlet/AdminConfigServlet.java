@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import com.group27.tarecruitment.util.ValidationUtil;
 
 @WebServlet("/admin/config")
 public class AdminConfigServlet extends HttpServlet {
@@ -45,7 +46,10 @@ public class AdminConfigServlet extends HttpServlet {
             return;
         }
 
-        String error = adminService.updateConfig(request.getParameter("maxWorkload"), request.getParameter("allowVisitorBrowsing") != null);
+        String maxWorkloadValue = ValidationUtil.trimToEmpty(request.getParameter("maxWorkload"));
+        boolean allowVisitorBrowsing = request.getParameter("allowVisitorBrowsing") != null;
+
+        String error = adminService.updateConfig(maxWorkloadValue, allowVisitorBrowsing);
         if (error != null) {
             SessionUtil.storeFlashError(request, error);
         } else {

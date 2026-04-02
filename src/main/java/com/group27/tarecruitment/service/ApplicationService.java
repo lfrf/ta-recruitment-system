@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.group27.tarecruitment.util.ValidationUtil;
 
 public class ApplicationService {
     private final AdminConfigRepository adminConfigRepository = new AdminConfigRepository();
@@ -34,7 +35,7 @@ public class ApplicationService {
 
     public int countActiveApplications(String applicantId) {
         return (int) getApplicationsByApplicant(applicantId).stream()
-                .filter(application -> !"Unsuccessful".equalsIgnoreCase(application.getStatus()))
+                .filter(application -> !ValidationUtil.STATUS_UNSUCCESSFUL.equalsIgnoreCase(application.getStatus()))
                 .count();
     }
 
@@ -42,7 +43,7 @@ public class ApplicationService {
         if (currentUser == null) {
             return "Please log in before applying for a vacancy.";
         }
-        if (vacancyId == null || vacancyId.isBlank()) {
+        if (ValidationUtil.isBlank(vacancyId)) {
             return "Vacancy ID is missing.";
         }
 
@@ -77,7 +78,7 @@ public class ApplicationService {
         application.setVacancyId(vacancyId);
         application.setApplicantId(currentUser.getUserId());
         application.setSubmittedAt(LocalDateTime.now().toString());
-        application.setStatus("Submitted");
+        application.setStatus(ValidationUtil.STATUS_SUBMITTED);
         application.setReviewNote("");
         application.setOptionalFeedback("");
         applications.add(application);

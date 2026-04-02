@@ -8,6 +8,7 @@ import com.group27.tarecruitment.repository.VacancyRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import com.group27.tarecruitment.util.ValidationUtil;
 
 public class ReviewService {
     private final ApplicationRepository applicationRepository = new ApplicationRepository();
@@ -31,21 +32,44 @@ public class ReviewService {
         return applicationRepository.findByVacancyId(vacancyId);
     }
 
-    public String updateDecision(UserAccount organiser, String vacancyId, String applicationId, String decision, String reviewNote, String optionalFeedback) {
+    public String updateDecision(UserAccount organiser, String vacancyId, String applicationId, String decision,
+                                 String reviewNote, String optionalFeedback) {
+        if (organiser == null) {
+            return "Please log in before updating a review decision.";
+        }
+
+        vacancyId = ValidationUtil.trimToEmpty(vacancyId);
+        applicationId = ValidationUtil.trimToEmpty(applicationId);
+        decision = ValidationUtil.normalizeApplicationStatus(decision);
+        reviewNote = ValidationUtil.trimToEmpty(reviewNote);
+        optionalFeedback = ValidationUtil.trimToEmpty(optionalFeedback);
+
+        if (ValidationUtil.isBlank(vacancyId) || ValidationUtil.isBlank(applicationId)) {
+            return "Vacancy ID and application ID are required.";
+        }
+
         if (getManagedVacancy(organiser, vacancyId).isEmpty()) {
             return "You cannot review a vacancy that is not managed by your account.";
         }
-        if (!"Offered".equalsIgnoreCase(decision) && !"Unsuccessful".equalsIgnoreCase(decision)) {
+
+        if (!ValidationUtil.STATUS_OFFERED.equals(decision)
+                && !ValidationUtil.STATUS_UNSUCCESSFUL.equals(decision)) {
             return "Decision must be either Offered or Unsuccessful.";
+        }
+
+        if (ValidationUtil.isBlank(reviewNote)) {
+            return "Review note is required before saving a decision.";
         }
 
         List<ApplicationRecord> applications = new ArrayList<>(applicationRepository.findAll());
         boolean updated = false;
+
         for (ApplicationRecord application : applications) {
-            if (applicationId.equals(application.getApplicationId()) && vacancyId.equals(application.getVacancyId())) {
+            if (applicationId.equals(application.getApplicationId())
+                    && vacancyId.equals(application.getVacancyId())) {
                 application.setStatus(decision);
-                application.setReviewNote(reviewNote == null ? "" : reviewNote.trim());
-                application.setOptionalFeedback(optionalFeedback == null ? "" : optionalFeedback.trim());
+                application.setReviewNote(reviewNote);
+                application.setOptionalFeedback(optionalFeedback);
                 updated = true;
                 break;
             }

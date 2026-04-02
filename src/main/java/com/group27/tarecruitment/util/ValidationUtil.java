@@ -17,6 +17,18 @@ public final class ValidationUtil {
         return value == null ? "" : value.trim();
     }
 
+    public static Integer parsePositiveInt(String value) {
+        if (isBlank(value)) {
+            return null;
+        }
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return parsed > 0 ? parsed : null;
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
     public static List<String> splitCsv(String value) {
         if (isBlank(value)) {
             return Collections.emptyList();

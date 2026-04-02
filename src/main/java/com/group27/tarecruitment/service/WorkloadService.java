@@ -11,6 +11,7 @@ import com.group27.tarecruitment.repository.ApplicationRepository;
 import com.group27.tarecruitment.repository.BlacklistRepository;
 import com.group27.tarecruitment.repository.UserRepository;
 import com.group27.tarecruitment.repository.VacancyRepository;
+import com.group27.tarecruitment.util.ValidationUtil;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -27,6 +28,13 @@ public class WorkloadService {
     private final VacancyRepository vacancyRepository = new VacancyRepository();
 
     public List<ApplicantWorkloadSummary> getApplicantSummaries(int maxWorkload) {
+        return filterSummaries(maxWorkload, "", "", false);
+    }
+
+    public List<ApplicantWorkloadSummary> filterSummaries(int maxWorkload,
+                                                          String applicantKeyword,
+                                                          String moduleKeyword,
+                                                          boolean flaggedOnly) {
         Map<String, ApplicantProfile> profileByApplicantId = new LinkedHashMap<>();
         for (ApplicantProfile profile : applicantProfileRepository.findAll()) {
             profileByApplicantId.put(profile.getApplicantId(), profile);
@@ -54,36 +62,70 @@ public class WorkloadService {
             applicantIds.add(application.getApplicantId());
         }
 
+        String normalizedApplicantKeyword = ValidationUtil.trimToEmpty(applicantKeyword).toLowerCase();
+        String normalizedModuleKeyword = ValidationUtil.trimToEmpty(moduleKeyword).toLowerCase();
+
         List<ApplicantWorkloadSummary> summaries = new ArrayList<>();
         for (String applicantId : applicantIds) {
             ApplicantProfile profile = profileByApplicantId.get(applicantId);
             UserAccount user = userById.get(applicantId);
+            int totalApplicationsCount = 0;
             int submittedCount = 0;
+            int unsuccessfulCount = 0;
             int offeredCount = 0;
             int activeCount = 0;
             Set<String> activeModules = new LinkedHashSet<>();
 
             for (ApplicationRecord application : applicationRepository.findByApplicantId(applicantId)) {
-                if ("Submitted".equalsIgnoreCase(application.getStatus())) { submittedCount++; activeCount++; }
-                if ("Offered".equalsIgnoreCase(application.getStatus())) { offeredCount++; activeCount++; }
+                totalApplicationsCount++;
+                if ("Submitted".equalsIgnoreCase(application.getStatus())) {
+                    submittedCount++;
+                    activeCount++;
+                }
+                if ("Offered".equalsIgnoreCase(application.getStatus())) {
+                    offeredCount++;
+                    activeCount++;
+                }
+                if ("Unsuccessful".equalsIgnoreCase(application.getStatus())) {
+                    unsuccessfulCount++;
+                }
                 if (!"Unsuccessful".equalsIgnoreCase(application.getStatus())) {
                     Vacancy vacancy = vacancyById.get(application.getVacancyId());
-                    if (vacancy != null) { activeModules.add(vacancy.getModuleCode()); }
+                    if (vacancy != null) {
+                        activeModules.add(vacancy.getModuleCode() + " - " + vacancy.getModuleName());
+                    }
                 }
             }
 
             ApplicantWorkloadSummary summary = new ApplicantWorkloadSummary();
             summary.setApplicantId(applicantId);
-            summary.setDisplayName(profile != null && profile.getFullName() != null && !profile.getFullName().isBlank() ? profile.getFullName() : user != null ? user.getDisplayName() : applicantId);
+            summary.setDisplayName(profile != null && profile.getFullName() != null && !profile.getFullName().isBlank()
+                    ? profile.getFullName()
+                    : user != null ? user.getDisplayName() : applicantId);
             summary.setStudentId(profile != null ? profile.getStudentId() : "");
-            summary.setEmail(profile != null && profile.getEmail() != null && !profile.getEmail().isBlank() ? profile.getEmail() : user != null ? user.getEmail() : "");
+            summary.setEmail(profile != null && profile.getEmail() != null && !profile.getEmail().isBlank()
+                    ? profile.getEmail()
+                    : user != null ? user.getEmail() : "");
+            summary.setTotalApplicationsCount(totalApplicationsCount);
             summary.setSubmittedCount(submittedCount);
+            summary.setUnsuccessfulCount(unsuccessfulCount);
             summary.setOfferedCount(offeredCount);
             summary.setActiveCount(activeCount);
             summary.setMaxWorkload(maxWorkload);
             summary.setBlacklisted(blacklistedIds.contains(applicantId) || (profile != null && profile.isBlacklisted()));
             summary.setOverloaded(activeCount > maxWorkload);
             summary.setActiveModules(new ArrayList<>(activeModules));
+
+            if (!matchesApplicant(summary, normalizedApplicantKeyword)) {
+                continue;
+            }
+            if (!matchesModule(summary, normalizedModuleKeyword)) {
+                continue;
+            }
+            if (flaggedOnly && !summary.isBlacklisted() && !summary.isOverloaded()) {
+                continue;
+            }
+
             summaries.add(summary);
         }
 
@@ -99,5 +141,30 @@ public class WorkloadService {
             }
         }
         return counts;
+    }
+
+    private boolean matchesApplicant(ApplicantWorkloadSummary summary, String keyword) {
+        if (keyword.isBlank()) {
+            return true;
+        }
+        return contains(summary.getDisplayName(), keyword)
+                || contains(summary.getStudentId(), keyword)
+                || contains(summary.getEmail(), keyword);
+    }
+
+    private boolean matchesModule(ApplicantWorkloadSummary summary, String keyword) {
+        if (keyword.isBlank()) {
+            return true;
+        }
+        for (String module : summary.getActiveModules()) {
+            if (contains(module, keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean contains(String value, String keyword) {
+        return value != null && value.toLowerCase().contains(keyword);
     }
 }

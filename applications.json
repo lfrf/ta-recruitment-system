@@ -1,0 +1,4 @@
+[
+  {"applicant":"applicant1","vacancy_id":1,"status":"Submitted","review_note":"","feedback":""},
+  {"applicant":"applicant2","vacancy_id":1,"status":"Offered","review_note":"符合岗位要求","feedback":"欢迎加入团队"}
+]

@@ -1,0 +1,4 @@
+[
+  {"id":1,"title":"Java开发岗","requirements":"本科、1年以上开发经验","max_workload":5,"is_open":true},
+  {"id":2,"title":"行政助理","requirements":"细心、熟练使用办公软件","max_workload":3,"is_open":true}
+]

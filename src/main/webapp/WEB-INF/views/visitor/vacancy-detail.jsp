@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
@@ -8,34 +8,44 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 <body>
-<div class="page">
-    <div class="topbar">
+<div class="${isAdmin ? 'page page-admin' : 'page'}">
+    <div class="${isAdmin ? 'topbar topbar-admin' : 'topbar'}">
         <div class="brand">
             <h1>Vacancy Detail</h1>
             <p>Review the role information before choosing whether to log in and apply.</p>
         </div>
-        <div class="nav-actions">
-            <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back</a>
-            <c:choose>
-                <c:when test="${loggedIn}">
-                    <c:if test="${isApplicant}">
-                        <a class="btn" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
-                        <a class="btn" href="${pageContext.request.contextPath}/applicant/status">My Status</a>
-                    </c:if>
-                    <c:if test="${isMO}">
-                        <a class="btn" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a>
-                    </c:if>
-                    <c:if test="${isAdmin}">
-                        <a class="btn" href="${pageContext.request.contextPath}/admin/config">Admin Config</a>
-                        <a class="btn" href="${pageContext.request.contextPath}/admin/workload">Workload</a>
-                    </c:if>
-                    <a class="btn" href="${pageContext.request.contextPath}/logout">Log Out</a>
-                </c:when>
-                <c:otherwise>
-                    <a class="btn" href="${pageContext.request.contextPath}/login">Log In</a>
-                </c:otherwise>
-            </c:choose>
-        </div>
+        <c:choose>
+            <c:when test="${isAdmin}">
+                <div class="nav-actions admin-nav">
+                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/config">Config</a>
+                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/workload">Workload</a>
+                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/blacklist">Blacklist</a>
+                    <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/vacancies">Browse Vacancies</a>
+                    <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="nav-actions">
+                    <c:choose>
+                        <c:when test="${loggedIn}">
+                            <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back</a>
+                            <c:if test="${isApplicant}">
+                                <a class="btn" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
+                                <a class="btn" href="${pageContext.request.contextPath}/applicant/status">My Status</a>
+                            </c:if>
+                            <c:if test="${isMO}">
+                                <a class="btn" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a>
+                            </c:if>
+                            <a class="btn" href="${pageContext.request.contextPath}/logout">Log Out</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back</a>
+                            <a class="btn" href="${pageContext.request.contextPath}/login">Log In</a>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
 
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>
@@ -70,7 +80,7 @@
                         <a class="btn primary" href="${pageContext.request.contextPath}/mo/applicants?vacancyId=${vacancy.vacancyId}">Review applicants for this vacancy</a>
                     </c:when>
                     <c:when test="${loggedIn and isAdmin}">
-                        <div class="warning">Admin accounts can manage workload rules and view the workload dashboard from the admin area.</div>
+                        <div class="warning">Admin accounts can manage workload rules, blacklists, and workload monitoring from the admin area.</div>
                     </c:when>
                     <c:when test="${loggedIn}">
                         <div class="warning">This logged-in account does not have applicant permissions for vacancy applications.</div>

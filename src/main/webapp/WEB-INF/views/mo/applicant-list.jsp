@@ -15,9 +15,10 @@
             <p>Select one of your vacancies to review the current applicants.</p>
         </div>
         <div class="nav-actions">
-            <a class="btn" href="${pageContext.request.contextPath}/vacancies">Browse Vacancies</a>
-            <a class="btn" href="${pageContext.request.contextPath}/logout">Log Out</a>
-        </div>
+    <a class="btn primary" href="${pageContext.request.contextPath}/mo/create-vacancy">Create Vacancy</a>
+    <a class="btn" href="${pageContext.request.contextPath}/vacancies">Browse Vacancies</a>
+    <a class="btn" href="${pageContext.request.contextPath}/logout">Log Out</a>
+</div>
     </div>
 
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>

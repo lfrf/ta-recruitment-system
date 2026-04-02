@@ -28,3 +28,8 @@ Software Engineering group project for `EBU6304`.
 - Project repository initialized
 - First assessment planning documents created
 - Ready for backlog drafting, prototyping, and implementation setup
+
+## Implementation kickoff
+- Lightweight Java Servlet/JSP web application skeleton added
+- Public vacancy browsing and login entry flow available for Sprint 2
+- Shared model, repository, service, and data structure created for team development

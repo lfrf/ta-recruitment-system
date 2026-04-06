@@ -14,25 +14,31 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-@WebServlet("/login")
-public class LoginServlet extends HttpServlet {
+@WebServlet("/admin/login")
+public class AdminLoginServlet extends HttpServlet {
     private final AuthService authService = new AuthService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        UserAccount currentUser = SessionUtil.getCurrentUser(request);
+        if (currentUser != null && currentUser.getRole() == UserRole.ADMIN) {
+            response.sendRedirect(request.getContextPath() + "/admin/config");
+            return;
+        }
+
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
-        request.setAttribute("loginTitle", "Applicant / Organiser Log In");
-        request.setAttribute("loginSubtitle", "Use this window for applicant and organiser accounts when you want to apply, update your profile, or review applicants.");
-        request.setAttribute("submitLabel", "Log In");
-        request.setAttribute("formAction", request.getContextPath() + "/login");
+        request.setAttribute("loginTitle", "Admin Log In");
+        request.setAttribute("loginSubtitle", "Use the dedicated admin login window to manage configuration, workload, and blacklist controls.");
+        request.setAttribute("submitLabel", "Admin Log In");
+        request.setAttribute("formAction", request.getContextPath() + "/admin/login");
         request.setAttribute("backHref", request.getContextPath() + "/home");
         request.setAttribute("backLabel", "Back to vacancies");
-        request.setAttribute("altLoginHref", request.getContextPath() + "/admin/login");
-        request.setAttribute("altLoginLabel", "Admin login");
-        request.setAttribute("loginVariant", "applicant");
-        request.setAttribute("loginAudience", "Applicant / Organiser access");
-        request.setAttribute("loginNotice", "Administrator accounts are not allowed on this page. Use the dedicated admin login window instead.");
+        request.setAttribute("altLoginHref", request.getContextPath() + "/login");
+        request.setAttribute("altLoginLabel", "Applicant / organiser login");
+        request.setAttribute("loginVariant", "admin");
+        request.setAttribute("loginAudience", "Administrator access only");
+        request.setAttribute("loginNotice", "Applicant and organiser accounts should not use this page. This window is reserved for admin-only actions.");
         request.getRequestDispatcher("/WEB-INF/views/common/login.jsp").forward(request, response);
     }
 
@@ -55,13 +61,13 @@ public class LoginServlet extends HttpServlet {
         }
 
         UserAccount user = authenticatedUser.get();
-        if (user.getRole() == UserRole.ADMIN) {
-            request.setAttribute("errorMessage", "Administrator accounts must use the dedicated admin login page.");
+        if (user.getRole() != UserRole.ADMIN) {
+            request.setAttribute("errorMessage", "This login page is reserved for administrator accounts only.");
             doGet(request, response);
             return;
         }
 
         SessionUtil.storeUser(request, user);
-        response.sendRedirect(request.getContextPath() + "/vacancies");
+        response.sendRedirect(request.getContextPath() + "/admin/config");
     }
 }

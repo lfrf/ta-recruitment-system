@@ -7,7 +7,9 @@ public class ApplicantWorkloadSummary {
     private String displayName;
     private String studentId;
     private String email;
+    private int totalApplicationsCount;
     private int submittedCount;
+    private int unsuccessfulCount;
     private int offeredCount;
     private int activeCount;
     private int maxWorkload;
@@ -23,8 +25,12 @@ public class ApplicantWorkloadSummary {
     public void setStudentId(String studentId) { this.studentId = studentId; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public int getTotalApplicationsCount() { return totalApplicationsCount; }
+    public void setTotalApplicationsCount(int totalApplicationsCount) { this.totalApplicationsCount = totalApplicationsCount; }
     public int getSubmittedCount() { return submittedCount; }
     public void setSubmittedCount(int submittedCount) { this.submittedCount = submittedCount; }
+    public int getUnsuccessfulCount() { return unsuccessfulCount; }
+    public void setUnsuccessfulCount(int unsuccessfulCount) { this.unsuccessfulCount = unsuccessfulCount; }
     public int getOfferedCount() { return offeredCount; }
     public void setOfferedCount(int offeredCount) { this.offeredCount = offeredCount; }
     public int getActiveCount() { return activeCount; }

@@ -12,7 +12,7 @@
     <div class="${isAdmin ? 'topbar topbar-admin' : 'topbar'}">
         <div class="brand">
             <h1>Visitor Interface</h1>
-            <p>Browse TA opportunities before logging in. Protected actions will ask you to sign in.</p>
+            <p>Browse TA opportunities before logging in. Protected actions such as applying or checking status require sign-in.</p>
         </div>
         <c:choose>
             <c:when test="${isAdmin}">
@@ -49,26 +49,36 @@
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>
     <c:if test="${not empty flashError}"><div class="alert error">${flashError}</div></c:if>
 
-    <div class="grid">
-        <c:forEach items="${vacancies}" var="vacancy">
+    <c:choose>
+        <c:when test="${empty vacancies}">
             <div class="card">
-                <div class="card-header">
-                    <div>
-                        <h2>${vacancy.title}</h2>
-                        <p class="hint">${vacancy.description}</p>
-                    </div>
-                    <span class="status-badge status-open">${vacancy.status}</span>
-                </div>
-                <p><strong>Module:</strong> ${vacancy.moduleCode} - ${vacancy.moduleName}</p>
-                <p><strong>Deadline:</strong> ${vacancy.deadline}</p>
-                <div class="meta">
-                    <c:forEach items="${vacancy.requiredSkills}" var="skill"><span class="tag">${skill}</span></c:forEach>
-                </div>
-                <p class="hint spacing-top">${vacancy.applicantCount} applicants</p>
-                <a class="btn primary" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                <h2>No vacancies available</h2>
+                <p class="hint">There are currently no TA vacancies open for browsing.</p>
             </div>
-        </c:forEach>
-    </div>
+        </c:when>
+        <c:otherwise>
+            <div class="grid">
+                <c:forEach items="${vacancies}" var="vacancy">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2>${vacancy.title}</h2>
+                                <p class="hint">${vacancy.description}</p>
+                            </div>
+                            <span class="status-badge status-open">${vacancy.status}</span>
+                        </div>
+                        <p><strong>Module:</strong> ${vacancy.moduleCode} - ${vacancy.moduleName}</p>
+                        <p><strong>Deadline:</strong> ${vacancy.deadline}</p>
+                        <div class="meta">
+                            <c:forEach items="${vacancy.requiredSkills}" var="skill"><span class="tag">${skill}</span></c:forEach>
+                        </div>
+                        <p class="hint spacing-top">${vacancy.applicantCount} applicants</p>
+                        <a class="btn primary" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                    </div>
+                </c:forEach>
+            </div>
+        </c:otherwise>
+    </c:choose>
 </div>
 </body>
 </html>

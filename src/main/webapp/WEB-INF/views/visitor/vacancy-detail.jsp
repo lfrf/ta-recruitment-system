@@ -12,7 +12,7 @@
     <div class="${isAdmin ? 'topbar topbar-admin' : 'topbar'}">
         <div class="brand">
             <h1>Vacancy Detail</h1>
-            <p>Review the role information before choosing whether to log in and apply.</p>
+            <p>Review the role information carefully before deciding whether to log in and apply.</p>
         </div>
         <c:choose>
             <c:when test="${isAdmin}">
@@ -53,7 +53,7 @@
 
     <c:choose>
         <c:when test="${vacancy == null}">
-            <div class="card"><h2>Vacancy not found</h2><p class="hint">The vacancy ID may be invalid or the posting may have been removed.</p></div>
+            <div class="card"><h2>Vacancy not found</h2><p class="hint">The vacancy ID may be invalid or the posting may no longer be available.</p><div class="spacing-top"><a class="btn primary" href="${pageContext.request.contextPath}/vacancies">Return to vacancy list</a></div></div>
         </c:when>
         <c:otherwise>
             <div class="card detail-list">
@@ -86,7 +86,7 @@
                         <div class="warning">This logged-in account does not have applicant permissions for vacancy applications.</div>
                     </c:when>
                     <c:otherwise>
-                        <div class="warning">Please log in before applying, viewing your status, or updating your applicant profile.<div class="spacing-top"><a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to continue</a></div></div>
+                        <div class="warning">Please log in before applying, viewing your status, or updating your applicant profile.<div class="spacing-top"><a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Continue</a></div></div>
                     </c:otherwise>
                 </c:choose>
             </div>

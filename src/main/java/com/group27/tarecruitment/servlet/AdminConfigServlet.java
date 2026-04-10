@@ -20,13 +20,13 @@ public class AdminConfigServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please use the admin login window before managing admin configuration.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before managing admin configuration.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
         if (currentUser.getRole() != UserRole.ADMIN) {
             SessionUtil.storeFlashError(request, "Only admin accounts can access configuration settings.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 
@@ -41,8 +41,8 @@ public class AdminConfigServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null || currentUser.getRole() != UserRole.ADMIN) {
-            SessionUtil.storeFlashError(request, "Only admin accounts can update configuration. Please use the dedicated admin login window.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            SessionUtil.storeFlashError(request, "Only admin accounts can update configuration. Please use the staff login page.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 

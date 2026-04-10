@@ -12,12 +12,14 @@ public final class ValidationUtil {
     public static final String STATUS_SUBMITTED = "Submitted";
     public static final String STATUS_OFFERED = "Offered";
     public static final String STATUS_UNSUCCESSFUL = "Unsuccessful";
+    public static final String STATUS_WITHDRAWN = "Withdrawn";
 
     private static final Set<String> ALLOWED_APPLICATION_STATUSES = Collections.unmodifiableSet(
             new LinkedHashSet<>(Arrays.asList(
                     STATUS_SUBMITTED,
                     STATUS_OFFERED,
-                    STATUS_UNSUCCESSFUL
+                    STATUS_UNSUCCESSFUL,
+                    STATUS_WITHDRAWN
             ))
     );
 
@@ -76,6 +78,9 @@ public final class ValidationUtil {
         }
         if (STATUS_UNSUCCESSFUL.equalsIgnoreCase(normalized)) {
             return STATUS_UNSUCCESSFUL;
+        }
+        if (STATUS_WITHDRAWN.equalsIgnoreCase(normalized)) {
+            return STATUS_WITHDRAWN;
         }
         return normalized;
     }

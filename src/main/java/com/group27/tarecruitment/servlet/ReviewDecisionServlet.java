@@ -20,8 +20,8 @@ public class ReviewDecisionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before reviewing applicant records.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before reviewing applicant records.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
         if (currentUser.getRole() != UserRole.MO) {

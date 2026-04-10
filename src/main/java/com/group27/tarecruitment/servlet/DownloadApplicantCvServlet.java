@@ -24,7 +24,7 @@ public class DownloadApplicantCvServlet extends HttpServlet {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null || currentUser.getRole() != UserRole.MO) {
             SessionUtil.storeFlashError(request, "Only organiser accounts can download applicant CV files.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 

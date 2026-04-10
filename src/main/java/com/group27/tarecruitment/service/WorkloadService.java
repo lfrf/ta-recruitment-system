@@ -78,18 +78,20 @@ public class WorkloadService {
 
             for (ApplicationRecord application : applicationRepository.findByApplicantId(applicantId)) {
                 totalApplicationsCount++;
-                if ("Submitted".equalsIgnoreCase(application.getStatus())) {
+                String normalizedStatus = ValidationUtil.normalizeApplicationStatus(application.getStatus());
+                if (ValidationUtil.STATUS_SUBMITTED.equals(normalizedStatus)) {
                     submittedCount++;
                     activeCount++;
                 }
-                if ("Offered".equalsIgnoreCase(application.getStatus())) {
+                if (ValidationUtil.STATUS_OFFERED.equals(normalizedStatus)) {
                     offeredCount++;
                     activeCount++;
                 }
-                if ("Unsuccessful".equalsIgnoreCase(application.getStatus())) {
+                if (ValidationUtil.STATUS_UNSUCCESSFUL.equals(normalizedStatus)) {
                     unsuccessfulCount++;
                 }
-                if (!"Unsuccessful".equalsIgnoreCase(application.getStatus())) {
+                if (!ValidationUtil.STATUS_UNSUCCESSFUL.equals(normalizedStatus)
+                        && !ValidationUtil.STATUS_WITHDRAWN.equals(normalizedStatus)) {
                     Vacancy vacancy = vacancyById.get(application.getVacancyId());
                     if (vacancy != null) {
                         activeModules.add(vacancy.getModuleCode() + " - " + vacancy.getModuleName());
@@ -136,7 +138,9 @@ public class WorkloadService {
     public Map<String, Integer> getActiveCountByApplicantId() {
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (ApplicationRecord application : applicationRepository.findAll()) {
-            if (!"Unsuccessful".equalsIgnoreCase(application.getStatus())) {
+            String normalizedStatus = ValidationUtil.normalizeApplicationStatus(application.getStatus());
+            if (ValidationUtil.STATUS_SUBMITTED.equals(normalizedStatus)
+                    || ValidationUtil.STATUS_OFFERED.equals(normalizedStatus)) {
                 counts.merge(application.getApplicantId(), 1, Integer::sum);
             }
         }

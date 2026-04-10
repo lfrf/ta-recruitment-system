@@ -20,13 +20,13 @@ public class CreateVacancyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before creating a vacancy.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before publishing a course job.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 
         if (currentUser.getRole() != UserRole.MO) {
-            SessionUtil.storeFlashError(request, "Only organiser accounts can create vacancies.");
+            SessionUtil.storeFlashError(request, "Only organiser accounts can publish course jobs.");
             response.sendRedirect(request.getContextPath() + "/vacancies");
             return;
         }
@@ -40,48 +40,50 @@ public class CreateVacancyServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before creating a vacancy.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before publishing a course job.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 
         if (currentUser.getRole() != UserRole.MO) {
-            SessionUtil.storeFlashError(request, "Only organiser accounts can create vacancies.");
+            SessionUtil.storeFlashError(request, "Only organiser accounts can publish course jobs.");
             response.sendRedirect(request.getContextPath() + "/vacancies");
             return;
         }
 
         String moduleCode = request.getParameter("moduleCode");
         String moduleName = request.getParameter("moduleName");
-        String title = request.getParameter("title");
+        String campus = request.getParameter("campus");
         String description = request.getParameter("description");
         String requiredSkills = request.getParameter("requiredSkills");
         String preferredBackground = request.getParameter("preferredBackground");
         String workloadValue = request.getParameter("workloadValue");
-        String deadline = request.getParameter("deadline");
+        String positionCount = request.getParameter("positionCount");
+        boolean leaderRoleAvailable = request.getParameter("leaderRoleAvailable") != null;
 
         String error = vacancyService.validateNewVacancy(
                 currentUser,
                 moduleCode,
                 moduleName,
-                title,
+                campus,
                 description,
                 requiredSkills,
                 preferredBackground,
                 workloadValue,
-                deadline
+                positionCount
         );
 
         if (error != null) {
             request.setAttribute("errorMessage", error);
             request.setAttribute("moduleCode", moduleCode);
             request.setAttribute("moduleName", moduleName);
-            request.setAttribute("title", title);
+            request.setAttribute("campus", campus);
             request.setAttribute("description", description);
             request.setAttribute("requiredSkills", requiredSkills);
             request.setAttribute("preferredBackground", preferredBackground);
             request.setAttribute("workloadValue", workloadValue);
-            request.setAttribute("deadline", deadline);
+            request.setAttribute("positionCount", positionCount);
+            request.setAttribute("leaderRoleAvailable", leaderRoleAvailable);
             request.getRequestDispatcher("/WEB-INF/views/mo/create-vacancy.jsp").forward(request, response);
             return;
         }
@@ -90,16 +92,16 @@ public class CreateVacancyServlet extends HttpServlet {
                 currentUser,
                 moduleCode,
                 moduleName,
-                title,
+                campus,
                 description,
                 requiredSkills,
                 preferredBackground,
                 workloadValue,
-                deadline
+                positionCount,
+                leaderRoleAvailable
         );
 
-        SessionUtil.storeFlashMessage(request, "Vacancy created successfully.");
+        SessionUtil.storeFlashMessage(request, "Course job published successfully.");
         response.sendRedirect(request.getContextPath() + "/mo/applicants");
     }
 }
-

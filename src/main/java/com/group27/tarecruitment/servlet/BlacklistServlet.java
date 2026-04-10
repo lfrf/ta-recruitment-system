@@ -28,13 +28,13 @@ public class BlacklistServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please use the admin login window before managing the blacklist.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before managing the blacklist.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
         if (currentUser.getRole() != UserRole.ADMIN) {
             SessionUtil.storeFlashError(request, "Only admin accounts can manage the blacklist.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 
@@ -62,8 +62,8 @@ public class BlacklistServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null || currentUser.getRole() != UserRole.ADMIN) {
-            SessionUtil.storeFlashError(request, "Only admin accounts can update the blacklist. Please use the dedicated admin login window.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            SessionUtil.storeFlashError(request, "Only admin accounts can update the blacklist. Please use the staff login page.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 

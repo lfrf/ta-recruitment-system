@@ -20,8 +20,8 @@ public class ReviewDecisionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before reviewing applicant records.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before reviewing applicant records.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
         if (currentUser.getRole() != UserRole.MO) {
@@ -35,8 +35,9 @@ public class ReviewDecisionServlet extends HttpServlet {
         String decision = ValidationUtil.trimToEmpty(request.getParameter("decision"));
         String reviewNote = ValidationUtil.trimToEmpty(request.getParameter("reviewNote"));
         String optionalFeedback = ValidationUtil.trimToEmpty(request.getParameter("optionalFeedback"));
+        boolean appointLeadTa = request.getParameter("appointLeadTa") != null;
 
-        String error = reviewService.updateDecision(currentUser, vacancyId, applicationId, decision, reviewNote, optionalFeedback);
+        String error = reviewService.updateDecision(currentUser, vacancyId, applicationId, decision, reviewNote, optionalFeedback, appointLeadTa);
         if (error != null) {
             SessionUtil.storeFlashError(request, error);
         } else {

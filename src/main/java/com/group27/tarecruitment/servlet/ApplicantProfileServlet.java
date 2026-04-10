@@ -4,18 +4,27 @@ import com.group27.tarecruitment.model.ApplicantProfile;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
 import com.group27.tarecruitment.service.ApplicantProfileService;
+import com.group27.tarecruitment.util.JsonFileUtil;
 import com.group27.tarecruitment.util.SessionUtil;
 import com.group27.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @WebServlet("/applicant/profile")
+@MultipartConfig(maxFileSize = 10 * 1024 * 1024, maxRequestSize = 12 * 1024 * 1024)
 public class ApplicantProfileServlet extends HttpServlet {
+    private static final List<String> ALLOWED_CV_EXTENSIONS = List.of(".pdf", ".doc", ".docx");
     private final ApplicantProfileService applicantProfileService = new ApplicantProfileService();
 
     @Override
@@ -46,20 +55,22 @@ public class ApplicantProfileServlet extends HttpServlet {
             return;
         }
 
-        String fullName = request.getParameter("fullName");
-        String studentId = request.getParameter("studentId");
-        String email = request.getParameter("email");
-        String degreeProgramme = request.getParameter("degreeProgramme");
-        String yearOfStudy = request.getParameter("yearOfStudy");
+        ApplicantProfile existing = applicantProfileService.findByApplicantId(currentUser.getUserId()).orElse(null);
+        ApplicantProfile profile = buildProfileFromRequest(currentUser, existing, request);
 
-        ApplicantProfile profile = buildProfileFromRequest(currentUser, request);
-        if (ValidationUtil.isBlank(fullName)
-                || ValidationUtil.isBlank(studentId)
-                || ValidationUtil.isBlank(email)
-                || ValidationUtil.isBlank(degreeProgramme)
-                || ValidationUtil.isBlank(yearOfStudy)) {
+        String uploadError = attachUploadedCv(profile, request.getPart("cvFile"));
+        if (uploadError != null) {
             attachProfileAttributes(request, currentUser, profile);
-            request.setAttribute("flashError", "Full name, student ID, email, degree programme, and year of study are required.");
+            request.setAttribute("flashError", uploadError);
+            request.getRequestDispatcher("/WEB-INF/views/applicant/profile.jsp").forward(request, response);
+            return;
+        }
+
+        if (ValidationUtil.isBlank(profile.getFullName())
+                || ValidationUtil.isBlank(profile.getStudentId())
+                || ValidationUtil.isBlank(profile.getEmail())) {
+            attachProfileAttributes(request, currentUser, profile);
+            request.setAttribute("flashError", "Full name, student ID, and email are required so organisers can identify you quickly.");
             request.getRequestDispatcher("/WEB-INF/views/applicant/profile.jsp").forward(request, response);
             return;
         }
@@ -71,29 +82,33 @@ public class ApplicantProfileServlet extends HttpServlet {
             return;
         }
 
-        if (!ValidationUtil.isPositiveInteger(profile.getYearOfStudy())) {
+        if (!ValidationUtil.isBlank(profile.getYearOfStudy())
+                && !ValidationUtil.isPositiveInteger(profile.getYearOfStudy())) {
             attachProfileAttributes(request, currentUser, profile);
-            request.setAttribute("flashError", "Year of study must be a positive integer.");
+            request.setAttribute("flashError", "Year of study must be a positive integer when provided.");
             request.getRequestDispatcher("/WEB-INF/views/applicant/profile.jsp").forward(request, response);
             return;
         }
 
         applicantProfileService.saveProfile(profile);
-        SessionUtil.storeFlashMessage(request, "Applicant profile saved successfully.");
-        response.sendRedirect(request.getContextPath() + "/applicant/profile");
+        String flashMessage = ValidationUtil.isBlank(profile.getCvFileName())
+                ? "Basic profile saved. You can apply directly from Browse Jobs now."
+                : "Profile and CV saved. You can return to Browse Jobs and apply straight away.";
+        SessionUtil.storeFlashMessage(request, flashMessage);
+        response.sendRedirect(request.getContextPath() + "/vacancies");
     }
 
     private void attachProfileAttributes(HttpServletRequest request, UserAccount currentUser, ApplicantProfile profile) {
         request.setAttribute("currentUser", currentUser);
         request.setAttribute("profile", profile);
+        request.setAttribute("profileReady", applicantProfileService.isProfileReady(profile));
         request.setAttribute("relevantCoursesValue", join(profile.getRelevantCourses()));
         request.setAttribute("skillsValue", join(profile.getSkills()));
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
     }
 
-    private ApplicantProfile buildProfileFromRequest(UserAccount currentUser, HttpServletRequest request) {
-        ApplicantProfile existing = applicantProfileService.findByApplicantId(currentUser.getUserId()).orElse(null);
+    private ApplicantProfile buildProfileFromRequest(UserAccount currentUser, ApplicantProfile existing, HttpServletRequest request) {
         ApplicantProfile profile = new ApplicantProfile();
         profile.setApplicantId(currentUser.getUserId());
         profile.setStudentId(ValidationUtil.trimToEmpty(request.getParameter("studentId")));
@@ -107,10 +122,54 @@ public class ApplicantProfileServlet extends HttpServlet {
         profile.setTaExperience(ValidationUtil.trimToEmpty(request.getParameter("taExperience")));
         profile.setProjectOrLeadershipExperience(ValidationUtil.trimToEmpty(request.getParameter("projectExperience")));
         profile.setAvailability(ValidationUtil.trimToEmpty(request.getParameter("availability")));
-        profile.setCvFileName(ValidationUtil.trimToEmpty(request.getParameter("cvFileName")));
-        profile.setCvFilePath(ValidationUtil.trimToEmpty(request.getParameter("cvFilePath")));
+        if (existing != null) {
+            profile.setCvFileName(existing.getCvFileName());
+            profile.setCvFilePath(existing.getCvFilePath());
+        }
         profile.setBlacklisted(existing != null && existing.isBlacklisted());
         return profile;
+    }
+
+    private String attachUploadedCv(ApplicantProfile profile, Part cvFilePart) throws IOException {
+        if (cvFilePart == null || cvFilePart.getSize() == 0) {
+            return null;
+        }
+
+        String originalFileName = extractSubmittedFileName(cvFilePart);
+        if (ValidationUtil.isBlank(originalFileName)) {
+            return null;
+        }
+
+        String extension = extractExtension(originalFileName).toLowerCase();
+        if (!ALLOWED_CV_EXTENSIONS.contains(extension)) {
+            return "Please upload your CV as a PDF, DOC, or DOCX file.";
+        }
+
+        Path uploadsDir = JsonFileUtil.getRuntimeDataDirectory().getParent().resolve("uploads");
+        Files.createDirectories(uploadsDir);
+
+        String savedFileName = profile.getApplicantId() + "-cv-" + System.currentTimeMillis() + extension;
+        Path targetFile = uploadsDir.resolve(savedFileName);
+        try (InputStream inputStream = cvFilePart.getInputStream()) {
+            Files.copy(inputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        profile.setCvFileName(originalFileName);
+        profile.setCvFilePath(targetFile.toString());
+        return null;
+    }
+
+    private String extractSubmittedFileName(Part part) {
+        String submitted = part.getSubmittedFileName();
+        if (ValidationUtil.isBlank(submitted)) {
+            return "";
+        }
+        return Path.of(submitted).getFileName().toString();
+    }
+
+    private String extractExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex >= 0 ? fileName.substring(dotIndex) : "";
     }
 
     private String join(List<String> values) {

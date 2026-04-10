@@ -1,18 +1,18 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Vacancy Detail</title>
+    <title>Course Job Detail</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 <body>
 <div class="${isAdmin ? 'page page-admin' : 'page'}">
-    <div class="${isAdmin ? 'topbar topbar-admin' : 'topbar'}">
+    <div class="topbar-wide">
         <div class="brand">
-            <h1>Vacancy Detail</h1>
-            <p>Review the role information carefully before deciding whether to log in and apply.</p>
+            <h1>Course Job Detail</h1>
+            <p>Check the course summary, TA places, and required skills, then apply only if the course fits your strengths.</p>
         </div>
         <c:choose>
             <c:when test="${isAdmin}">
@@ -25,23 +25,16 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <div class="nav-actions">
+                <div class="nav-actions panel-nav">
+                    <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>
                     <c:choose>
                         <c:when test="${loggedIn}">
-                            <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back</a>
-                            <c:if test="${isApplicant}">
-                                <a class="btn" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
-                                <a class="btn" href="${pageContext.request.contextPath}/applicant/status">My Status</a>
-                            </c:if>
-                            <c:if test="${isMO}">
-                                <a class="btn" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a>
-                            </c:if>
-                            <a class="btn" href="${pageContext.request.contextPath}/logout">Log Out</a>
+                            <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a></c:if>
+                            <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/status">Application History</a></c:if>
+                            <c:if test="${isMO}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a></c:if>
+                            <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
                         </c:when>
-                        <c:otherwise>
-                            <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back</a>
-                            <a class="btn" href="${pageContext.request.contextPath}/login">Log In</a>
-                        </c:otherwise>
+                        <c:otherwise><a class="btn btn-nav" href="${pageContext.request.contextPath}/login">Log In</a></c:otherwise>
                     </c:choose>
                 </div>
             </c:otherwise>
@@ -53,40 +46,89 @@
 
     <c:choose>
         <c:when test="${vacancy == null}">
-            <div class="card"><h2>Vacancy not found</h2><p class="hint">The vacancy ID may be invalid or the posting may no longer be available.</p><div class="spacing-top"><a class="btn primary" href="${pageContext.request.contextPath}/vacancies">Return to vacancy list</a></div></div>
+            <div class="card empty-state">
+                <h2>Course job not found</h2>
+                <p class="hint">The selected course job may no longer be available.</p>
+                <div><a class="btn primary" href="${pageContext.request.contextPath}/vacancies">Return to Browse Jobs</a></div>
+            </div>
         </c:when>
         <c:otherwise>
-            <div class="card detail-list">
+            <div class="detail-panel">
                 <div>
-                    <h2>${vacancy.title}</h2>
-                    <p class="hint">${vacancy.moduleCode} - ${vacancy.moduleName}</p>
+                    <h2>${vacancy.moduleCode} - ${vacancy.moduleName}</h2>
+                    <p class="hint">This course publishes one TA team. Organisers may later appoint one selected TA as leader if that option is enabled.</p>
                 </div>
-                <div><strong>Description:</strong> ${vacancy.description}</div>
+                <div><strong>Campus:</strong> ${empty vacancy.campus ? 'To be confirmed' : vacancy.campus}</div>
+                <div><strong>Course support summary:</strong> ${vacancy.description}</div>
                 <div><strong>Preferred background:</strong> ${vacancy.preferredBackground}</div>
                 <div><strong>Workload value:</strong> ${vacancy.workloadValue}</div>
-                <div><strong>Deadline:</strong> ${vacancy.deadline}</div>
+                <div><strong>TA places:</strong> ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</div>
+                <div><strong>Current offers:</strong> ${offeredCount}</div>
                 <div><strong>Current applicants:</strong> ${vacancy.applicantCount}</div>
-                <div><strong>Required skills:</strong><div class="meta"><c:forEach items="${vacancy.requiredSkills}" var="skill"><span class="tag">${skill}</span></c:forEach></div></div>
+                <c:if test="${vacancy.leaderRoleAvailable}"><div><strong>Leader appointment:</strong> One selected TA may later be appointed as the course lead.</div></c:if>
+                <div>
+                    <strong>Required skills:</strong>
+                    <div class="meta spacing-top"><c:forEach items="${vacancy.requiredSkills}" var="skill"><span class="tag">${skill}</span></c:forEach></div>
+                </div>
+                <c:if test="${vacancyFull}">
+                    <div class="warning">This course is currently full. New applications are temporarily closed.</div>
+                </c:if>
 
                 <c:choose>
+                    <c:when test="${loggedIn and isApplicant and alreadyApplied}">
+                        <div class="subcard">
+                            <strong>Application already recorded</strong>
+                            <div class="hint">You have already applied for this course job. Use Application History only when you want to review the latest decision or note.</div>
+                            <div class="detail-actions spacing-top">
+                                <a class="btn primary" href="${pageContext.request.contextPath}/applicant/status">Application History</a>
+                                <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:when test="${loggedIn and isApplicant and vacancyFull}">
+                        <div class="subcard">
+                            <strong>No TA places left</strong>
+                            <div class="hint">All available places for this course have already been offered. If a place opens again, you can apply from Browse Jobs.</div>
+                            <div class="detail-actions spacing-top">
+                                <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:when test="${loggedIn and isApplicant and profileReady}">
+                        <div class="subcard">
+                            <strong>Apply for this course job</strong>
+                            <div class="hint">Apply in one step from here. The page stays focused on the course and the submit action.</div>
+                            <div class="detail-actions spacing-top">
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/apply" class="inline-form"><input type="hidden" name="vacancyId" value="${vacancy.vacancyId}"><button class="btn primary" type="submit">Apply now</button></form>
+                                <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
+                            </div>
+                        </div>
+                    </c:when>
                     <c:when test="${loggedIn and isApplicant}">
-                        <form method="post" action="${pageContext.request.contextPath}/applicant/apply" class="inline-form">
-                            <input type="hidden" name="vacancyId" value="${vacancy.vacancyId}">
-                            <button class="btn primary" type="submit">Apply for this vacancy</button>
-                        </form>
-                        <p class="hint">Current workload rule: each applicant may hold up to ${adminConfig.maxWorkload} active roles.</p>
+                        <div class="subcard">
+                            <strong>Apply from this page</strong>
+                            <div class="hint">You can click Apply now directly. If your basic profile is still missing, the system will quickly ask you to confirm your full name, student ID, and email first.</div>
+                            <div class="detail-actions spacing-top">
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/apply" class="inline-form"><input type="hidden" name="vacancyId" value="${vacancy.vacancyId}"><button class="btn primary" type="submit">Apply now</button></form>
+                                <a class="btn" href="${pageContext.request.contextPath}/applicant/profile">Review basic profile</a>
+                            </div>
+                        </div>
                     </c:when>
                     <c:when test="${loggedIn and isMO}">
-                        <a class="btn primary" href="${pageContext.request.contextPath}/mo/applicants?vacancyId=${vacancy.vacancyId}">Review applicants for this vacancy</a>
+                        <div class="subcard">
+                            <strong>Organiser action</strong>
+                            <div class="hint">Open the applicant review queue for this course and record decisions with notes.</div>
+                            <div class="detail-actions spacing-top"><a class="btn primary" href="${pageContext.request.contextPath}/mo/applicants?vacancyId=${vacancy.vacancyId}">Review applicants for this course</a></div>
+                        </div>
                     </c:when>
-                    <c:when test="${loggedIn and isAdmin}">
-                        <div class="warning">Admin accounts can manage workload rules, blacklists, and workload monitoring from the admin area.</div>
-                    </c:when>
-                    <c:when test="${loggedIn}">
-                        <div class="warning">This logged-in account does not have applicant permissions for vacancy applications.</div>
-                    </c:when>
+                    <c:when test="${loggedIn and isAdmin}"><div class="warning">Admin accounts manage workload rules, blacklist records, and workload monitoring from the admin area.</div></c:when>
+                    <c:when test="${loggedIn}"><div class="warning">This logged-in account does not have applicant permissions for course job applications.</div></c:when>
                     <c:otherwise>
-                        <div class="warning">Please log in before applying, viewing your status, or updating your applicant profile.<div class="spacing-top"><a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Continue</a></div></div>
+                        <div class="subcard">
+                            <strong>Protected action</strong>
+                            <div class="hint">Log in before applying, checking your saved applications, or editing your profile.</div>
+                            <div class="detail-actions spacing-top"><a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Apply</a></div>
+                        </div>
                     </c:otherwise>
                 </c:choose>
             </div>
@@ -95,3 +137,4 @@
 </div>
 </body>
 </html>
+

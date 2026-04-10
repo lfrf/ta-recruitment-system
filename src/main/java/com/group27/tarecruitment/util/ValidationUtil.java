@@ -12,17 +12,20 @@ public final class ValidationUtil {
     public static final String STATUS_SUBMITTED = "Submitted";
     public static final String STATUS_OFFERED = "Offered";
     public static final String STATUS_UNSUCCESSFUL = "Unsuccessful";
+    public static final String STATUS_WITHDRAWN = "Withdrawn";
 
     private static final Set<String> ALLOWED_APPLICATION_STATUSES = Collections.unmodifiableSet(
             new LinkedHashSet<>(Arrays.asList(
                     STATUS_SUBMITTED,
                     STATUS_OFFERED,
-                    STATUS_UNSUCCESSFUL
+                    STATUS_UNSUCCESSFUL,
+                    STATUS_WITHDRAWN
             ))
     );
 
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+
     private ValidationUtil() {
     }
 
@@ -57,20 +60,12 @@ public final class ValidationUtil {
                 .collect(Collectors.toList());
     }
 
-
     public static boolean isValidEmail(String value) {
         return !isBlank(value) && EMAIL_PATTERN.matcher(value.trim()).matches();
     }
 
     public static boolean isPositiveInteger(String value) {
-        if (isBlank(value)) {
-            return false;
-        }
-        try {
-            return Integer.parseInt(value.trim()) > 0;
-        } catch (NumberFormatException exception) {
-            return false;
-        }
+        return parsePositiveInt(value) != null;
     }
 
     public static String normalizeApplicationStatus(String value) {
@@ -83,6 +78,9 @@ public final class ValidationUtil {
         }
         if (STATUS_UNSUCCESSFUL.equalsIgnoreCase(normalized)) {
             return STATUS_UNSUCCESSFUL;
+        }
+        if (STATUS_WITHDRAWN.equalsIgnoreCase(normalized)) {
+            return STATUS_WITHDRAWN;
         }
         return normalized;
     }

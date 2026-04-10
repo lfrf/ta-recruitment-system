@@ -12,7 +12,7 @@
     <div class="topbar-wide">
         <div class="brand">
             <h1>My Profile</h1>
-            <p>Keep the basic details accurate, upload your CV if you have it ready, then return straight to Browse Jobs.</p>
+            <p>Keep the basic details accurate and update them any time, even after you have submitted applications.</p>
         </div>
         <div class="nav-actions panel-nav">
             <a class="btn btn-nav btn-nav-subtle" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>

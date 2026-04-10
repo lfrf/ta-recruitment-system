@@ -80,15 +80,34 @@ public class PublicVacancyListServlet extends HttpServlet {
             vacancyFullById.put(vacancy.getVacancyId(), full);
         }
 
+        Comparator<Vacancy> browseOrder = Comparator
+                .comparing((Vacancy vacancy) -> vacancyFullById.getOrDefault(vacancy.getVacancyId(), false))
+                .thenComparing(vacancy -> ValidationUtil.trimToEmpty(vacancy.getModuleCode()), String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(vacancy -> ValidationUtil.trimToEmpty(vacancy.getModuleName()), String.CASE_INSENSITIVE_ORDER);
+
+        List<Vacancy> releaseVacancies = browsableVacancies.stream()
+                .sorted(browseOrder)
+                .toList();
+
         List<Vacancy> filteredVacancies = browsableVacancies.stream()
                 .filter(vacancy -> matchesKeyword(vacancy, keyword))
                 .filter(vacancy -> matchesCampus(vacancy, selectedCampus))
-                .sorted(
-                        Comparator.comparing((Vacancy vacancy) -> vacancyFullById.getOrDefault(vacancy.getVacancyId(), false))
-                                .thenComparing(vacancy -> ValidationUtil.trimToEmpty(vacancy.getModuleCode()), String.CASE_INSENSITIVE_ORDER)
-                                .thenComparing(vacancy -> ValidationUtil.trimToEmpty(vacancy.getModuleName()), String.CASE_INSENSITIVE_ORDER)
-                )
+                .sorted(browseOrder)
                 .toList();
+
+        int releaseTotalCount = releaseVacancies.size();
+        long releaseFullCount = releaseVacancies.stream()
+                .filter(vacancy -> vacancyFullById.getOrDefault(vacancy.getVacancyId(), false))
+                .count();
+        long releaseClosedCount = releaseVacancies.stream()
+                .filter(vacancy -> !vacancyFullById.getOrDefault(vacancy.getVacancyId(), false))
+                .filter(vacancy -> !"OPEN".equalsIgnoreCase(ValidationUtil.trimToEmpty(vacancy.getStatus())))
+                .count();
+        long releaseOpenCount = releaseTotalCount - releaseFullCount - releaseClosedCount;
+
+        long releaseShaheCount = releaseVacancies.stream()
+                .filter(vacancy -> ValidationUtil.trimToEmpty(vacancy.getCampus()).toLowerCase().contains("shahe"))
+                .count();
 
         request.setAttribute("vacancies", filteredVacancies);
         request.setAttribute("hasBrowseVacancies", !browsableVacancies.isEmpty());
@@ -97,6 +116,12 @@ public class PublicVacancyListServlet extends HttpServlet {
         request.setAttribute("selectedCampus", selectedCampus);
         request.setAttribute("campusOptions", campusOptions);
         request.setAttribute("resultCount", filteredVacancies.size());
+        request.setAttribute("releaseVacancies", releaseVacancies);
+        request.setAttribute("releaseTotalCount", releaseTotalCount);
+        request.setAttribute("releaseOpenCount", releaseOpenCount);
+        request.setAttribute("releaseFullCount", releaseFullCount);
+        request.setAttribute("releaseClosedCount", releaseClosedCount);
+        request.setAttribute("releaseShaheCount", releaseShaheCount);
         request.setAttribute("vacancyFullById", vacancyFullById);
         request.setAttribute("loggedIn", currentUser != null);
         request.setAttribute("isApplicant", isApplicant);

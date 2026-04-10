@@ -1,1 +1,65 @@
-[]
+[
+    {
+        "taExperience":  "",
+        "relevantCourses":  [
+
+                            ],
+        "fullName":  "Bob Li",
+        "applicantId":  "u-app-02",
+        "projectOrLeadershipExperience":  "",
+        "cvFileName":  "",
+        "availability":  "",
+        "blacklisted":  false,
+        "degreeProgramme":  "BSc Computer Science",
+        "yearOfStudy":  "2",
+        "phone":  "",
+        "skills":  [
+
+                   ],
+        "cvFilePath":  "",
+        "email":  "bob@example.com",
+        "studentId":  "124"
+    },
+    {
+        "taExperience":  "",
+        "relevantCourses":  [
+
+                            ],
+        "fullName":  "Carol Wang",
+        "applicantId":  "u-app-03",
+        "projectOrLeadershipExperience":  "",
+        "cvFileName":  "",
+        "availability":  "",
+        "blacklisted":  false,
+        "degreeProgramme":  "BSc Software Engineering",
+        "yearOfStudy":  "1",
+        "phone":  "",
+        "skills":  [
+
+                   ],
+        "cvFilePath":  "",
+        "email":  "carol@example.com",
+        "studentId":  "125"
+    },
+    {
+        "taExperience":  "",
+        "relevantCourses":  [
+
+                            ],
+        "fullName":  "David Chen",
+        "applicantId":  "u-app-04",
+        "projectOrLeadershipExperience":  "",
+        "cvFileName":  "",
+        "availability":  "",
+        "blacklisted":  false,
+        "degreeProgramme":  "BSc Data Science",
+        "yearOfStudy":  "3",
+        "phone":  "",
+        "skills":  [
+
+                   ],
+        "cvFilePath":  "",
+        "email":  "david@example.com",
+        "studentId":  "126"
+    }
+]

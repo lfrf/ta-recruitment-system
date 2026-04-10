@@ -21,17 +21,17 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
-        request.setAttribute("loginTitle", "Applicant / Organiser Log In");
-        request.setAttribute("loginSubtitle", "Use this window for applicant and organiser accounts when you want to browse course jobs, apply, update your profile, or review applicants.");
+        request.setAttribute("loginTitle", "Applicant Log In");
+        request.setAttribute("loginSubtitle", "Use this page for applicant accounts to browse jobs, apply, and manage profile details.");
         request.setAttribute("submitLabel", "Log In");
         request.setAttribute("formAction", request.getContextPath() + "/login");
         request.setAttribute("backHref", request.getContextPath() + "/home");
         request.setAttribute("backLabel", "Back to jobs");
-        request.setAttribute("altLoginHref", request.getContextPath() + "/admin/login");
-        request.setAttribute("altLoginLabel", "Admin login");
+        request.setAttribute("altLoginHref", request.getContextPath() + "/staff/login");
+        request.setAttribute("altLoginLabel", "Staff login");
         request.setAttribute("loginVariant", "applicant");
-        request.setAttribute("loginAudience", "Applicant / Organiser access");
-        request.setAttribute("loginNotice", "Administrator accounts are not allowed on this page. Use the dedicated admin login window instead.");
+        request.setAttribute("loginAudience", "Applicant access");
+        request.setAttribute("loginNotice", "MO and Admin accounts are not allowed on this page. Use the staff login page instead.");
         request.getRequestDispatcher("/WEB-INF/views/common/login.jsp").forward(request, response);
     }
 
@@ -54,21 +54,13 @@ public class LoginServlet extends HttpServlet {
         }
 
         UserAccount user = authenticatedUser.get();
-        if (user.getRole() == UserRole.ADMIN) {
-            request.setAttribute("errorMessage", "Administrator accounts must use the dedicated admin login page.");
+        if (user.getRole() != UserRole.APPLICANT) {
+            request.setAttribute("errorMessage", "Staff accounts must use the staff login page.");
             doGet(request, response);
             return;
         }
 
         SessionUtil.storeUser(request, user);
-        if (user.getRole() == UserRole.APPLICANT) {
-            response.sendRedirect(request.getContextPath() + "/vacancies");
-            return;
-        }
-        if (user.getRole() == UserRole.MO) {
-            response.sendRedirect(request.getContextPath() + "/mo/applicants");
-            return;
-        }
         response.sendRedirect(request.getContextPath() + "/vacancies");
     }
 }

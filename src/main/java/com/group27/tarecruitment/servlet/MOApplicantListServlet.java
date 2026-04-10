@@ -31,8 +31,8 @@ public class MOApplicantListServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before accessing the organiser review area.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before accessing the organiser review area.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
         if (currentUser.getRole() != UserRole.MO) {

@@ -63,12 +63,16 @@
                 <div><strong>Preferred background:</strong> ${vacancy.preferredBackground}</div>
                 <div><strong>Workload value:</strong> ${vacancy.workloadValue}</div>
                 <div><strong>TA places:</strong> ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</div>
+                <div><strong>Current offers:</strong> ${offeredCount}</div>
                 <div><strong>Current applicants:</strong> ${vacancy.applicantCount}</div>
                 <c:if test="${vacancy.leaderRoleAvailable}"><div><strong>Leader appointment:</strong> One selected TA may later be appointed as the course lead.</div></c:if>
                 <div>
                     <strong>Required skills:</strong>
                     <div class="meta spacing-top"><c:forEach items="${vacancy.requiredSkills}" var="skill"><span class="tag">${skill}</span></c:forEach></div>
                 </div>
+                <c:if test="${vacancyFull}">
+                    <div class="warning">This course is currently full. New applications are temporarily closed.</div>
+                </c:if>
 
                 <c:choose>
                     <c:when test="${loggedIn and isApplicant and alreadyApplied}">
@@ -78,6 +82,15 @@
                             <div class="detail-actions spacing-top">
                                 <a class="btn primary" href="${pageContext.request.contextPath}/applicant/status">Application History</a>
                                 <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
+                            </div>
+                        </div>
+                    </c:when>
+                    <c:when test="${loggedIn and isApplicant and vacancyFull}">
+                        <div class="subcard">
+                            <strong>No TA places left</strong>
+                            <div class="hint">All available places for this course have already been offered. If a place opens again, you can apply from Browse Jobs.</div>
+                            <div class="detail-actions spacing-top">
+                                <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
                             </div>
                         </div>
                     </c:when>

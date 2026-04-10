@@ -20,8 +20,8 @@ public class CreateVacancyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before publishing a course job.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before publishing a course job.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 
@@ -40,8 +40,8 @@ public class CreateVacancyServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before publishing a course job.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before publishing a course job.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 

@@ -10,7 +10,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.Optional;
 
@@ -23,11 +22,11 @@ public class LoginServlet extends HttpServlet {
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
         request.setAttribute("loginTitle", "Applicant / Organiser Log In");
-        request.setAttribute("loginSubtitle", "Use this window for applicant and organiser accounts when you want to apply, update your profile, or review applicants.");
+        request.setAttribute("loginSubtitle", "Use this window for applicant and organiser accounts when you want to browse course jobs, apply, update your profile, or review applicants.");
         request.setAttribute("submitLabel", "Log In");
         request.setAttribute("formAction", request.getContextPath() + "/login");
         request.setAttribute("backHref", request.getContextPath() + "/home");
-        request.setAttribute("backLabel", "Back to vacancies");
+        request.setAttribute("backLabel", "Back to jobs");
         request.setAttribute("altLoginHref", request.getContextPath() + "/admin/login");
         request.setAttribute("altLoginLabel", "Admin login");
         request.setAttribute("loginVariant", "applicant");
@@ -62,6 +61,14 @@ public class LoginServlet extends HttpServlet {
         }
 
         SessionUtil.storeUser(request, user);
+        if (user.getRole() == UserRole.APPLICANT) {
+            response.sendRedirect(request.getContextPath() + "/vacancies");
+            return;
+        }
+        if (user.getRole() == UserRole.MO) {
+            response.sendRedirect(request.getContextPath() + "/mo/applicants");
+            return;
+        }
         response.sendRedirect(request.getContextPath() + "/vacancies");
     }
 }

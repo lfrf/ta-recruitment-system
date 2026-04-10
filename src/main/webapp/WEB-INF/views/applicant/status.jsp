@@ -28,7 +28,11 @@
     <div class="card section-stack">
         <div class="subcard">
             <strong>Previous applications</strong>
-            <div class="hint">Browse Jobs remains the main start page. Come here only when you want to check an earlier note or decision.</div>
+            <div class="hint">Browse Jobs remains the main start page. Come here when you want to check an earlier note or decision, or cancel an application that is still under review.</div>
+            <div class="detail-actions spacing-top">
+                <a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">Edit my profile</a>
+                <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
+            </div>
         </div>
 
         <c:choose>
@@ -56,8 +60,15 @@
                                     <c:choose>
                                         <c:when test='${application.status == "Offered"}'><span class="status-chip status-chip-offered"><c:out value="${application.leadTa ? 'Lead TA offer' : 'Offer made'}" /></span></c:when>
                                         <c:when test='${application.status == "Unsuccessful"}'><span class="status-chip status-chip-unsuccessful">Not selected</span></c:when>
+                                        <c:when test='${application.status == "Withdrawn"}'><span class="status-chip status-chip-withdrawn">Cancelled by you</span></c:when>
                                         <c:otherwise><span class="status-chip status-chip-pending">Under review</span></c:otherwise>
                                     </c:choose>
+                                    <c:if test='${application.status == "Submitted"}'>
+                                        <form method="post" action="${pageContext.request.contextPath}/applicant/cancel" class="inline-form">
+                                            <input type="hidden" name="applicationId" value="${application.applicationId}">
+                                            <button type="submit" class="btn btn-nav btn-nav-logout btn-cancel-inline">Cancel application</button>
+                                        </form>
+                                    </c:if>
                                 </div>
                             </div>
                             <div class="status-card-notes">

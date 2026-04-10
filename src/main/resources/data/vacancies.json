@@ -1,38 +1,44 @@
-[
-  {
-    "vacancyId": "vac-001",
-    "moduleCode": "EBU6304",
-    "moduleName": "Software Engineering",
-    "title": "Teaching Assistant",
-    "description": "Support tutorials, project discussions, and formative feedback for software engineering students.",
-    "requiredSkills": [
-      "Java",
-      "Software Development",
-      "Agile Process"
-    ],
-    "preferredBackground": "Students with software development and teamwork experience.",
-    "workloadValue": 1,
-    "deadline": "2026-03-30",
-    "status": "OPEN",
-    "createdBy": "mo01",
-    "applicantCount": 12
-  },
-  {
-    "vacancyId": "vac-002",
-    "moduleCode": "EBU4211",
-    "moduleName": "Programming",
-    "title": "Lab Demonstrator",
-    "description": "Assist with lab sessions and support students during practical programming exercises.",
-    "requiredSkills": [
-      "Java",
-      "Python",
-      "Debugging"
-    ],
-    "preferredBackground": "Applicants with lab support or tutoring experience.",
-    "workloadValue": 1,
-    "deadline": "2026-04-02",
-    "status": "OPEN",
-    "createdBy": "mo01",
-    "applicantCount": 8
-  }
+﻿[
+    {
+        "vacancyId":  "vac-001",
+        "moduleCode":  "EBU6304",
+        "moduleName":  "Software Engineering",
+        "title":  "Teaching Assistant Team",
+        "description":  "Support tutorials, project discussions, and formative feedback for software engineering students.",
+        "requiredSkills":  [
+                               "Java",
+                               "Software Development",
+                               "Agile Process"
+                           ],
+        "preferredBackground":  "Students with software development and teamwork experience.",
+        "workloadValue":  1,
+        "deadline":  "",
+        "status":  "OPEN",
+        "createdBy":  "mo01",
+        "applicantCount":  12,
+        "positionCount":  3,
+        "leaderRoleAvailable":  true,
+        "campus":  "Xitucheng Campus"
+    },
+    {
+        "vacancyId":  "vac-002",
+        "moduleCode":  "EBU4211",
+        "moduleName":  "Programming",
+        "title":  "Teaching Assistant Team",
+        "description":  "Assist with lab sessions and support students during practical programming exercises.",
+        "requiredSkills":  [
+                               "Java",
+                               "Python",
+                               "Debugging"
+                           ],
+        "preferredBackground":  "Applicants with lab support or tutoring experience.",
+        "workloadValue":  1,
+        "deadline":  "",
+        "status":  "OPEN",
+        "createdBy":  "mo01",
+        "applicantCount":  8,
+        "positionCount":  2,
+        "leaderRoleAvailable":  true,
+        "campus":  "Shahe Campus"
+    }
 ]

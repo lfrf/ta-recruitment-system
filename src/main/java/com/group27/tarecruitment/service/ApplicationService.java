@@ -82,15 +82,6 @@ public class ApplicationService {
         application.setOptionalFeedback("");
         applications.add(application);
         applicationRepository.saveAll(applications);
-
-        List<Vacancy> vacancies = new ArrayList<>(vacancyRepository.findAll());
-        for (Vacancy vacancy : vacancies) {
-            if (vacancyId.equals(vacancy.getVacancyId())) {
-                vacancy.setApplicantCount(vacancy.getApplicantCount() + 1);
-                break;
-            }
-        }
-        vacancyRepository.saveAll(vacancies);
     }
 
     private boolean isBlacklisted(String applicantId) {

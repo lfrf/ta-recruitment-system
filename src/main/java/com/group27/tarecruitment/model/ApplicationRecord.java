@@ -8,6 +8,7 @@ public class ApplicationRecord {
     private String status;
     private String reviewNote;
     private String optionalFeedback;
+    private boolean leadTa;
 
     public String getApplicationId() {
         return applicationId;
@@ -63,5 +64,13 @@ public class ApplicationRecord {
 
     public void setOptionalFeedback(String optionalFeedback) {
         this.optionalFeedback = optionalFeedback;
+    }
+
+    public boolean isLeadTa() {
+        return leadTa;
+    }
+
+    public void setLeadTa(boolean leadTa) {
+        this.leadTa = leadTa;
     }
 }

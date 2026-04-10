@@ -29,7 +29,10 @@ public class ReviewService {
     }
 
     public List<ApplicationRecord> getApplicationsForVacancy(String vacancyId) {
-        return applicationRepository.findByVacancyId(vacancyId);
+        return applicationRepository.findByVacancyId(vacancyId).stream()
+                .filter(application -> !ValidationUtil.STATUS_WITHDRAWN.equalsIgnoreCase(
+                        ValidationUtil.normalizeApplicationStatus(application.getStatus())))
+                .toList();
     }
 
     public String updateDecision(UserAccount organiser,
@@ -64,7 +67,9 @@ public class ReviewService {
         }
 
         if (ValidationUtil.isBlank(reviewNote)) {
-            return "Review note is required before saving a decision.";
+            reviewNote = ValidationUtil.STATUS_OFFERED.equals(decision)
+                    ? "Offer decision recorded by organiser."
+                    : "Unsuccessful decision recorded by organiser.";
         }
 
         if (appointLeadTa && !ValidationUtil.STATUS_OFFERED.equals(decision)) {
@@ -117,6 +122,37 @@ public class ReviewService {
         }
 
         applicationRepository.saveAll(applications);
+        syncVacancyOpenStatus(vacancy, applications);
         return null;
+    }
+
+    private void syncVacancyOpenStatus(Vacancy vacancy, List<ApplicationRecord> applications) {
+        if (vacancy == null || vacancy.getPositionCount() <= 0) {
+            return;
+        }
+
+        int offeredCount = 0;
+        for (ApplicationRecord application : applications) {
+            if (vacancy.getVacancyId().equals(application.getVacancyId())
+                    && ValidationUtil.STATUS_OFFERED.equals(
+                    ValidationUtil.normalizeApplicationStatus(application.getStatus()))) {
+                offeredCount++;
+            }
+        }
+
+        String targetStatus = offeredCount >= vacancy.getPositionCount() ? "CLOSED" : "OPEN";
+        if (targetStatus.equalsIgnoreCase(ValidationUtil.trimToEmpty(vacancy.getStatus()))) {
+            return;
+        }
+        vacancy.setStatus(targetStatus);
+
+        List<Vacancy> vacancies = new ArrayList<>(vacancyRepository.findAll());
+        for (Vacancy item : vacancies) {
+            if (vacancy.getVacancyId().equals(item.getVacancyId())) {
+                item.setStatus(targetStatus);
+                break;
+            }
+        }
+        vacancyRepository.saveAll(vacancies);
     }
 }

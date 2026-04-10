@@ -1,5 +1,6 @@
 package com.group27.tarecruitment.servlet;
 
+import com.group27.tarecruitment.model.Vacancy;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
 import com.group27.tarecruitment.service.AdminService;
@@ -7,6 +8,7 @@ import com.group27.tarecruitment.service.ApplicantProfileService;
 import com.group27.tarecruitment.service.ApplicationService;
 import com.group27.tarecruitment.service.VacancyService;
 import com.group27.tarecruitment.util.SessionUtil;
+import com.group27.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -33,14 +35,21 @@ public class VacancyDetailServlet extends HttpServlet {
         }
 
         boolean isApplicant = currentUser != null && currentUser.getRole() == UserRole.APPLICANT;
+        Vacancy vacancy = vacancyService.getVacancy(vacancyId).orElse(null);
+        boolean vacancyFull = applicationService.isVacancyFull(vacancy);
+        int offeredCount = vacancy == null ? 0 : applicationService.countOfferedApplications(vacancy.getVacancyId());
         boolean profileReady = isApplicant && applicantProfileService.isProfileReady(currentUser.getUserId());
         boolean alreadyApplied = false;
         if (isApplicant) {
             alreadyApplied = applicationService.getApplicationsByApplicant(currentUser.getUserId()).stream()
+                    .filter(application -> !ValidationUtil.STATUS_WITHDRAWN.equalsIgnoreCase(
+                            ValidationUtil.normalizeApplicationStatus(application.getStatus())))
                     .anyMatch(application -> vacancyId != null && vacancyId.equals(application.getVacancyId()));
         }
 
-        request.setAttribute("vacancy", vacancyService.getVacancy(vacancyId).orElse(null));
+        request.setAttribute("vacancy", vacancy);
+        request.setAttribute("vacancyFull", vacancyFull);
+        request.setAttribute("offeredCount", offeredCount);
         request.setAttribute("loggedIn", currentUser != null);
         request.setAttribute("currentUser", currentUser);
         request.setAttribute("isApplicant", isApplicant);

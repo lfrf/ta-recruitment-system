@@ -44,17 +44,54 @@
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>
     <c:if test="${not empty flashError}"><div class="alert error">${flashError}</div></c:if>
 
+    <div class="card section-stack">
+        <form method="get" action="${pageContext.request.contextPath}/vacancies" class="form-grid vacancy-filter-grid">
+            <div class="field">
+                <label for="keyword">Search TA jobs</label>
+                <input id="keyword"
+                       name="keyword"
+                       value="${keyword}"
+                       placeholder="Module code, module name, campus, skill, or keyword">
+            </div>
+            <div class="field">
+                <label for="campus">Campus</label>
+                <select id="campus" name="campus">
+                    <option value="">All campuses</option>
+                    <c:forEach items="${campusOptions}" var="campus">
+                        <option value="${campus}" <c:if test="${selectedCampus == campus}">selected</c:if>>${campus}</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div class="field field-span-2 filter-actions">
+                <button class="btn primary" type="submit">Apply filters</button>
+                <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Clear filters</a>
+                <span class="hint">Showing ${resultCount} matching job<c:if test="${resultCount != 1}">s</c:if>.</span>
+            </div>
+        </form>
+    </div>
+
     <c:choose>
         <c:when test="${empty vacancies}">
             <div class="card empty-state">
-                <h2>No course jobs available</h2>
-                <p class="hint">There are currently no open TA opportunities available to browse.</p>
-                <c:if test="${not loggedIn and not isAdmin}"><div><a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Apply</a></div></c:if>
+                    <c:choose>
+                    <c:when test="${hasBrowseVacancies and filtersApplied}">
+                        <h2>No matching jobs</h2>
+                        <p class="hint">No course jobs matched your current keyword or campus filter.</p>
+                        <div><a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Clear filters</a></div>
+                    </c:when>
+                    <c:otherwise>
+                        <h2>No course jobs available</h2>
+                        <p class="hint">There are currently no TA opportunities available to browse.</p>
+                        <c:if test="${not loggedIn and not isAdmin}"><div><a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Apply</a></div></c:if>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </c:when>
         <c:otherwise>
             <div class="vacancy-grid">
                 <c:forEach items="${vacancies}" var="vacancy">
+                    <c:set var="vacancyFull" value="${vacancyFullById[vacancy.vacancyId]}" />
+                    <c:set var="vacancyOpen" value="${vacancy.status eq 'OPEN'}" />
                     <div class="vacancy-card">
                         <div class="card-header">
                             <div>
@@ -62,7 +99,17 @@
                                 <p class="hint">One course-based TA team posted by the organiser for this module.</p>
                                 <p class="hint"><strong>Campus:</strong> ${empty vacancy.campus ? 'To be confirmed' : vacancy.campus}</p>
                             </div>
-                            <span class="status-badge status-open">${vacancy.status}</span>
+                            <c:choose>
+                                <c:when test="${vacancyFull}">
+                                    <span class="status-badge status-full">FULL</span>
+                                </c:when>
+                                <c:when test="${vacancyOpen}">
+                                    <span class="status-badge status-open">OPEN</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="status-badge status-closed">CLOSED</span>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                         <p>${vacancy.description}</p>
                         <div class="meta spacing-top">
@@ -75,19 +122,53 @@
                         </div>
                         <div class="detail-actions spacing-top">
                             <c:choose>
-                                <c:when test="${isApplicant and appliedVacancyIds[vacancy.vacancyId]}">
-                                    <span class="status-chip status-chip-pending">Applied</span>
+                                <c:when test="${isApplicant and not empty applicationStatusByVacancyId[vacancy.vacancyId]}">
+                                    <c:set var="applicationStatus" value="${applicationStatusByVacancyId[vacancy.vacancyId]}" />
+                                    <c:choose>
+                                        <c:when test='${applicationStatus == "Submitted"}'><span class="status-chip status-chip-pending">Under review</span></c:when>
+                                        <c:when test='${applicationStatus == "Offered"}'><span class="status-chip status-chip-offered">Offer made</span></c:when>
+                                        <c:when test='${applicationStatus == "Unsuccessful"}'><span class="status-chip status-chip-unsuccessful">Not selected</span></c:when>
+                                        <c:otherwise><span class="status-chip status-chip-pending">Applied</span></c:otherwise>
+                                    </c:choose>
+                                    <c:if test='${applicationStatus == "Submitted"}'>
+                                        <c:set var="cancelFormId" value="cancel-form-${activeApplicationIdByVacancyId[vacancy.vacancyId]}" />
+                                        <form id="${cancelFormId}" method="post" action="${pageContext.request.contextPath}/applicant/cancel" class="inline-form inline-cancel-form">
+                                            <input type="hidden" name="applicationId" value="${activeApplicationIdByVacancyId[vacancy.vacancyId]}">
+                                            <button type="button"
+                                                    class="btn btn-nav btn-nav-logout btn-cancel-inline js-open-cancel-modal"
+                                                    data-target-form-id="${cancelFormId}"
+                                                    data-course-title="${vacancy.moduleCode} - ${vacancy.moduleName}">
+                                                Cancel application
+                                            </button>
+                                        </form>
+                                    </c:if>
                                     <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
                                 </c:when>
-                                <c:when test="${isApplicant}">
+                                <c:when test="${vacancyFull}">
+                                    <span class="status-chip status-chip-unsuccessful">No places left</span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${isApplicant and not vacancyOpen}">
+                                    <span class="status-chip status-chip-unsuccessful">Closed</span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${isApplicant and vacancyOpen}">
                                     <form method="post" action="${pageContext.request.contextPath}/applicant/apply" class="inline-form">
                                         <input type="hidden" name="vacancyId" value="${vacancy.vacancyId}">
                                         <button class="btn primary" type="submit">Apply now</button>
                                     </form>
                                     <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
                                 </c:when>
-                                <c:when test="${loggedIn}">
+                                <c:when test="${loggedIn and vacancyOpen}">
                                     <a class="btn primary" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${loggedIn}">
+                                    <span class="status-chip status-chip-unsuccessful">Closed</span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${vacancyFull or not vacancyOpen}">
+                                    <span class="status-chip status-chip-unsuccessful"><c:out value="${vacancyFull ? 'No places left' : 'Closed'}" /></span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
                                 </c:when>
                                 <c:otherwise>
                                     <a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Apply</a>
@@ -101,6 +182,65 @@
         </c:otherwise>
     </c:choose>
 </div>
+
+<div id="cancel-confirm-modal" class="hidden modal-shell" role="dialog" aria-modal="true" aria-labelledby="cancel-confirm-title">
+    <div class="modal-backdrop js-cancel-modal-close"></div>
+    <div class="modal-card">
+        <h3 id="cancel-confirm-title">Cancel application?</h3>
+        <p>You are about to withdraw your application for <strong id="cancel-course-name">this course</strong>. You can apply again later.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-nav js-cancel-modal-close">Keep application</button>
+            <button type="button" id="confirm-cancel-submit" class="btn btn-nav btn-nav-logout btn-cancel-inline">Cancel application</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('cancel-confirm-modal');
+        if (!modal) return;
+
+        const courseName = document.getElementById('cancel-course-name');
+        const confirmBtn = document.getElementById('confirm-cancel-submit');
+        let activeForm = null;
+
+        function openModal(formId, courseTitle) {
+            activeForm = formId ? document.getElementById(formId) : null;
+            if (!activeForm) return;
+            courseName.textContent = courseTitle || 'this course';
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+            activeForm = null;
+        }
+
+        document.querySelectorAll('.js-open-cancel-modal').forEach(function (button) {
+            button.addEventListener('click', function () {
+                openModal(button.getAttribute('data-target-form-id'), button.getAttribute('data-course-title'));
+            });
+        });
+
+        modal.querySelectorAll('.js-cancel-modal-close').forEach(function (el) {
+            el.addEventListener('click', closeModal);
+        });
+
+        confirmBtn.addEventListener('click', function () {
+            if (activeForm) {
+                activeForm.submit();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+</script>
 </body>
 </html>
 

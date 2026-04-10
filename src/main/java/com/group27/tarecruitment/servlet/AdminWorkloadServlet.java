@@ -24,13 +24,13 @@ public class AdminWorkloadServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please use the admin login window before viewing admin workload data.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            SessionUtil.storeFlashError(request, "Please use the staff login page before viewing admin workload data.");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
         if (currentUser.getRole() != UserRole.ADMIN) {
             SessionUtil.storeFlashError(request, "Only admin accounts can access workload monitoring.");
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+            response.sendRedirect(request.getContextPath() + "/staff/login");
             return;
         }
 

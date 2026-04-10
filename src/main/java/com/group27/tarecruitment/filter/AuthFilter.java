@@ -20,17 +20,19 @@ public class AuthFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String servletPath = httpRequest.getServletPath();
-        if ("/admin/login".equals(servletPath)) {
+        if ("/admin/login".equals(servletPath) || "/staff/login".equals(servletPath)) {
             chain.doFilter(request, response);
             return;
         }
 
         boolean adminPath = servletPath.startsWith("/admin/");
+        boolean moPath = servletPath.startsWith("/mo/");
+        boolean staffPath = adminPath || moPath;
         if (!SessionUtil.isLoggedIn(httpRequest)) {
-            SessionUtil.storeFlashError(httpRequest, adminPath
-                    ? "Please use the admin login window before accessing admin features."
+            SessionUtil.storeFlashError(httpRequest, staffPath
+                    ? "Please use the staff login page before accessing staff features."
                     : "Please log in before accessing protected features.");
-            httpResponse.sendRedirect(httpRequest.getContextPath() + (adminPath ? "/admin/login" : "/login"));
+            httpResponse.sendRedirect(httpRequest.getContextPath() + (staffPath ? "/staff/login" : "/login"));
             return;
         }
 

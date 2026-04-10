@@ -39,8 +39,8 @@ public class RoleFilter implements Filter {
             return;
         }
         if (servletPath.startsWith("/admin/") && !"/admin/login".equals(servletPath) && currentUser.getRole() != UserRole.ADMIN) {
-            SessionUtil.storeFlashError(httpRequest, "Only admin accounts can access admin pages. Please use the dedicated admin login window.");
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/admin/login");
+            SessionUtil.storeFlashError(httpRequest, "Only admin accounts can access admin pages. Please use the staff login page.");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/staff/login");
             return;
         }
 

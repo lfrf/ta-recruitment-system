@@ -3,6 +3,7 @@ package com.group27.tarecruitment.service;
 import com.group27.tarecruitment.model.ApplicantProfile;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.repository.ApplicantProfileRepository;
+import com.group27.tarecruitment.util.ValidationUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,20 @@ public class ApplicantProfileService {
 
     public boolean hasProfile(String applicantId) {
         return applicantProfileRepository.findByApplicantId(applicantId).isPresent();
+    }
+
+    public boolean isProfileReady(String applicantId) {
+        return applicantProfileRepository.findByApplicantId(applicantId)
+                .map(this::isProfileReady)
+                .orElse(false);
+    }
+
+    public boolean isProfileReady(ApplicantProfile profile) {
+        return profile != null
+                && !ValidationUtil.isBlank(profile.getFullName())
+                && !ValidationUtil.isBlank(profile.getStudentId())
+                && !ValidationUtil.isBlank(profile.getEmail())
+                && ValidationUtil.isValidEmail(profile.getEmail());
     }
 
     public void saveProfile(ApplicantProfile profile) {

@@ -24,22 +24,22 @@ public class ApplyServlet extends HttpServlet {
         String vacancyId = ValidationUtil.trimToEmpty(request.getParameter("vacancyId"));
 
         if (currentUser == null) {
-            SessionUtil.storeFlashError(request, "Please log in before applying for a vacancy.");
+            SessionUtil.storeFlashError(request, "Please log in before applying for a course job.");
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         if (currentUser.getRole() != UserRole.APPLICANT) {
-            SessionUtil.storeFlashError(request, "Only applicant accounts can submit vacancy applications.");
+            SessionUtil.storeFlashError(request, "Only applicant accounts can submit course job applications.");
             response.sendRedirect(request.getContextPath() + "/vacancies");
             return;
         }
         if (ValidationUtil.isBlank(vacancyId)) {
-            SessionUtil.storeFlashError(request, "Vacancy ID is missing.");
+            SessionUtil.storeFlashError(request, "Course job ID is missing.");
             response.sendRedirect(request.getContextPath() + "/vacancies");
             return;
         }
-        if (!applicantProfileService.hasProfile(currentUser.getUserId())) {
-            SessionUtil.storeFlashError(request, "Please complete and save your applicant profile before applying.");
+        if (!applicantProfileService.isProfileReady(currentUser.getUserId())) {
+            SessionUtil.storeFlashError(request, "Please save your basic applicant profile first. Full name, student ID, and email are required before applying.");
             response.sendRedirect(request.getContextPath() + "/applicant/profile");
             return;
         }
@@ -53,6 +53,6 @@ public class ApplyServlet extends HttpServlet {
 
         applicationService.submitApplication(currentUser, vacancyId);
         SessionUtil.storeFlashMessage(request, "Application submitted successfully.");
-        response.sendRedirect(request.getContextPath() + "/applicant/status");
+        response.sendRedirect(request.getContextPath() + "/vacancies");
     }
 }

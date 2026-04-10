@@ -29,10 +29,19 @@ public class ReviewService {
     }
 
     public List<ApplicationRecord> getApplicationsForVacancy(String vacancyId) {
-        return applicationRepository.findByVacancyId(vacancyId);
+        return applicationRepository.findByVacancyId(vacancyId).stream()
+                .filter(application -> !ValidationUtil.STATUS_WITHDRAWN.equalsIgnoreCase(
+                        ValidationUtil.normalizeApplicationStatus(application.getStatus())))
+                .toList();
     }
 
-    public String updateDecision(UserAccount organiser, String vacancyId, String applicationId, String decision, String reviewNote, String optionalFeedback) {
+    public String updateDecision(UserAccount organiser,
+                                 String vacancyId,
+                                 String applicationId,
+                                 String decision,
+                                 String reviewNote,
+                                 String optionalFeedback,
+                                 boolean appointLeadTa) {
         if (organiser == null) {
             return "Please log in before updating a review decision.";
         }
@@ -46,35 +55,104 @@ public class ReviewService {
         if (ValidationUtil.isBlank(vacancyId) || ValidationUtil.isBlank(applicationId)) {
             return "Vacancy ID and application ID are required.";
         }
-        if (getManagedVacancy(organiser, vacancyId).isEmpty()) {
-            return "You cannot review a vacancy that is not managed by your account.";
+
+        Vacancy vacancy = getManagedVacancy(organiser, vacancyId).orElse(null);
+        if (vacancy == null) {
+            return "You cannot review a course job that is not managed by your account.";
         }
+
         if (!ValidationUtil.STATUS_OFFERED.equals(decision)
                 && !ValidationUtil.STATUS_UNSUCCESSFUL.equals(decision)) {
             return "Decision must be either Offered or Unsuccessful.";
         }
 
         if (ValidationUtil.isBlank(reviewNote)) {
-            return "Review note is required before saving a decision.";
+            reviewNote = ValidationUtil.STATUS_OFFERED.equals(decision)
+                    ? "Offer decision recorded by organiser."
+                    : "Unsuccessful decision recorded by organiser.";
+        }
+
+        if (appointLeadTa && !ValidationUtil.STATUS_OFFERED.equals(decision)) {
+            return "Only offered applicants can be appointed as the lead TA.";
+        }
+
+        if (appointLeadTa && !vacancy.isLeaderRoleAvailable()) {
+            return "This course job was published without a lead TA appointment slot.";
         }
 
         List<ApplicationRecord> applications = new ArrayList<>(applicationRepository.findAll());
-        boolean updated = false;
+        ApplicationRecord target = null;
+        int offeredElsewhere = 0;
         for (ApplicationRecord application : applications) {
+            if (vacancyId.equals(application.getVacancyId())
+                    && ValidationUtil.STATUS_OFFERED.equalsIgnoreCase(ValidationUtil.normalizeApplicationStatus(application.getStatus()))
+                    && !applicationId.equals(application.getApplicationId())) {
+                offeredElsewhere++;
+            }
             if (applicationId.equals(application.getApplicationId()) && vacancyId.equals(application.getVacancyId())) {
-                application.setStatus(decision);
-                application.setReviewNote(reviewNote);
-                application.setOptionalFeedback(optionalFeedback);
-                updated = true;
-                break;
+                target = application;
             }
         }
 
-        if (!updated) {
+        if (target == null) {
             return "The selected application record could not be found.";
         }
 
+        if (ValidationUtil.STATUS_OFFERED.equals(decision)
+                && vacancy.getPositionCount() > 0
+                && offeredElsewhere >= vacancy.getPositionCount()) {
+            return "This course already has the maximum number of offered TA places.";
+        }
+
+        if (appointLeadTa) {
+            for (ApplicationRecord application : applications) {
+                if (vacancyId.equals(application.getVacancyId())) {
+                    application.setLeadTa(false);
+                }
+            }
+        }
+
+        target.setStatus(decision);
+        target.setReviewNote(reviewNote);
+        target.setOptionalFeedback(optionalFeedback);
+        target.setLeadTa(appointLeadTa && ValidationUtil.STATUS_OFFERED.equals(decision));
+
+        if (ValidationUtil.STATUS_UNSUCCESSFUL.equals(decision)) {
+            target.setLeadTa(false);
+        }
+
         applicationRepository.saveAll(applications);
+        syncVacancyOpenStatus(vacancy, applications);
         return null;
+    }
+
+    private void syncVacancyOpenStatus(Vacancy vacancy, List<ApplicationRecord> applications) {
+        if (vacancy == null || vacancy.getPositionCount() <= 0) {
+            return;
+        }
+
+        int offeredCount = 0;
+        for (ApplicationRecord application : applications) {
+            if (vacancy.getVacancyId().equals(application.getVacancyId())
+                    && ValidationUtil.STATUS_OFFERED.equals(
+                    ValidationUtil.normalizeApplicationStatus(application.getStatus()))) {
+                offeredCount++;
+            }
+        }
+
+        String targetStatus = offeredCount >= vacancy.getPositionCount() ? "CLOSED" : "OPEN";
+        if (targetStatus.equalsIgnoreCase(ValidationUtil.trimToEmpty(vacancy.getStatus()))) {
+            return;
+        }
+        vacancy.setStatus(targetStatus);
+
+        List<Vacancy> vacancies = new ArrayList<>(vacancyRepository.findAll());
+        for (Vacancy item : vacancies) {
+            if (vacancy.getVacancyId().equals(item.getVacancyId())) {
+                item.setStatus(targetStatus);
+                break;
+            }
+        }
+        vacancyRepository.saveAll(vacancies);
     }
 }

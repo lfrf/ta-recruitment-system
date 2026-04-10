@@ -1,18 +1,18 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Vacancy List</title>
+    <title>Browse Jobs</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 <body>
 <div class="${isAdmin ? 'page page-admin' : 'page'}">
-    <div class="${isAdmin ? 'topbar topbar-admin' : 'topbar'}">
+    <div class="topbar-wide">
         <div class="brand">
-            <h1>Visitor Interface</h1>
-            <p>Browse TA opportunities before logging in. Protected actions such as applying or checking status require sign-in.</p>
+            <h1>Browse Jobs</h1>
+            <p>Every course publishes one TA team. Compare the course cards below and apply directly from the list when the basics of your profile are ready.</p>
         </div>
         <c:choose>
             <c:when test="${isAdmin}">
@@ -25,21 +25,16 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <div class="nav-actions">
+                <div class="nav-actions panel-nav">
+                    <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>
                     <c:choose>
                         <c:when test="${loggedIn}">
-                            <c:if test="${isApplicant}">
-                                <a class="btn" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
-                                <a class="btn" href="${pageContext.request.contextPath}/applicant/status">My Status</a>
-                            </c:if>
-                            <c:if test="${isMO}">
-                                <a class="btn" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a>
-                            </c:if>
-                            <a class="btn" href="${pageContext.request.contextPath}/logout">Log Out</a>
+                            <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a></c:if>
+                            <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/status">Application History</a></c:if>
+                            <c:if test="${isMO}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a></c:if>
+                            <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
                         </c:when>
-                        <c:otherwise>
-                            <a class="btn" href="${pageContext.request.contextPath}/login">Log In</a>
-                        </c:otherwise>
+                        <c:otherwise><a class="btn btn-nav" href="${pageContext.request.contextPath}/login">Log In</a></c:otherwise>
                     </c:choose>
                 </div>
             </c:otherwise>
@@ -49,36 +44,203 @@
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>
     <c:if test="${not empty flashError}"><div class="alert error">${flashError}</div></c:if>
 
+    <div class="card section-stack">
+        <form method="get" action="${pageContext.request.contextPath}/vacancies" class="form-grid vacancy-filter-grid">
+            <div class="field">
+                <label for="keyword">Search TA jobs</label>
+                <input id="keyword"
+                       name="keyword"
+                       value="${keyword}"
+                       placeholder="Module code, module name, campus, skill, or keyword">
+            </div>
+            <div class="field">
+                <label for="campus">Campus</label>
+                <select id="campus" name="campus">
+                    <option value="">All campuses</option>
+                    <c:forEach items="${campusOptions}" var="campus">
+                        <option value="${campus}" <c:if test="${selectedCampus == campus}">selected</c:if>>${campus}</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div class="field field-span-2 filter-actions">
+                <button class="btn primary" type="submit">Apply filters</button>
+                <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Clear filters</a>
+                <span class="hint">Showing ${resultCount} matching job<c:if test="${resultCount != 1}">s</c:if>.</span>
+            </div>
+        </form>
+    </div>
+
     <c:choose>
         <c:when test="${empty vacancies}">
-            <div class="card">
-                <h2>No vacancies available</h2>
-                <p class="hint">There are currently no TA vacancies open for browsing.</p>
+            <div class="card empty-state">
+                    <c:choose>
+                    <c:when test="${hasBrowseVacancies and filtersApplied}">
+                        <h2>No matching jobs</h2>
+                        <p class="hint">No course jobs matched your current keyword or campus filter.</p>
+                        <div><a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Clear filters</a></div>
+                    </c:when>
+                    <c:otherwise>
+                        <h2>No course jobs available</h2>
+                        <p class="hint">There are currently no TA opportunities available to browse.</p>
+                        <c:if test="${not loggedIn and not isAdmin}"><div><a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Apply</a></div></c:if>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </c:when>
         <c:otherwise>
-            <div class="grid">
+            <div class="vacancy-grid">
                 <c:forEach items="${vacancies}" var="vacancy">
-                    <div class="card">
+                    <c:set var="vacancyFull" value="${vacancyFullById[vacancy.vacancyId]}" />
+                    <c:set var="vacancyOpen" value="${vacancy.status eq 'OPEN'}" />
+                    <div class="vacancy-card">
                         <div class="card-header">
                             <div>
-                                <h2>${vacancy.title}</h2>
-                                <p class="hint">${vacancy.description}</p>
+                                <h2>${vacancy.moduleCode} - ${vacancy.moduleName}</h2>
+                                <p class="hint">One course-based TA team posted by the organiser for this module.</p>
+                                <p class="hint"><strong>Campus:</strong> ${empty vacancy.campus ? 'To be confirmed' : vacancy.campus}</p>
                             </div>
-                            <span class="status-badge status-open">${vacancy.status}</span>
+                            <c:choose>
+                                <c:when test="${vacancyFull}">
+                                    <span class="status-badge status-full">FULL</span>
+                                </c:when>
+                                <c:when test="${vacancyOpen}">
+                                    <span class="status-badge status-open">OPEN</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="status-badge status-closed">CLOSED</span>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
-                        <p><strong>Module:</strong> ${vacancy.moduleCode} - ${vacancy.moduleName}</p>
-                        <p><strong>Deadline:</strong> ${vacancy.deadline}</p>
-                        <div class="meta">
+                        <p>${vacancy.description}</p>
+                        <div class="meta spacing-top">
+                            <span class="tag">TA places: ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</span>
+                            <c:if test="${vacancy.leaderRoleAvailable}"><span class="tag">Lead TA appointed later</span></c:if>
+                            <span class="tag">${vacancy.applicantCount} applicants</span>
+                        </div>
+                        <div class="meta spacing-top">
                             <c:forEach items="${vacancy.requiredSkills}" var="skill"><span class="tag">${skill}</span></c:forEach>
                         </div>
-                        <p class="hint spacing-top">${vacancy.applicantCount} applicants</p>
-                        <a class="btn primary" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                        <div class="detail-actions spacing-top">
+                            <c:choose>
+                                <c:when test="${isApplicant and not empty applicationStatusByVacancyId[vacancy.vacancyId]}">
+                                    <c:set var="applicationStatus" value="${applicationStatusByVacancyId[vacancy.vacancyId]}" />
+                                    <c:choose>
+                                        <c:when test='${applicationStatus == "Submitted"}'><span class="status-chip status-chip-pending">Under review</span></c:when>
+                                        <c:when test='${applicationStatus == "Offered"}'><span class="status-chip status-chip-offered">Offer made</span></c:when>
+                                        <c:when test='${applicationStatus == "Unsuccessful"}'><span class="status-chip status-chip-unsuccessful">Not selected</span></c:when>
+                                        <c:otherwise><span class="status-chip status-chip-pending">Applied</span></c:otherwise>
+                                    </c:choose>
+                                    <c:if test='${applicationStatus == "Submitted"}'>
+                                        <c:set var="cancelFormId" value="cancel-form-${activeApplicationIdByVacancyId[vacancy.vacancyId]}" />
+                                        <form id="${cancelFormId}" method="post" action="${pageContext.request.contextPath}/applicant/cancel" class="inline-form inline-cancel-form">
+                                            <input type="hidden" name="applicationId" value="${activeApplicationIdByVacancyId[vacancy.vacancyId]}">
+                                            <button type="button"
+                                                    class="btn btn-nav btn-nav-logout btn-cancel-inline js-open-cancel-modal"
+                                                    data-target-form-id="${cancelFormId}"
+                                                    data-course-title="${vacancy.moduleCode} - ${vacancy.moduleName}">
+                                                Cancel application
+                                            </button>
+                                        </form>
+                                    </c:if>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${vacancyFull}">
+                                    <span class="status-chip status-chip-unsuccessful">No places left</span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${isApplicant and not vacancyOpen}">
+                                    <span class="status-chip status-chip-unsuccessful">Closed</span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${isApplicant and vacancyOpen}">
+                                    <form method="post" action="${pageContext.request.contextPath}/applicant/apply" class="inline-form">
+                                        <input type="hidden" name="vacancyId" value="${vacancy.vacancyId}">
+                                        <button class="btn primary" type="submit">Apply now</button>
+                                    </form>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${loggedIn and vacancyOpen}">
+                                    <a class="btn primary" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${loggedIn}">
+                                    <span class="status-chip status-chip-unsuccessful">Closed</span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:when test="${vacancyFull or not vacancyOpen}">
+                                    <span class="status-chip status-chip-unsuccessful"><c:out value="${vacancyFull ? 'No places left' : 'Closed'}" /></span>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a class="btn primary" href="${pageContext.request.contextPath}/login">Log In to Apply</a>
+                                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
                     </div>
                 </c:forEach>
             </div>
         </c:otherwise>
     </c:choose>
 </div>
+
+<div id="cancel-confirm-modal" class="hidden modal-shell" role="dialog" aria-modal="true" aria-labelledby="cancel-confirm-title">
+    <div class="modal-backdrop js-cancel-modal-close"></div>
+    <div class="modal-card">
+        <h3 id="cancel-confirm-title">Cancel application?</h3>
+        <p>You are about to withdraw your application for <strong id="cancel-course-name">this course</strong>. You can apply again later.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-nav js-cancel-modal-close">Keep application</button>
+            <button type="button" id="confirm-cancel-submit" class="btn btn-nav btn-nav-logout btn-cancel-inline">Cancel application</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('cancel-confirm-modal');
+        if (!modal) return;
+
+        const courseName = document.getElementById('cancel-course-name');
+        const confirmBtn = document.getElementById('confirm-cancel-submit');
+        let activeForm = null;
+
+        function openModal(formId, courseTitle) {
+            activeForm = formId ? document.getElementById(formId) : null;
+            if (!activeForm) return;
+            courseName.textContent = courseTitle || 'this course';
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+            activeForm = null;
+        }
+
+        document.querySelectorAll('.js-open-cancel-modal').forEach(function (button) {
+            button.addEventListener('click', function () {
+                openModal(button.getAttribute('data-target-form-id'), button.getAttribute('data-course-title'));
+            });
+        });
+
+        modal.querySelectorAll('.js-cancel-modal-close').forEach(function (el) {
+            el.addEventListener('click', closeModal);
+        });
+
+        confirmBtn.addEventListener('click', function () {
+            if (activeForm) {
+                activeForm.submit();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    })();
+</script>
 </body>
 </html>
+

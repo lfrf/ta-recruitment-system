@@ -3,6 +3,7 @@ package com.group27.tarecruitment.servlet;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
 import com.group27.tarecruitment.service.AdminService;
+import com.group27.tarecruitment.service.ApplicantProfileService;
 import com.group27.tarecruitment.service.ApplicationService;
 import com.group27.tarecruitment.service.VacancyService;
 import com.group27.tarecruitment.util.SessionUtil;
@@ -18,6 +19,7 @@ public class VacancyDetailServlet extends HttpServlet {
     private final VacancyService vacancyService = new VacancyService();
     private final ApplicationService applicationService = new ApplicationService();
     private final AdminService adminService = new AdminService();
+    private final ApplicantProfileService applicantProfileService = new ApplicantProfileService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -30,12 +32,22 @@ public class VacancyDetailServlet extends HttpServlet {
             return;
         }
 
+        boolean isApplicant = currentUser != null && currentUser.getRole() == UserRole.APPLICANT;
+        boolean profileReady = isApplicant && applicantProfileService.isProfileReady(currentUser.getUserId());
+        boolean alreadyApplied = false;
+        if (isApplicant) {
+            alreadyApplied = applicationService.getApplicationsByApplicant(currentUser.getUserId()).stream()
+                    .anyMatch(application -> vacancyId != null && vacancyId.equals(application.getVacancyId()));
+        }
+
         request.setAttribute("vacancy", vacancyService.getVacancy(vacancyId).orElse(null));
         request.setAttribute("loggedIn", currentUser != null);
         request.setAttribute("currentUser", currentUser);
-        request.setAttribute("isApplicant", currentUser != null && currentUser.getRole() == UserRole.APPLICANT);
+        request.setAttribute("isApplicant", isApplicant);
         request.setAttribute("isMO", currentUser != null && currentUser.getRole() == UserRole.MO);
         request.setAttribute("isAdmin", currentUser != null && currentUser.getRole() == UserRole.ADMIN);
+        request.setAttribute("profileReady", profileReady);
+        request.setAttribute("alreadyApplied", alreadyApplied);
         request.setAttribute("adminConfig", applicationService.getAdminConfig());
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));

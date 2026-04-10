@@ -4,6 +4,7 @@ import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
 import com.group27.tarecruitment.service.ReviewService;
 import com.group27.tarecruitment.util.SessionUtil;
+import com.group27.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -29,13 +30,14 @@ public class ReviewDecisionServlet extends HttpServlet {
             return;
         }
 
-        String vacancyId = request.getParameter("vacancyId");
-        String applicationId = request.getParameter("applicationId");
-        String decision = request.getParameter("decision");
-        String reviewNote = request.getParameter("reviewNote");
-        String optionalFeedback = request.getParameter("optionalFeedback");
+        String vacancyId = ValidationUtil.trimToEmpty(request.getParameter("vacancyId"));
+        String applicationId = ValidationUtil.trimToEmpty(request.getParameter("applicationId"));
+        String decision = ValidationUtil.trimToEmpty(request.getParameter("decision"));
+        String reviewNote = ValidationUtil.trimToEmpty(request.getParameter("reviewNote"));
+        String optionalFeedback = ValidationUtil.trimToEmpty(request.getParameter("optionalFeedback"));
+        boolean appointLeadTa = request.getParameter("appointLeadTa") != null;
 
-        String error = reviewService.updateDecision(currentUser, vacancyId, applicationId, decision, reviewNote, optionalFeedback);
+        String error = reviewService.updateDecision(currentUser, vacancyId, applicationId, decision, reviewNote, optionalFeedback, appointLeadTa);
         if (error != null) {
             SessionUtil.storeFlashError(request, error);
         } else {

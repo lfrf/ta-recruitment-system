@@ -1,3 +1,141 @@
 package com.group27.tarecruitment.model;
+
 import java.util.List;
-public class Vacancy { private String vacancyId; private String moduleCode; private String moduleName; private String title; private String description; private List<String> requiredSkills; private String preferredBackground; private int workloadValue; private String deadline; private String status; private String createdBy; private int applicantCount; public String getVacancyId(){return vacancyId;} public void setVacancyId(String vacancyId){this.vacancyId=vacancyId;} public String getModuleCode(){return moduleCode;} public void setModuleCode(String moduleCode){this.moduleCode=moduleCode;} public String getModuleName(){return moduleName;} public void setModuleName(String moduleName){this.moduleName=moduleName;} public String getTitle(){return title;} public void setTitle(String title){this.title=title;} public String getDescription(){return description;} public void setDescription(String description){this.description=description;} public List<String> getRequiredSkills(){return requiredSkills;} public void setRequiredSkills(List<String> requiredSkills){this.requiredSkills=requiredSkills;} public String getPreferredBackground(){return preferredBackground;} public void setPreferredBackground(String preferredBackground){this.preferredBackground=preferredBackground;} public int getWorkloadValue(){return workloadValue;} public void setWorkloadValue(int workloadValue){this.workloadValue=workloadValue;} public String getDeadline(){return deadline;} public void setDeadline(String deadline){this.deadline=deadline;} public String getStatus(){return status;} public void setStatus(String status){this.status=status;} public String getCreatedBy(){return createdBy;} public void setCreatedBy(String createdBy){this.createdBy=createdBy;} public int getApplicantCount(){return applicantCount;} public void setApplicantCount(int applicantCount){this.applicantCount=applicantCount;} }
+
+public class Vacancy {
+    private String vacancyId;
+    private String moduleCode;
+    private String moduleName;
+    private String campus;
+    private String title;
+    private String description;
+    private List<String> requiredSkills;
+    private String preferredBackground;
+    private int workloadValue;
+    private String deadline;
+    private String status;
+    private String createdBy;
+    private int applicantCount;
+    private int positionCount;
+    private boolean leaderRoleAvailable;
+
+    public String getVacancyId() {
+        return vacancyId;
+    }
+
+    public void setVacancyId(String vacancyId) {
+        this.vacancyId = vacancyId;
+    }
+
+    public String getModuleCode() {
+        return moduleCode;
+    }
+
+    public void setModuleCode(String moduleCode) {
+        this.moduleCode = moduleCode;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<String> getRequiredSkills() {
+        return requiredSkills;
+    }
+
+    public void setRequiredSkills(List<String> requiredSkills) {
+        this.requiredSkills = requiredSkills;
+    }
+
+    public String getPreferredBackground() {
+        return preferredBackground;
+    }
+
+    public void setPreferredBackground(String preferredBackground) {
+        this.preferredBackground = preferredBackground;
+    }
+
+    public int getWorkloadValue() {
+        return workloadValue;
+    }
+
+    public void setWorkloadValue(int workloadValue) {
+        this.workloadValue = workloadValue;
+    }
+
+    public String getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(String deadline) {
+        this.deadline = deadline;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public int getApplicantCount() {
+        return applicantCount;
+    }
+
+    public void setApplicantCount(int applicantCount) {
+        this.applicantCount = applicantCount;
+    }
+
+    public int getPositionCount() {
+        return positionCount;
+    }
+
+    public void setPositionCount(int positionCount) {
+        this.positionCount = positionCount;
+    }
+
+    public boolean isLeaderRoleAvailable() {
+        return leaderRoleAvailable;
+    }
+
+    public void setLeaderRoleAvailable(boolean leaderRoleAvailable) {
+        this.leaderRoleAvailable = leaderRoleAvailable;
+    }
+}

@@ -12,7 +12,7 @@
     <div class="topbar-wide">
         <div class="brand">
             <h1>Publish Course Job</h1>
-            <p>Set up one course-based TA team, define how many TA places are available, choose the campus, and decide whether one selected TA may later become the lead.</p>
+            <p>Set up one course-based TA team, define the total TA slots, choose the campus, and decide whether one selected TA may later become the lead.</p>
         </div>
         <div class="nav-actions panel-nav">
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a>
@@ -29,7 +29,7 @@
     <div class="card section-stack">
         <div class="subcard">
             <strong>Course-based TA team</strong>
-            <div class="hint">Applicants will browse by course first. Keep the module information clear, choose the campus, set the TA place count, and only enable a lead appointment if the course really needs one lead TA.</div>
+            <div class="hint">Applicants will browse by course first. Keep the module information clear, choose the campus, set the total TA slot count, and only enable a lead appointment if the course really needs one lead TA.</div>
         </div>
 
         <form method="post" action="${pageContext.request.contextPath}/mo/create-vacancy" class="form-grid">
@@ -54,7 +54,7 @@
                 <input id="workloadValue" type="number" name="workloadValue" min="1" value="${workloadValue}" placeholder="e.g. 1" required>
             </div>
             <div class="field">
-                <label for="positionCount">TA Places *</label>
+                <label for="positionCount">Total TA Slots *</label>
                 <input id="positionCount" type="number" name="positionCount" min="1" value="${positionCount}" placeholder="e.g. 3" required>
             </div>
             <div class="field field-span-2">

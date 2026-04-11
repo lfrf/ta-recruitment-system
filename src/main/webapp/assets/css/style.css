@@ -381,6 +381,12 @@ body {
     color: var(--success-text);
 }
 
+.status-chip-lead {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
 .status-chip-unsuccessful {
     background: #f3f4f6;
     color: #374151;

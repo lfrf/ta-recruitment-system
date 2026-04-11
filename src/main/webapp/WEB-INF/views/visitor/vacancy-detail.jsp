@@ -12,7 +12,7 @@
     <div class="topbar-wide">
         <div class="brand">
             <h1>Course Job Detail</h1>
-            <p>Check the course summary, TA places, and required skills, then apply only if the course fits your strengths.</p>
+            <p>Check the course summary, total TA slots, and required skills, then apply only if the course fits your strengths.</p>
         </div>
         <c:choose>
             <c:when test="${isAdmin}">
@@ -56,16 +56,28 @@
             <div class="detail-panel">
                 <div>
                     <h2>${vacancy.moduleCode} - ${vacancy.moduleName}</h2>
-                    <p class="hint">This course publishes one TA team. Organisers may later appoint one selected TA as leader if that option is enabled.</p>
+                    <p class="hint">
+                        This course publishes one TA team.
+                        <c:if test="${vacancy.leaderRoleAvailable and leadTaAssigned}"> Lead TA has already been appointed.</c:if>
+                        <c:if test="${vacancy.leaderRoleAvailable and not leadTaAssigned}"> Organisers may later appoint one selected TA as leader if that option is enabled.</c:if>
+                    </p>
                 </div>
                 <div><strong>Campus:</strong> ${empty vacancy.campus ? 'To be confirmed' : vacancy.campus}</div>
                 <div><strong>Course support summary:</strong> ${vacancy.description}</div>
                 <div><strong>Preferred background:</strong> ${vacancy.preferredBackground}</div>
                 <div><strong>Workload value:</strong> ${vacancy.workloadValue}</div>
-                <div><strong>TA places:</strong> ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</div>
+                <div><strong>Total TA slots:</strong> ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</div>
                 <div><strong>Current offers:</strong> ${offeredCount}</div>
                 <div><strong>Current applicants:</strong> ${vacancy.applicantCount}</div>
-                <c:if test="${vacancy.leaderRoleAvailable}"><div><strong>Leader appointment:</strong> One selected TA may later be appointed as the course lead.</div></c:if>
+                <c:if test="${vacancy.leaderRoleAvailable}">
+                    <div>
+                        <strong>Leader appointment:</strong>
+                        <c:choose>
+                            <c:when test="${leadTaAssigned}">Lead TA has already been appointed for this course.</c:when>
+                            <c:otherwise>One selected TA may later be appointed as the course lead.</c:otherwise>
+                        </c:choose>
+                    </div>
+                </c:if>
                 <div>
                     <strong>Required skills:</strong>
                     <div class="meta spacing-top"><c:forEach items="${vacancy.requiredSkills}" var="skill"><span class="tag">${skill}</span></c:forEach></div>
@@ -87,7 +99,7 @@
                     </c:when>
                     <c:when test="${loggedIn and isApplicant and vacancyFull}">
                         <div class="subcard">
-                            <strong>No TA places left</strong>
+                            <strong>No TA slots left</strong>
                             <div class="hint">All available places for this course have already been offered. If a place opens again, you can apply from Browse Jobs.</div>
                             <div class="detail-actions spacing-top">
                                 <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>

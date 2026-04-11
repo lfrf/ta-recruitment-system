@@ -38,6 +38,7 @@ public class VacancyDetailServlet extends HttpServlet {
         Vacancy vacancy = vacancyService.getVacancy(vacancyId).orElse(null);
         boolean vacancyFull = applicationService.isVacancyFull(vacancy);
         int offeredCount = vacancy == null ? 0 : applicationService.countOfferedApplications(vacancy.getVacancyId());
+        boolean leadTaAssigned = vacancy != null && applicationService.hasAppointedLeadTa(vacancy.getVacancyId());
         boolean profileReady = isApplicant && applicantProfileService.isProfileReady(currentUser.getUserId());
         boolean alreadyApplied = false;
         if (isApplicant) {
@@ -50,6 +51,7 @@ public class VacancyDetailServlet extends HttpServlet {
         request.setAttribute("vacancy", vacancy);
         request.setAttribute("vacancyFull", vacancyFull);
         request.setAttribute("offeredCount", offeredCount);
+        request.setAttribute("leadTaAssigned", leadTaAssigned);
         request.setAttribute("loggedIn", currentUser != null);
         request.setAttribute("currentUser", currentUser);
         request.setAttribute("isApplicant", isApplicant);

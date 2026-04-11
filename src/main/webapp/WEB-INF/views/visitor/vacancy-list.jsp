@@ -132,7 +132,7 @@
                                     </c:if>
                                 </p>
                                 <div class="meta spacing-top">
-                                    <span class="tag">TA places: ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</span>
+                                    <span class="tag">Total TA slots: ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</span>
                                     <span class="tag">${vacancy.applicantCount} applicants</span>
                                 </div>
                                 <c:if test="${skillCount > 4}">
@@ -144,9 +144,19 @@
                                     <c:choose>
                                         <c:when test="${isApplicant and not empty applicationStatusByVacancyId[vacancy.vacancyId]}">
                                             <c:set var="applicationStatus" value="${applicationStatusByVacancyId[vacancy.vacancyId]}" />
+                                            <c:set var="leadTaAppointed" value="${leadTaByVacancyId[vacancy.vacancyId]}" />
                                             <c:choose>
                                                 <c:when test='${applicationStatus == "Submitted"}'><span class="status-chip status-chip-pending">Under review</span></c:when>
-                                                <c:when test='${applicationStatus == "Offered"}'><span class="status-chip status-chip-offered">Offer made</span></c:when>
+                                                <c:when test='${applicationStatus == "Offered"}'>
+                                                    <c:choose>
+                                                        <c:when test="${leadTaAppointed}">
+                                                            <span class="status-chip status-chip-offered status-chip-lead">Lead TA appointed</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="status-chip status-chip-offered">Offer made</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:when>
                                                 <c:when test='${applicationStatus == "Unsuccessful"}'><span class="status-chip status-chip-unsuccessful">Not selected</span></c:when>
                                                 <c:otherwise><span class="status-chip status-chip-pending">Applied</span></c:otherwise>
                                             </c:choose>
@@ -248,7 +258,7 @@
                                     </c:if>
                                     <span class="release-item-title">${vacancy.moduleCode} - ${vacancy.moduleName}</span>
                                     <span class="release-item-meta">
-                                        <span class="tag">TA places ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</span>
+                                        <span class="tag">Total TA slots ${vacancy.positionCount > 0 ? vacancy.positionCount : 1}</span>
                                         <c:choose>
                                             <c:when test="${releaseVacancyFull}">
                                                 <span class="status-badge status-full release-item-status">FULL</span>

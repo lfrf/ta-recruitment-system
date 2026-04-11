@@ -43,6 +43,7 @@ public class PublicVacancyListServlet extends HttpServlet {
         boolean isApplicant = currentUser != null && currentUser.getRole() == UserRole.APPLICANT;
         Map<String, Boolean> appliedVacancyIds = new LinkedHashMap<>();
         Map<String, String> applicationStatusByVacancyId = new LinkedHashMap<>();
+        Map<String, Boolean> leadTaByVacancyId = new LinkedHashMap<>();
         Map<String, String> activeApplicationIdByVacancyId = new LinkedHashMap<>();
         boolean profileReady = false;
         if (isApplicant) {
@@ -56,6 +57,10 @@ public class PublicVacancyListServlet extends HttpServlet {
                 String vacancyId = application.getVacancyId();
                 appliedVacancyIds.put(vacancyId, Boolean.TRUE);
                 applicationStatusByVacancyId.put(vacancyId, normalizedStatus);
+                leadTaByVacancyId.put(
+                        vacancyId,
+                        application.isLeadTa() && ValidationUtil.STATUS_OFFERED.equalsIgnoreCase(normalizedStatus)
+                );
                 activeApplicationIdByVacancyId.put(vacancyId, application.getApplicationId());
             }
         }
@@ -130,6 +135,7 @@ public class PublicVacancyListServlet extends HttpServlet {
         request.setAttribute("profileReady", profileReady);
         request.setAttribute("appliedVacancyIds", appliedVacancyIds);
         request.setAttribute("applicationStatusByVacancyId", applicationStatusByVacancyId);
+        request.setAttribute("leadTaByVacancyId", leadTaByVacancyId);
         request.setAttribute("activeApplicationIdByVacancyId", activeApplicationIdByVacancyId);
         request.setAttribute("currentUser", currentUser);
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));

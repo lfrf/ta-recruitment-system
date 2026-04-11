@@ -144,6 +144,16 @@ public class ApplicationService {
                 .count();
     }
 
+    public boolean hasAppointedLeadTa(String vacancyId) {
+        if (vacancyId == null || vacancyId.isBlank()) {
+            return false;
+        }
+        return getApplicationsByVacancy(vacancyId).stream()
+                .anyMatch(application -> application.isLeadTa()
+                        && ValidationUtil.STATUS_OFFERED.equals(
+                        ValidationUtil.normalizeApplicationStatus(application.getStatus())));
+    }
+
     public Map<String, Integer> getOfferedCountByVacancyId() {
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (ApplicationRecord application : applicationRepository.findAll()) {

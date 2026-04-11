@@ -46,11 +46,11 @@
         </div>
     </div>
 
-    <c:if test="${not empty message}">
-        <div class="notice notice-success">${message}</div>
+    <c:if test="${not empty flashMessage}">
+        <div class="notice notice-success">${flashMessage}</div>
     </c:if>
-    <c:if test="${not empty error}">
-        <div class="notice notice-error">${error}</div>
+    <c:if test="${not empty flashError}">
+        <div class="notice notice-error">${flashError}</div>
     </c:if>
 
     <c:choose>

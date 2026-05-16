@@ -43,6 +43,13 @@
         </div>
         <div class="detail-actions">
             <a href="${pageContext.request.contextPath}/mo/applicants" class="btn btn-nav">Back to course list</a>
+            <form method="post"
+                  action="${pageContext.request.contextPath}/mo/vacancy/archive"
+                  class="inline-form"
+                  onsubmit="return confirm('Archive this course job? It will be hidden from Browse Jobs.');">
+                <input type="hidden" name="vacancyId" value="${vacancy.vacancyId}">
+                <button type="submit" class="btn btn-nav btn-nav-logout">Archive this course job</button>
+            </form>
         </div>
     </div>
 

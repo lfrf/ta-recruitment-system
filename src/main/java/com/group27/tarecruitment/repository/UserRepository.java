@@ -17,4 +17,10 @@ public class UserRepository {
                 .filter(user -> user.getUsername() != null && user.getUsername().equalsIgnoreCase(username))
                 .findFirst();
     }
+
+    public Optional<UserAccount> findByUserId(String userId) {
+        return findAll().stream()
+                .filter(user -> user.getUserId() != null && user.getUserId().equals(userId))
+                .findFirst();
+    }
 }

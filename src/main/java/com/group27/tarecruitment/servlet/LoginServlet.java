@@ -19,12 +19,16 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String returnTo = request.getAttribute("returnTo") == null
+                ? sanitizeReturnTo(request.getParameter("returnTo"))
+                : sanitizeReturnTo(request.getAttribute("returnTo").toString());
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
         request.setAttribute("loginTitle", "Applicant Log In");
         request.setAttribute("loginSubtitle", "Use this page for applicant accounts to browse jobs, apply, and manage profile details.");
         request.setAttribute("submitLabel", "Log In");
         request.setAttribute("formAction", request.getContextPath() + "/login");
+        request.setAttribute("returnTo", returnTo);
         request.setAttribute("backHref", request.getContextPath() + "/home");
         request.setAttribute("backLabel", "Back to jobs");
         request.setAttribute("altLoginHref", request.getContextPath() + "/staff/login");
@@ -39,6 +43,8 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        String returnTo = sanitizeReturnTo(request.getParameter("returnTo"));
+        request.setAttribute("returnTo", returnTo);
 
         if (ValidationUtil.isBlank(username) || ValidationUtil.isBlank(password)) {
             request.setAttribute("errorMessage", "Please enter both username and password.");
@@ -61,6 +67,24 @@ public class LoginServlet extends HttpServlet {
         }
 
         SessionUtil.storeUser(request, user);
+        if (!ValidationUtil.isBlank(returnTo)) {
+            response.sendRedirect(request.getContextPath() + returnTo);
+            return;
+        }
         response.sendRedirect(request.getContextPath() + "/vacancies");
+    }
+
+    private String sanitizeReturnTo(String returnTo) {
+        if (ValidationUtil.isBlank(returnTo)) {
+            return null;
+        }
+        String trimmed = returnTo.trim();
+        if (!trimmed.startsWith("/")) {
+            return null;
+        }
+        if (trimmed.startsWith("//") || trimmed.contains("://")) {
+            return null;
+        }
+        return trimmed;
     }
 }

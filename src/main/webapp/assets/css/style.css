@@ -1306,6 +1306,59 @@ body.modal-open {
     max-width: 520px;
 }
 
+.quick-login-divider {
+    margin: 18px 0 14px;
+    border-top: 1px solid #e4edf6;
+}
+
+.quick-login-panel {
+    display: grid;
+    gap: 10px;
+}
+
+.quick-login-panel h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.quick-login-panel .hint {
+    margin: 0;
+}
+
+.quick-login-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.quick-login-qr-wrap {
+    margin-top: 4px;
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+}
+
+.quick-login-qr-wrap img {
+    width: 220px;
+    height: 220px;
+    border: 1px solid #d8e3ef;
+    border-radius: 14px;
+    padding: 10px;
+    background: #ffffff;
+}
+
+.quick-login-bind-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.quick-login-binding-card .quick-login-qr-wrap {
+    justify-items: start;
+}
+
 @media (max-width: 900px) {
     .login-shell {
         grid-template-columns: 1fr;
@@ -1577,4 +1630,37 @@ body.modal-open {
 
 .review-cv-actions .btn {
     margin-top: 0;
+}
+
+.quick-login-mobile-page {
+    max-width: 680px;
+    min-height: calc(100vh - 48px);
+    display: grid;
+    align-items: center;
+}
+
+.quick-login-mobile-card {
+    display: grid;
+    gap: 12px;
+}
+
+.quick-login-mobile-card h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.quick-login-mobile-user {
+    display: grid;
+    gap: 4px;
+    padding: 12px;
+    border: 1px solid #dbe4ef;
+    border-radius: 12px;
+    background: #f8fbff;
+}
+
+.quick-login-mobile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
 }

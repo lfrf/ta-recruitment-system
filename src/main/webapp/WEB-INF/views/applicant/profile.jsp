@@ -35,6 +35,37 @@
             </div>
         </div>
 
+        <div class="subcard quick-login-binding-card">
+            <strong>Phone quick login</strong>
+            <div class="hint">Generate a QR code here, scan it on your phone once, and use that phone for later quick login confirmation.</div>
+            <c:choose>
+                <c:when test="${quickLoginBound}">
+                    <div class="upload-summary spacing-top">
+                        <strong>Current binding</strong>
+                        <span><c:out value="${quickLoginDeviceName}" /></span>
+                        <c:if test="${not empty quickLoginBoundAt}">
+                            <span class="hint">Bound at: <c:out value="${quickLoginBoundAt}" /></span>
+                        </c:if>
+                    </div>
+                    <form class="spacing-top" method="post" action="${pageContext.request.contextPath}/applicant/quick-login-binding">
+                        <input type="hidden" name="action" value="unbind">
+                        <button class="btn btn-nav btn-nav-logout" type="submit">Unbind this device</button>
+                    </form>
+                </c:when>
+                <c:otherwise>
+                    <div class="quick-login-bind-actions spacing-top">
+                        <button id="quick-login-bind-start" type="button" class="btn primary btn-hero-compact">Generate binding QR</button>
+                        <span id="quick-login-bind-state" class="hint"></span>
+                    </div>
+                    <div id="quick-login-bind-qr-wrap" class="quick-login-qr-wrap hidden spacing-top">
+                        <img id="quick-login-bind-qr" alt="Phone binding QR code">
+                        <a id="quick-login-bind-open" class="btn btn-nav btn-nav-subtle" href="#" target="_blank" rel="noopener">Open bind link</a>
+                    </div>
+                    <p class="hint spacing-top">Use your phone camera or browser QR scanner to bind this phone. No phone login is required.</p>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
         <form class="form-grid" method="post" action="${pageContext.request.contextPath}/applicant/profile" enctype="multipart/form-data">
             <div class="field"><label for="fullName">Full Name *</label><input id="fullName" name="fullName" value="${profile.fullName}" placeholder="Enter your full name" required></div>
             <div class="field"><label for="studentId">Student ID *</label><input id="studentId" name="studentId" value="${profile.studentId}" placeholder="Enter your student ID" required></div>
@@ -67,5 +98,90 @@
         </form>
     </div>
 </div>
+<c:if test="${not quickLoginBound}">
+    <script>
+        (() => {
+            const contextPath = "${pageContext.request.contextPath}";
+            const startButton = document.getElementById("quick-login-bind-start");
+            const stateText = document.getElementById("quick-login-bind-state");
+            const qrWrap = document.getElementById("quick-login-bind-qr-wrap");
+            const qrImage = document.getElementById("quick-login-bind-qr");
+            const openLink = document.getElementById("quick-login-bind-open");
+            if (!startButton || !stateText || !qrWrap || !qrImage || !openLink) {
+                return;
+            }
+
+            let pollTimer = null;
+            let activeRequestId = null;
+
+            const setState = (text) => {
+                stateText.textContent = text || "";
+            };
+
+            const stopPolling = () => {
+                if (pollTimer) {
+                    window.clearInterval(pollTimer);
+                    pollTimer = null;
+                }
+            };
+
+            const pollStatus = async () => {
+                if (!activeRequestId) {
+                    return;
+                }
+                const response = await fetch(
+                    contextPath + "/applicant/quick-login-binding/poll?request=" + encodeURIComponent(activeRequestId)
+                );
+                const result = await response.json().catch(() => ({status: "ERROR"}));
+                if (!response.ok) {
+                    setState("Binding status check failed. Please generate a new QR.");
+                    startButton.disabled = false;
+                    stopPolling();
+                    return;
+                }
+                if (result.status === "BOUND") {
+                    setState("Phone bound successfully. Refreshing profile...");
+                    startButton.disabled = true;
+                    stopPolling();
+                    window.setTimeout(() => window.location.reload(), 700);
+                    return;
+                }
+                if (result.status === "EXPIRED") {
+                    setState("This QR has expired. Generate a new one.");
+                    startButton.disabled = false;
+                    stopPolling();
+                }
+            };
+
+            startButton.addEventListener("click", async () => {
+                stopPolling();
+                startButton.disabled = true;
+                setState("Generating binding QR...");
+                const response = await fetch(contextPath + "/applicant/quick-login-binding/request", {method: "POST"});
+                const result = await response.json().catch(() => ({status: "ERROR"}));
+                if (!response.ok || result.status !== "PENDING" || !result.requestId || !result.bindUrl) {
+                    setState("Unable to generate binding QR. Please try again.");
+                    startButton.disabled = false;
+                    return;
+                }
+
+                activeRequestId = result.requestId;
+                qrImage.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data="
+                    + encodeURIComponent(result.bindUrl);
+                openLink.href = result.bindUrl;
+                qrWrap.classList.remove("hidden");
+                setState("Scan this QR with your phone to finish binding.");
+
+                pollTimer = window.setInterval(() => {
+                    pollStatus().catch(() => {
+                        setState("Binding status check failed. Please generate a new QR.");
+                        startButton.disabled = false;
+                        stopPolling();
+                    });
+                }, 2000);
+            });
+        })();
+    </script>
+</c:if>
 </body>
 </html>

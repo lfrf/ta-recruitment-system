@@ -627,6 +627,61 @@ body {
     top: 16px;
 }
 
+.profile-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.95fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.profile-main {
+    min-width: 0;
+}
+
+.profile-side {
+    min-width: 0;
+    position: sticky;
+    top: 16px;
+}
+
+.profile-submit-card .btn-hero {
+    width: 100%;
+}
+
+.applicant-upload-card .hint {
+    margin-top: 0.45rem;
+    line-height: 1.65;
+}
+
+.ai-import-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.ai-import-prompt {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid #d7e1eb;
+    border-radius: 12px;
+    background: #ffffff;
+    font: 0.86rem/1.5 Consolas, "Courier New", monospace;
+    color: var(--ink);
+    resize: vertical;
+}
+
+.ai-import-preview-lines {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink);
+    font: 0.86rem/1.55 "Segoe UI", sans-serif;
+    max-height: 240px;
+    overflow: auto;
+}
+
 .release-card-header h2 {
     margin: 0;
     font-size: 1.2rem;
@@ -959,6 +1014,14 @@ body {
     }
 
     .release-card {
+        position: static;
+    }
+
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-side {
         position: static;
     }
 

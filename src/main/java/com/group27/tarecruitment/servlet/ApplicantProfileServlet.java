@@ -1,9 +1,11 @@
 package com.group27.tarecruitment.servlet;
 
 import com.group27.tarecruitment.model.ApplicantProfile;
+import com.group27.tarecruitment.model.QuickLoginBinding;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
 import com.group27.tarecruitment.service.ApplicantProfileService;
+import com.group27.tarecruitment.service.QuickLoginBindingService;
 import com.group27.tarecruitment.util.JsonFileUtil;
 import com.group27.tarecruitment.util.SessionUtil;
 import com.group27.tarecruitment.util.ValidationUtil;
@@ -20,12 +22,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 
 @WebServlet("/applicant/profile")
 @MultipartConfig(maxFileSize = 10 * 1024 * 1024, maxRequestSize = 12 * 1024 * 1024)
 public class ApplicantProfileServlet extends HttpServlet {
     private static final List<String> ALLOWED_CV_EXTENSIONS = List.of(".pdf", ".doc", ".docx");
     private final ApplicantProfileService applicantProfileService = new ApplicantProfileService();
+    private final QuickLoginBindingService quickLoginBindingService = new QuickLoginBindingService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -104,6 +108,12 @@ public class ApplicantProfileServlet extends HttpServlet {
         request.setAttribute("profileReady", applicantProfileService.isProfileReady(profile));
         request.setAttribute("relevantCoursesValue", join(profile.getRelevantCourses()));
         request.setAttribute("skillsValue", join(profile.getSkills()));
+        Optional<QuickLoginBinding> quickLoginBinding = quickLoginBindingService.getActiveBinding(currentUser.getUserId());
+        request.setAttribute("quickLoginBound", quickLoginBinding.isPresent());
+        quickLoginBinding.ifPresent(binding -> {
+            request.setAttribute("quickLoginDeviceName", binding.getDeviceName());
+            request.setAttribute("quickLoginBoundAt", binding.getBoundAt());
+        });
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
     }

@@ -54,7 +54,7 @@ public class MOApplicantListServlet extends HttpServlet {
 
         Vacancy vacancy = reviewService.getManagedVacancy(currentUser, vacancyId).orElse(null);
         if (vacancy == null) {
-            SessionUtil.storeFlashError(request, "The selected vacancy is not managed by your organiser account.");
+            SessionUtil.storeFlashError(request, "The selected vacancy is unavailable for review (it may be archived or not managed by your account).");
             response.sendRedirect(request.getContextPath() + "/mo/applicants");
             return;
         }

@@ -19,6 +19,7 @@ public class ReviewService {
                 .filter(vacancy -> vacancy.getCreatedBy() != null
                         && (vacancy.getCreatedBy().equalsIgnoreCase(organiser.getUsername())
                         || vacancy.getCreatedBy().equalsIgnoreCase(organiser.getUserId())))
+                .filter(vacancy -> isManageableStatus(vacancy.getStatus()))
                 .toList();
     }
 
@@ -154,5 +155,10 @@ public class ReviewService {
             }
         }
         vacancyRepository.saveAll(vacancies);
+    }
+
+    private boolean isManageableStatus(String status) {
+        String normalized = ValidationUtil.trimToEmpty(status);
+        return "OPEN".equalsIgnoreCase(normalized) || "CLOSED".equalsIgnoreCase(normalized);
     }
 }

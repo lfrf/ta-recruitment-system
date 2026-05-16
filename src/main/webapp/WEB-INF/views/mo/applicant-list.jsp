@@ -51,7 +51,7 @@
                                     <p class="hint">Course-based TA team</p>
                                     <p class="hint"><strong>Campus:</strong> ${empty vacancy.campus ? 'To be confirmed' : vacancy.campus}</p>
                                 </div>
-                                <span class="status-badge status-open">${vacancy.status}</span>
+                                <span class="status-badge ${vacancy.status == 'OPEN' ? 'status-open' : 'status-closed'}">${vacancy.status}</span>
                             </div>
                             <p>${vacancy.description}</p>
                             <div class="meta spacing-top">
@@ -61,7 +61,16 @@
                                     <span class="tag">Lead TA appointment available</span>
                                 </c:if>
                             </div>
-                            <a class="btn primary spacing-top" href="${pageContext.request.contextPath}/mo/applicants?vacancyId=${vacancy.vacancyId}">Review applicants</a>
+                            <div class="detail-actions spacing-top">
+                                <a class="btn primary" href="${pageContext.request.contextPath}/mo/applicants?vacancyId=${vacancy.vacancyId}">Review applicants</a>
+                                <form method="post"
+                                      action="${pageContext.request.contextPath}/mo/vacancy/archive"
+                                      class="inline-form"
+                                      onsubmit="return confirm('Archive this course job? It will be hidden from Browse Jobs.');">
+                                    <input type="hidden" name="vacancyId" value="${vacancy.vacancyId}">
+                                    <button type="submit" class="btn btn-nav btn-nav-logout">Archive</button>
+                                </form>
+                            </div>
                         </div>
                     </c:forEach>
                 </div>

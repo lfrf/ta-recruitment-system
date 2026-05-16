@@ -3,6 +3,7 @@ package com.group27.tarecruitment.util;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -13,8 +14,10 @@ import java.util.List;
 
 public final class JsonFileUtil {
     private static final ObjectMapper MAPPER = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
             .findAndRegisterModules()
-            .enable(SerializationFeature.INDENT_OUTPUT);
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     private static final Path RUNTIME_DATA_DIR = initialiseRuntimeDataDirectory();
 
     private JsonFileUtil() {

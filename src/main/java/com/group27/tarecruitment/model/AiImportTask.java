@@ -20,6 +20,10 @@ public class AiImportTask {
     private Long receivedAtEpochMillis;
     private Long validatedAtEpochMillis;
     private Long appliedAtEpochMillis;
+    private String cvDownloadToken;
+    private Long cvDownloadExpiresAtEpochMillis;
+    private Long cvDownloadedAtEpochMillis;
+    private Integer cvDownloadAccessCount;
     private String rawPayloadJson;
     private AiProfileSuggestion suggestion;
     private List<String> validationErrors;
@@ -102,6 +106,38 @@ public class AiImportTask {
 
     public void setAppliedAtEpochMillis(Long appliedAtEpochMillis) {
         this.appliedAtEpochMillis = appliedAtEpochMillis;
+    }
+
+    public String getCvDownloadToken() {
+        return cvDownloadToken;
+    }
+
+    public void setCvDownloadToken(String cvDownloadToken) {
+        this.cvDownloadToken = cvDownloadToken;
+    }
+
+    public Long getCvDownloadExpiresAtEpochMillis() {
+        return cvDownloadExpiresAtEpochMillis;
+    }
+
+    public void setCvDownloadExpiresAtEpochMillis(Long cvDownloadExpiresAtEpochMillis) {
+        this.cvDownloadExpiresAtEpochMillis = cvDownloadExpiresAtEpochMillis;
+    }
+
+    public Long getCvDownloadedAtEpochMillis() {
+        return cvDownloadedAtEpochMillis;
+    }
+
+    public void setCvDownloadedAtEpochMillis(Long cvDownloadedAtEpochMillis) {
+        this.cvDownloadedAtEpochMillis = cvDownloadedAtEpochMillis;
+    }
+
+    public Integer getCvDownloadAccessCount() {
+        return cvDownloadAccessCount;
+    }
+
+    public void setCvDownloadAccessCount(Integer cvDownloadAccessCount) {
+        this.cvDownloadAccessCount = cvDownloadAccessCount;
     }
 
     public String getRawPayloadJson() {

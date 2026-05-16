@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public class VacancyService {
+    private static final String STATUS_OPEN = "OPEN";
+    private static final String STATUS_ARCHIVED = "ARCHIVED";
     private static final String CAMPUS_XTC = "Xitucheng Campus";
     private static final String CAMPUS_SH = "Shahe Campus";
     private static final Set<String> SUPPORTED_CAMPUSES = Set.of(
@@ -23,7 +25,7 @@ public class VacancyService {
 
     public List<Vacancy> getOpenVacancies() {
         return vacancyRepository.findAll().stream()
-                .filter(vacancy -> "OPEN".equalsIgnoreCase(vacancy.getStatus()))
+                .filter(vacancy -> STATUS_OPEN.equalsIgnoreCase(vacancy.getStatus()))
                 .toList();
     }
 
@@ -56,7 +58,8 @@ public class VacancyService {
         if (ValidationUtil.isBlank(campus)) {
             return "Campus is required.";
         }
-        if (normalizeCampus(campus) == null) {
+        String normalizedCampus = normalizeCampus(campus);
+        if (normalizedCampus == null) {
             return "Campus must be Xitucheng Campus or Shahe Campus.";
         }
         if (ValidationUtil.isBlank(description)) {
@@ -70,6 +73,9 @@ public class VacancyService {
         }
         if (ValidationUtil.parsePositiveInt(positionCount) == null) {
             return "TA places must be a positive integer.";
+        }
+        if (hasDuplicateVacancy(moduleCode, moduleName, normalizedCampus)) {
+            return "A course job with the same module code, module name, and campus already exists.";
         }
         return null;
     }
@@ -99,7 +105,7 @@ public class VacancyService {
         vacancy.setPositionCount(ValidationUtil.parsePositiveInt(positionCount));
         vacancy.setLeaderRoleAvailable(leaderRoleAvailable);
         vacancy.setDeadline("");
-        vacancy.setStatus("OPEN");
+        vacancy.setStatus(STATUS_OPEN);
         vacancy.setCreatedBy(currentUser.getUsername());
         vacancy.setApplicantCount(0);
 
@@ -118,5 +124,64 @@ public class VacancyService {
             return null;
         }
         return CAMPUS_XTC.toLowerCase().equals(lowered) ? CAMPUS_XTC : CAMPUS_SH;
+    }
+
+    private boolean hasDuplicateVacancy(String moduleCode, String moduleName, String campus) {
+        String normalizedModuleCode = normalizeText(moduleCode);
+        String normalizedModuleName = normalizeText(moduleName);
+        return vacancyRepository.findAll().stream()
+                .anyMatch(existing ->
+                        !isArchived(existing.getStatus())
+                                && normalizedModuleCode.equals(normalizeText(existing.getModuleCode()))
+                                && normalizedModuleName.equals(normalizeText(existing.getModuleName()))
+                                && ValidationUtil.trimToEmpty(campus)
+                                .equalsIgnoreCase(ValidationUtil.trimToEmpty(existing.getCampus())));
+    }
+
+    public String archiveVacancy(UserAccount currentUser, String vacancyId) {
+        if (currentUser == null || currentUser.getRole() != UserRole.MO) {
+            return "Only organiser accounts can archive course jobs.";
+        }
+        String normalizedVacancyId = ValidationUtil.trimToEmpty(vacancyId);
+        if (normalizedVacancyId.isEmpty()) {
+            return "Vacancy ID is required.";
+        }
+
+        List<Vacancy> vacancies = new ArrayList<>(vacancyRepository.findAll());
+        Vacancy target = null;
+        for (Vacancy vacancy : vacancies) {
+            if (normalizedVacancyId.equals(vacancy.getVacancyId())) {
+                target = vacancy;
+                break;
+            }
+        }
+        if (target == null) {
+            return "The selected course job could not be found.";
+        }
+        if (!isOwnedBy(currentUser, target)) {
+            return "You can only archive course jobs published by your organiser account.";
+        }
+        if (isArchived(target.getStatus())) {
+            return "This course job is already archived.";
+        }
+
+        target.setStatus(STATUS_ARCHIVED);
+        vacancyRepository.saveAll(vacancies);
+        return null;
+    }
+
+    private boolean isOwnedBy(UserAccount currentUser, Vacancy vacancy) {
+        String createdBy = ValidationUtil.trimToEmpty(vacancy.getCreatedBy());
+        return !createdBy.isEmpty()
+                && (createdBy.equalsIgnoreCase(ValidationUtil.trimToEmpty(currentUser.getUsername()))
+                || createdBy.equalsIgnoreCase(ValidationUtil.trimToEmpty(currentUser.getUserId())));
+    }
+
+    private boolean isArchived(String status) {
+        return STATUS_ARCHIVED.equalsIgnoreCase(ValidationUtil.trimToEmpty(status));
+    }
+
+    private String normalizeText(String value) {
+        return ValidationUtil.trimToEmpty(value).toLowerCase();
     }
 }

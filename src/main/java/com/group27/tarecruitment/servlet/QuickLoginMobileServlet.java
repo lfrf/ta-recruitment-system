@@ -16,6 +16,8 @@ import java.util.Optional;
 @WebServlet("/quick-login/mobile")
 public class QuickLoginMobileServlet extends HttpServlet {
     private static final String VIEW_PATH = "/WEB-INF/views/common/quick-login-mobile.jsp";
+    private static final String ACTION_DONE = "done";
+    private static final String ACTION_LOGIN = "login";
 
     private final QuickLoginRequestService quickLoginRequestService = new QuickLoginRequestService();
     private final QuickLoginBindingService quickLoginBindingService = new QuickLoginBindingService();
@@ -24,47 +26,47 @@ public class QuickLoginMobileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String requestId = ValidationUtil.trimToEmpty(request.getParameter("request"));
         if (ValidationUtil.isBlank(requestId)) {
-            attachState(request, "Invalid quick login link.", "Please return to the applicant login page and generate a new QR code.", false);
+            attachState(request, "Invalid quick login link.", "Please return to the applicant login page and generate a new QR code.", false, ACTION_LOGIN);
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
 
         Optional<QuickLoginRequestService.QuickLoginRequest> quickLoginRequest = quickLoginRequestService.findRequest(requestId);
         if (quickLoginRequest.isEmpty()) {
-            attachState(request, "This login request is no longer available.", "Generate a fresh QR code on the applicant login page.", false);
+            attachState(request, "This login request is no longer available.", "Generate a fresh QR code on the applicant login page.", false, ACTION_LOGIN);
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
 
         QuickLoginRequestService.QuickLoginRequest value = quickLoginRequest.get();
         if (value.getStatus() == QuickLoginRequestService.Status.EXPIRED || value.getStatus() == QuickLoginRequestService.Status.USED) {
-            attachState(request, "This login request has expired.", "Generate a fresh QR code on the applicant login page.", false);
+            attachState(request, "This login request has expired.", "Generate a fresh QR code on the applicant login page.", false, ACTION_LOGIN);
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
 
         Optional<QuickLoginBinding> quickLoginBinding = findBindingFromCookie(request);
         if (quickLoginBinding.isEmpty()) {
-            attachState(request, "This phone is not bound yet.", "Bind this phone from My Profile first, then scan the login QR again.", false);
+            attachState(request, "This phone is not bound yet.", "Bind this phone from My Profile first, then scan the login QR again.", false, ACTION_LOGIN);
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
 
         QuickLoginBinding binding = quickLoginBinding.get();
-        request.setAttribute("boundDeviceName", binding.getDeviceName());
+        request.setAttribute("boundDeviceName", summarizeDeviceName(binding.getDeviceName()));
 
         if (value.getStatus() == QuickLoginRequestService.Status.CONFIRMED) {
             if (binding.getUserId().equals(value.getConfirmedUserId())) {
-                attachState(request, "This request is already confirmed.", "Switch back to the computer. It should finish login shortly.", false);
+                attachState(request, "Confirmed", "Switch back to the computer. Login should complete automatically.", false, ACTION_DONE);
             } else {
-                attachState(request, "This request is already confirmed by another account.", "Generate a new QR code if needed.", false);
+                attachState(request, "This request is already confirmed by another account.", "Generate a new QR code if needed.", false, ACTION_LOGIN);
             }
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
 
         request.setAttribute("requestId", requestId);
-        attachState(request, "Confirm quick login", "If this is your own login request, tap Confirm to sign in on the computer.", true);
+        attachState(request, "Confirm quick login", "If this is your own login request, tap Confirm to sign in on the computer.", true, null);
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
@@ -72,14 +74,14 @@ public class QuickLoginMobileServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String requestId = ValidationUtil.trimToEmpty(request.getParameter("request"));
         if (ValidationUtil.isBlank(requestId)) {
-            attachState(request, "Invalid login request.", "Please scan a fresh login QR code.", false);
+            attachState(request, "Invalid login request.", "Please scan a fresh login QR code.", false, ACTION_LOGIN);
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
 
         Optional<QuickLoginBinding> quickLoginBinding = findBindingFromCookie(request);
         if (quickLoginBinding.isEmpty()) {
-            attachState(request, "This phone is not bound yet.", "Bind this phone from My Profile first, then scan again.", false);
+            attachState(request, "This phone is not bound yet.", "Bind this phone from My Profile first, then scan again.", false, ACTION_LOGIN);
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
@@ -87,14 +89,14 @@ public class QuickLoginMobileServlet extends HttpServlet {
         QuickLoginBinding binding = quickLoginBinding.get();
         boolean confirmed = quickLoginRequestService.confirmRequest(requestId, binding.getUserId());
         if (!confirmed) {
-            attachState(request, "Unable to confirm this request.", "It may already be used or expired. Please generate a new QR code.", false);
-            request.setAttribute("boundDeviceName", binding.getDeviceName());
+            attachState(request, "Unable to confirm this request.", "It may already be used or expired. Please generate a new QR code.", false, ACTION_LOGIN);
+            request.setAttribute("boundDeviceName", summarizeDeviceName(binding.getDeviceName()));
             request.getRequestDispatcher(VIEW_PATH).forward(request, response);
             return;
         }
 
-        request.setAttribute("boundDeviceName", binding.getDeviceName());
-        attachState(request, "Confirmed", "You can now return to the computer. Login will complete automatically.", false);
+        request.setAttribute("boundDeviceName", summarizeDeviceName(binding.getDeviceName()));
+        attachState(request, "Confirmed", "You can now return to the computer. Login will complete automatically.", false, ACTION_DONE);
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
@@ -112,9 +114,30 @@ public class QuickLoginMobileServlet extends HttpServlet {
         return Optional.empty();
     }
 
-    private void attachState(HttpServletRequest request, String title, String message, boolean canConfirm) {
+    private void attachState(HttpServletRequest request, String title, String message, boolean canConfirm, String action) {
         request.setAttribute("stateTitle", title);
         request.setAttribute("stateMessage", message);
         request.setAttribute("canConfirm", canConfirm);
+        if (action != null) {
+            request.setAttribute("stateAction", action);
+        }
+    }
+
+    private String summarizeDeviceName(String value) {
+        String compact = ValidationUtil.trimToEmpty(value).replaceAll("\\s+", " ");
+        if (compact.isEmpty()) {
+            return "";
+        }
+        String lowered = compact.toLowerCase();
+        if (lowered.contains("android")) {
+            return "Android phone";
+        }
+        if (lowered.contains("iphone")) {
+            return "iPhone";
+        }
+        if (compact.length() > 42) {
+            return compact.substring(0, 42) + "...";
+        }
+        return compact;
     }
 }

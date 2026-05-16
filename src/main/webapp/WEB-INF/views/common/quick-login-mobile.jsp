@@ -3,6 +3,7 @@
     String stateTitle = request.getAttribute("stateTitle") != null ? request.getAttribute("stateTitle").toString() : "Quick login";
     String stateMessage = request.getAttribute("stateMessage") != null ? request.getAttribute("stateMessage").toString() : "";
     boolean canConfirm = Boolean.TRUE.equals(request.getAttribute("canConfirm"));
+    String stateAction = request.getAttribute("stateAction") != null ? request.getAttribute("stateAction").toString() : "login";
     String requestId = request.getAttribute("requestId") != null ? request.getAttribute("requestId").toString() : "";
     String boundDeviceName = request.getAttribute("boundDeviceName") != null ? request.getAttribute("boundDeviceName").toString() : null;
 %>
@@ -31,6 +32,8 @@
                 <button class="btn primary btn-hero-compact" type="submit">Confirm quick login</button>
                 <a class="btn" href="${pageContext.request.contextPath}/vacancies">Cancel</a>
             </form>
+        <% } else if ("done".equalsIgnoreCase(stateAction)) { %>
+            <p class="hint">You can now close this page.</p>
         <% } else { %>
             <div class="quick-login-mobile-actions">
                 <a class="btn" href="${pageContext.request.contextPath}/login">Back to login</a>

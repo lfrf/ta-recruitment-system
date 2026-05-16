@@ -392,7 +392,11 @@
             currentTaskId = result.taskId;
             promptBox.value = result.promptTemplate;
             setPromptVisible(true);
-            setStatus("Prompt task created. Copy prompt into your own agent, then wait for callback.");
+            if (result.hasCvDownload) {
+                setStatus("Prompt task created with one-time CV download URL. Send prompt to your agent and wait for callback.");
+            } else {
+                setStatus("Prompt task created, but no uploaded CV was found. Upload CV to your agent manually before running extraction.");
+            }
             generateButton.disabled = false;
 
             pollTimer = window.setInterval(() => {

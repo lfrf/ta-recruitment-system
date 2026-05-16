@@ -33,6 +33,8 @@ public class ApplicantAiTaskCreateServlet extends HttpServlet {
                 + "\"schemaVersion\":\"" + escapeJson(result.getTask().getSchemaVersion()) + "\","
                 + "\"expiresAt\":" + result.getTask().getExpiresAtEpochMillis() + ","
                 + "\"callbackUrl\":\"" + escapeJson(result.getCallbackUrl()) + "\","
+                + "\"cvDownloadUrl\":\"" + escapeJson(result.getCvDownloadUrl()) + "\","
+                + "\"hasCvDownload\":" + (!result.getCvDownloadUrl().isBlank()) + ","
                 + "\"promptTemplate\":\"" + escapeJson(result.getPromptTemplate()) + "\""
                 + "}";
         writeJson(response, HttpServletResponse.SC_OK, body);

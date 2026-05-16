@@ -9,6 +9,8 @@ import com.group27.tarecruitment.repository.AiImportTaskRepository;
 import com.group27.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,6 +23,8 @@ import java.util.function.Consumer;
 public class AiProfileImportService {
     public static final String SCHEMA_VERSION = "profile-import-v1";
     private static final long TASK_TTL_MILLIS = 10 * 60 * 1000L;
+    private static final long CV_DOWNLOAD_TTL_MILLIS = 10 * 60 * 1000L;
+    private static final int CV_DOWNLOAD_MAX_ACCESS_COUNT = 5;
     private static final int MAX_CALLBACK_BODY_CHARS = 200_000;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Set<String> PROFILE_FIELD_WHITELIST = Set.of(
@@ -53,11 +57,13 @@ public class AiProfileImportService {
         task.setCreatedAtEpochMillis(now);
         task.setExpiresAtEpochMillis(now + TASK_TTL_MILLIS);
         task.setValidationErrors(new ArrayList<>());
+
+        String cvDownloadUrl = resolveCvDownloadUrl(task, userId, request, now);
         aiImportTaskRepository.save(task);
 
         String callbackUrl = buildAbsoluteUrl(request, request.getContextPath()
                 + "/ai/callback?taskId=" + task.getTaskId());
-        return new TaskCreationResult(task, callbackUrl, buildPromptTemplate(task, callbackUrl));
+        return new TaskCreationResult(task, callbackUrl, cvDownloadUrl, buildPromptTemplate(task, callbackUrl, cvDownloadUrl));
     }
 
     public Optional<AiImportTask> findTaskForUser(String userId, String taskId) {
@@ -133,6 +139,67 @@ public class AiProfileImportService {
         if (changed) {
             aiImportTaskRepository.saveAll(tasks);
         }
+    }
+
+    public CvDownloadResult consumeCvDownload(String taskId, String cvToken) {
+        expireOldTasks();
+        if (ValidationUtil.isBlank(taskId)) {
+            return CvDownloadResult.error("INVALID_TASK", "Missing task ID.");
+        }
+        if (ValidationUtil.isBlank(cvToken)) {
+            return CvDownloadResult.error("INVALID_TOKEN", "Missing CV download token.");
+        }
+
+        Optional<AiImportTask> optionalTask = aiImportTaskRepository.findById(taskId);
+        if (optionalTask.isEmpty()) {
+            return CvDownloadResult.error("TASK_NOT_FOUND", "Task does not exist.");
+        }
+
+        AiImportTask task = optionalTask.get();
+        if (!cvToken.equals(task.getCvDownloadToken())) {
+            return CvDownloadResult.error("INVALID_TOKEN", "CV download token does not match.");
+        }
+        if (task.getCvDownloadExpiresAtEpochMillis() == null
+                || task.getCvDownloadExpiresAtEpochMillis() < Instant.now().toEpochMilli()) {
+            return CvDownloadResult.error("TOKEN_EXPIRED", "CV download token has expired.");
+        }
+        int accessCount = task.getCvDownloadAccessCount() == null ? 0 : task.getCvDownloadAccessCount();
+        if (accessCount >= CV_DOWNLOAD_MAX_ACCESS_COUNT) {
+            return CvDownloadResult.error("TOKEN_EXHAUSTED", "CV download token exceeded access limit.");
+        }
+
+        Optional<ApplicantProfile> optionalProfile = applicantProfileService.findByApplicantId(task.getUserId());
+        if (optionalProfile.isEmpty()) {
+            return CvDownloadResult.error("CV_NOT_FOUND", "Applicant profile is missing.");
+        }
+
+        ApplicantProfile profile = optionalProfile.get();
+        String filePath = ValidationUtil.trimToEmpty(profile.getCvFilePath());
+        if (ValidationUtil.isBlank(filePath)) {
+            return CvDownloadResult.error("CV_NOT_FOUND", "No CV file is available for this task.");
+        }
+
+        Path cvPath = Path.of(filePath);
+        if (!Files.exists(cvPath) || !Files.isRegularFile(cvPath)) {
+            return CvDownloadResult.error("CV_NOT_FOUND", "CV file is not available on server.");
+        }
+
+        return CvDownloadResult.ok(cvPath, ValidationUtil.trimToEmpty(profile.getCvFileName()));
+    }
+
+    public void markCvDownloadConsumed(String taskId) {
+        Optional<AiImportTask> optionalTask = aiImportTaskRepository.findById(taskId);
+        if (optionalTask.isEmpty()) {
+            return;
+        }
+        AiImportTask task = optionalTask.get();
+        long now = Instant.now().toEpochMilli();
+        if (task.getCvDownloadedAtEpochMillis() == null) {
+            task.setCvDownloadedAtEpochMillis(now);
+        }
+        int accessCount = task.getCvDownloadAccessCount() == null ? 0 : task.getCvDownloadAccessCount();
+        task.setCvDownloadAccessCount(accessCount + 1);
+        aiImportTaskRepository.save(task);
     }
 
     public ApplyResult applySuggestionToProfile(String userId, String taskId) {
@@ -294,39 +361,75 @@ public class AiProfileImportService {
         return scheme + "://" + serverName + (defaultPort ? "" : ":" + port) + path;
     }
 
-    private String buildPromptTemplate(AiImportTask task, String callbackUrl) {
-        return "You are extracting a candidate profile from CV text.\n"
-                + "Return ONLY JSON with this exact top-level shape:\n"
-                + "{\n"
-                + "  \"schemaVersion\": \"" + SCHEMA_VERSION + "\",\n"
-                + "  \"profile\": {\n"
-                + "    \"fullName\": \"\",\n"
-                + "    \"studentId\": \"\",\n"
-                + "    \"email\": \"\",\n"
-                + "    \"phone\": \"\",\n"
-                + "    \"degreeProgramme\": \"\",\n"
-                + "    \"yearOfStudy\": \"\",\n"
-                + "    \"relevantCourses\": [],\n"
-                + "    \"skills\": [],\n"
-                + "    \"taExperience\": \"\",\n"
-                + "    \"projectOrLeadershipExperience\": \"\",\n"
-                + "    \"availability\": \"\"\n"
-                + "  }\n"
-                + "}\n"
-                + "Then call this callback endpoint with POST and raw JSON body:\n"
-                + callbackUrl + "\n"
-                + "Set header: X-Callback-Token: " + task.getCallbackToken() + "\n"
-                + "Do not include markdown fences.";
+    private String resolveCvDownloadUrl(AiImportTask task, String userId, HttpServletRequest request, long now) {
+        Optional<ApplicantProfile> optionalProfile = applicantProfileService.findByApplicantId(userId);
+        if (optionalProfile.isEmpty()) {
+            return "";
+        }
+
+        ApplicantProfile profile = optionalProfile.get();
+        String cvPath = ValidationUtil.trimToEmpty(profile.getCvFilePath());
+        if (ValidationUtil.isBlank(cvPath)) {
+            return "";
+        }
+
+        Path sourcePath = Path.of(cvPath);
+        if (!Files.exists(sourcePath) || !Files.isRegularFile(sourcePath)) {
+            return "";
+        }
+
+        String downloadToken = UUID.randomUUID().toString().replace("-", "");
+        task.setCvDownloadToken(downloadToken);
+        task.setCvDownloadExpiresAtEpochMillis(now + CV_DOWNLOAD_TTL_MILLIS);
+        return buildAbsoluteUrl(request, request.getContextPath()
+                + "/ai/cv-download?taskId=" + task.getTaskId() + "&token=" + downloadToken);
+    }
+
+    private String buildPromptTemplate(AiImportTask task, String callbackUrl, String cvDownloadUrl) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("You are extracting a candidate profile from CV text.\n");
+        if (!ValidationUtil.isBlank(cvDownloadUrl)) {
+            builder.append("First, download the CV file from this short-lived URL (it may be fetched more than once by your client):\n")
+                    .append(cvDownloadUrl)
+                    .append("\n");
+        } else {
+            builder.append("No CV download URL is available for this task. Ask the user to upload the CV file manually to this chat before extracting.\n");
+        }
+
+        builder.append("Return ONLY JSON with this exact top-level shape:\n")
+                .append("{\n")
+                .append("  \"schemaVersion\": \"").append(SCHEMA_VERSION).append("\",\n")
+                .append("  \"profile\": {\n")
+                .append("    \"fullName\": \"\",\n")
+                .append("    \"studentId\": \"\",\n")
+                .append("    \"email\": \"\",\n")
+                .append("    \"phone\": \"\",\n")
+                .append("    \"degreeProgramme\": \"\",\n")
+                .append("    \"yearOfStudy\": \"\",\n")
+                .append("    \"relevantCourses\": [],\n")
+                .append("    \"skills\": [],\n")
+                .append("    \"taExperience\": \"\",\n")
+                .append("    \"projectOrLeadershipExperience\": \"\",\n")
+                .append("    \"availability\": \"\"\n")
+                .append("  }\n")
+                .append("}\n")
+                .append("Then call this callback endpoint with POST and raw JSON body:\n")
+                .append(callbackUrl).append("\n")
+                .append("Set header: X-Callback-Token: ").append(task.getCallbackToken()).append("\n")
+                .append("Do not include markdown fences.");
+        return builder.toString();
     }
 
     public static class TaskCreationResult {
         private final AiImportTask task;
         private final String callbackUrl;
+        private final String cvDownloadUrl;
         private final String promptTemplate;
 
-        public TaskCreationResult(AiImportTask task, String callbackUrl, String promptTemplate) {
+        public TaskCreationResult(AiImportTask task, String callbackUrl, String cvDownloadUrl, String promptTemplate) {
             this.task = task;
             this.callbackUrl = callbackUrl;
+            this.cvDownloadUrl = cvDownloadUrl;
             this.promptTemplate = promptTemplate;
         }
 
@@ -336,6 +439,10 @@ public class AiProfileImportService {
 
         public String getCallbackUrl() {
             return callbackUrl;
+        }
+
+        public String getCvDownloadUrl() {
+            return cvDownloadUrl;
         }
 
         public String getPromptTemplate() {
@@ -410,6 +517,50 @@ public class AiProfileImportService {
 
         public ApplicantProfile getProfile() {
             return profile;
+        }
+    }
+
+    public static class CvDownloadResult {
+        private final boolean ok;
+        private final String code;
+        private final String message;
+        private final Path filePath;
+        private final String fileName;
+
+        private CvDownloadResult(boolean ok, String code, String message, Path filePath, String fileName) {
+            this.ok = ok;
+            this.code = code;
+            this.message = message;
+            this.filePath = filePath;
+            this.fileName = fileName;
+        }
+
+        public static CvDownloadResult ok(Path filePath, String fileName) {
+            return new CvDownloadResult(true, "OK", "Ready", filePath, fileName);
+        }
+
+        public static CvDownloadResult error(String code, String message) {
+            return new CvDownloadResult(false, code, message, null, "");
+        }
+
+        public boolean isOk() {
+            return ok;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public Path getFilePath() {
+            return filePath;
+        }
+
+        public String getFileName() {
+            return fileName;
         }
     }
 }

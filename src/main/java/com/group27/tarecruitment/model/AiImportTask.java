@@ -6,13 +6,21 @@ public class AiImportTask {
     public static final String STATUS_CREATED = "CREATED";
     public static final String STATUS_RECEIVED = "RECEIVED";
     public static final String STATUS_VALIDATED = "VALIDATED";
+    public static final String STATUS_PARTIAL = "PARTIAL";
     public static final String STATUS_APPLIED = "APPLIED";
     public static final String STATUS_FAILED = "FAILED";
     public static final String STATUS_EXPIRED = "EXPIRED";
 
+    public static final String IMPORT_STATUS_PENDING = "PENDING";
+    public static final String IMPORT_STATUS_VALIDATED = "VALIDATED";
+    public static final String IMPORT_STATUS_APPLIED = "APPLIED";
+    public static final String IMPORT_STATUS_FAILED = "FAILED";
+
     private String taskId;
     private String userId;
     private String status;
+    private String profileStatus;
+    private String rankingStatus;
     private String callbackToken;
     private String schemaVersion;
     private long createdAtEpochMillis;
@@ -25,8 +33,12 @@ public class AiImportTask {
     private Long cvDownloadedAtEpochMillis;
     private Integer cvDownloadAccessCount;
     private String rawPayloadJson;
+    private List<String> eligibleVacancyIds;
     private AiProfileSuggestion suggestion;
+    private List<AiVacancyRecommendation> recommendations;
     private List<String> validationErrors;
+    private List<String> profileValidationErrors;
+    private List<String> rankingValidationErrors;
 
     public String getTaskId() {
         return taskId;
@@ -50,6 +62,22 @@ public class AiImportTask {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getProfileStatus() {
+        return profileStatus;
+    }
+
+    public void setProfileStatus(String profileStatus) {
+        this.profileStatus = profileStatus;
+    }
+
+    public String getRankingStatus() {
+        return rankingStatus;
+    }
+
+    public void setRankingStatus(String rankingStatus) {
+        this.rankingStatus = rankingStatus;
     }
 
     public String getCallbackToken() {
@@ -148,6 +176,14 @@ public class AiImportTask {
         this.rawPayloadJson = rawPayloadJson;
     }
 
+    public List<String> getEligibleVacancyIds() {
+        return eligibleVacancyIds;
+    }
+
+    public void setEligibleVacancyIds(List<String> eligibleVacancyIds) {
+        this.eligibleVacancyIds = eligibleVacancyIds;
+    }
+
     public AiProfileSuggestion getSuggestion() {
         return suggestion;
     }
@@ -156,11 +192,35 @@ public class AiImportTask {
         this.suggestion = suggestion;
     }
 
+    public List<AiVacancyRecommendation> getRecommendations() {
+        return recommendations;
+    }
+
+    public void setRecommendations(List<AiVacancyRecommendation> recommendations) {
+        this.recommendations = recommendations;
+    }
+
     public List<String> getValidationErrors() {
         return validationErrors;
     }
 
     public void setValidationErrors(List<String> validationErrors) {
         this.validationErrors = validationErrors;
+    }
+
+    public List<String> getProfileValidationErrors() {
+        return profileValidationErrors;
+    }
+
+    public void setProfileValidationErrors(List<String> profileValidationErrors) {
+        this.profileValidationErrors = profileValidationErrors;
+    }
+
+    public List<String> getRankingValidationErrors() {
+        return rankingValidationErrors;
+    }
+
+    public void setRankingValidationErrors(List<String> rankingValidationErrors) {
+        this.rankingValidationErrors = rankingValidationErrors;
     }
 }

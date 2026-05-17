@@ -2,6 +2,7 @@ package com.group27.tarecruitment.repository;
 
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.util.JsonFileUtil;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,5 +23,16 @@ public class UserRepository {
         return findAll().stream()
                 .filter(user -> user.getUserId() != null && user.getUserId().equals(userId))
                 .findFirst();
+    }
+
+    public void save(UserAccount user) {
+        List<UserAccount> all = new ArrayList<>(findAll());
+        all.removeIf(item -> item.getUserId() != null && item.getUserId().equals(user.getUserId()));
+        all.add(user);
+        JsonFileUtil.writeList(USERS_RESOURCE, all);
+    }
+
+    public void saveAll(List<UserAccount> users) {
+        JsonFileUtil.writeList(USERS_RESOURCE, users);
     }
 }

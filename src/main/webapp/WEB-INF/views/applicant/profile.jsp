@@ -18,6 +18,7 @@
             <a class="btn btn-nav btn-nav-subtle" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>
             <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/status">Application History</a>
+            <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
         </div>
     </div>
@@ -31,7 +32,7 @@
                 <form id="applicant-profile-form" class="section-stack" method="post" action="${pageContext.request.contextPath}/applicant/profile" enctype="multipart/form-data">
                     <div class="subcard applicant-upload-card">
                         <strong>Upload CV first (optional)</strong>
-                        <div class="hint">Place your CV here before filling the profile details. This area is reserved for future AI-assisted extraction and fast field suggestions.</div>
+                        <div class="hint">Upload your CV if you want. You can do it now or later. If uploaded, AI import can help pre-fill profile fields and generate vacancy-fit ranking.</div>
                         <div class="field spacing-top applicant-upload-field">
                             <label for="cvFile">Upload CV</label>
                             <input id="cvFile" name="cvFile" type="file" accept=".pdf,.doc,.docx">
@@ -84,19 +85,20 @@
 
                 <div class="subcard ai-import-card">
                     <strong>0-token AI assistant import</strong>
-                    <div class="hint">Generate a task prompt, paste it into your own agent, and let the agent call back automatically with structured profile data.</div>
+                    <div class="hint">Generate one task prompt, paste it into your own agent, and let the agent call back automatically with both structured profile fields and vacancy-fit ranking.</div>
                     <div class="ai-import-actions spacing-top">
                         <button id="ai-import-generate" type="button" class="btn btn-nav">Generate prompt task</button>
                         <button id="ai-import-copy" type="button" class="btn btn-nav btn-nav-subtle hidden">Copy prompt</button>
                     </div>
                     <p id="ai-import-status" class="hint spacing-top">No active AI import task.</p>
+                    <p id="ai-import-summary" class="hint ai-import-summary hidden"></p>
                     <textarea id="ai-import-prompt" class="ai-import-prompt hidden" rows="7" readonly></textarea>
                     <div id="ai-import-preview" class="selection-preview hidden">
                         <strong>Extracted fields preview</strong>
                         <pre id="ai-import-preview-lines" class="ai-import-preview-lines"></pre>
-                    </div>
-                    <div id="ai-import-apply-wrap" class="ai-import-actions spacing-top hidden">
-                        <button id="ai-import-apply" type="button" class="btn primary">Apply to profile form</button>
+                        <div class="ai-import-actions spacing-top">
+                            <button id="ai-import-apply" type="button" class="btn primary hidden">Apply extracted data</button>
+                        </div>
                     </div>
                 </div>
 
@@ -231,19 +233,21 @@
         const generateButton = document.getElementById("ai-import-generate");
         const copyButton = document.getElementById("ai-import-copy");
         const applyButton = document.getElementById("ai-import-apply");
-        const applyWrap = document.getElementById("ai-import-apply-wrap");
         const statusText = document.getElementById("ai-import-status");
+        const summaryText = document.getElementById("ai-import-summary");
         const promptBox = document.getElementById("ai-import-prompt");
         const previewBox = document.getElementById("ai-import-preview");
         const previewLines = document.getElementById("ai-import-preview-lines");
-        if (!generateButton || !copyButton || !applyButton || !applyWrap
-            || !statusText || !promptBox || !previewBox || !previewLines) {
+        if (!generateButton || !copyButton || !applyButton
+            || !statusText || !summaryText || !promptBox || !previewBox || !previewLines) {
             return;
         }
 
         let currentTaskId = "";
         let pollTimer = null;
         let latestSuggestion = null;
+        let latestRankingReady = false;
+        let hasAppliedProfile = false;
 
         const setStatus = (text) => {
             statusText.textContent = text || "";
@@ -256,9 +260,21 @@
             }
         };
 
-        const setPromptVisible = (visible) => {
-            promptBox.classList.toggle("hidden", !visible);
-            copyButton.classList.toggle("hidden", !visible);
+        const setSummary = (text) => {
+            const normalized = text || "";
+            summaryText.textContent = normalized;
+            summaryText.classList.toggle("hidden", normalized.length === 0);
+        };
+
+        const updateSummary = () => {
+            const parts = [];
+            if (hasAppliedProfile) {
+                parts.push("Profile fields were applied.");
+            }
+            if (latestRankingReady) {
+                parts.push("Vacancy fit ranking is ready in Browse Jobs (AI fit order).");
+            }
+            setSummary(parts.join(" "));
         };
 
         const joinList = (values) => {
@@ -272,8 +288,8 @@
             latestSuggestion = suggestion || null;
             if (!latestSuggestion) {
                 previewBox.classList.add("hidden");
-                applyWrap.classList.add("hidden");
                 previewLines.textContent = "";
+                applyButton.classList.add("hidden");
                 return;
             }
 
@@ -299,7 +315,21 @@
 
             previewLines.textContent = lines.length > 0 ? lines.join("\n") : "No non-empty fields returned.";
             previewBox.classList.remove("hidden");
-            applyWrap.classList.remove("hidden");
+        };
+
+        const resetTaskUi = () => {
+            currentTaskId = "";
+            latestSuggestion = null;
+            latestRankingReady = false;
+            hasAppliedProfile = false;
+            promptBox.value = "";
+            promptBox.classList.add("hidden");
+            copyButton.classList.add("hidden");
+            applyButton.classList.add("hidden");
+            applyButton.disabled = false;
+            previewBox.classList.add("hidden");
+            previewLines.textContent = "";
+            setSummary("");
         };
 
         const applyProfileValues = (profile) => {
@@ -341,15 +371,41 @@
                 return;
             }
             const taskStatus = (result.taskStatus || "").toUpperCase();
-            if (taskStatus === "VALIDATED") {
+            const profileStatus = (result.profileStatus || "").toUpperCase();
+            const rankingStatus = (result.rankingStatus || "").toUpperCase();
+            latestRankingReady = rankingStatus === "VALIDATED";
+            if (profileStatus === "VALIDATED" || taskStatus === "VALIDATED") {
                 renderSuggestionPreview(result.profile || null);
-                setStatus("AI result validated. Review extracted fields, then click Apply to profile form.");
+                applyButton.classList.remove("hidden");
+                applyButton.disabled = false;
+                hasAppliedProfile = false;
+                if (latestRankingReady) {
+                    setStatus("AI result validated. Review profile fields and click Apply extracted data. Vacancy ranking is already ready in Browse Jobs.");
+                } else if (rankingStatus === "FAILED") {
+                    setStatus("AI profile fields validated. Vacancy ranking failed this round, but you can still apply profile fields now.");
+                } else {
+                    setStatus("AI result validated. Review extracted fields, then click Apply extracted data.");
+                }
+                updateSummary();
                 stopPolling();
                 return;
             }
             if (taskStatus === "APPLIED") {
                 renderSuggestionPreview(result.profile || latestSuggestion);
                 setStatus("AI suggestion already applied.");
+                applyButton.classList.add("hidden");
+                updateSummary();
+                stopPolling();
+                return;
+            }
+            if (profileStatus === "FAILED" && rankingStatus === "VALIDATED") {
+                const details = Array.isArray(result.profileValidationErrors) && result.profileValidationErrors.length > 0
+                    ? " (" + result.profileValidationErrors[0] + ")"
+                    : "";
+                setStatus("Profile extraction failed" + details + ". Vacancy ranking is still ready in Browse Jobs.");
+                renderSuggestionPreview(null);
+                applyButton.classList.add("hidden");
+                updateSummary();
                 stopPolling();
                 return;
             }
@@ -359,12 +415,16 @@
                     : "";
                 setStatus("AI result failed validation" + details);
                 renderSuggestionPreview(null);
+                applyButton.classList.add("hidden");
+                updateSummary();
                 stopPolling();
                 return;
             }
             if (taskStatus === "EXPIRED") {
-                setStatus("AI task expired. Generate a new prompt task.");
+                setStatus("AI task expired. Click Retry import to create a fresh task.");
                 renderSuggestionPreview(null);
+                applyButton.classList.add("hidden");
+                updateSummary();
                 stopPolling();
                 return;
             }
@@ -375,11 +435,10 @@
             setStatus("Waiting for your agent callback...");
         };
 
-        generateButton.addEventListener("click", async () => {
+        const startImport = async () => {
             stopPolling();
+            resetTaskUi();
             generateButton.disabled = true;
-            applyButton.disabled = false;
-            renderSuggestionPreview(null);
             setStatus("Generating AI prompt task...");
             const response = await fetch(contextPath + "/applicant/ai/tasks", {method: "POST"});
             const result = await response.json().catch(() => ({status: "ERROR"}));
@@ -391,21 +450,23 @@
 
             currentTaskId = result.taskId;
             promptBox.value = result.promptTemplate;
-            setPromptVisible(true);
+            promptBox.classList.remove("hidden");
+            copyButton.classList.remove("hidden");
+            generateButton.disabled = false;
             if (result.hasCvDownload) {
-                setStatus("Prompt task created with one-time CV download URL. Send prompt to your agent and wait for callback.");
+                setStatus("Prompt task created with short-lived CV download URL. Send prompt to your agent and wait for callback.");
             } else {
                 setStatus("Prompt task created, but no uploaded CV was found. Upload CV to your agent manually before running extraction.");
             }
-            generateButton.disabled = false;
 
             pollTimer = window.setInterval(() => {
                 pollTaskStatus().catch(() => {
                     setStatus("Status polling failed. Please refresh and check again.");
                     stopPolling();
+                    generateButton.disabled = false;
                 });
             }, 3000);
-        });
+        };
 
         copyButton.addEventListener("click", async () => {
             try {
@@ -418,7 +479,7 @@
             }
         });
 
-        applyButton.addEventListener("click", async () => {
+        const applyCurrentTask = async () => {
             if (!currentTaskId) {
                 setStatus("No active task. Generate a prompt task first.");
                 return;
@@ -438,7 +499,27 @@
             }
             applyProfileValues(result.profile || latestSuggestion);
             setStatus("Applied. Profile form has been updated and saved from validated AI data.");
+            applyButton.classList.add("hidden");
+            hasAppliedProfile = true;
+            updateSummary();
+            stopPolling();
+        };
+
+        generateButton.addEventListener("click", () => {
+            startImport().catch(() => {
+                setStatus("Unable to generate AI prompt task. Please retry.");
+                generateButton.disabled = false;
+            });
         });
+
+        applyButton.addEventListener("click", () => {
+            applyCurrentTask().catch(() => {
+                setStatus("Apply failed. Please try again.");
+                applyButton.disabled = false;
+            });
+        });
+
+        resetTaskUi();
     })();
 </script>
 </body>

@@ -2,9 +2,11 @@ package com.group27.tarecruitment.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.group27.tarecruitment.model.ApplicantProfile;
 import com.group27.tarecruitment.model.AiImportTask;
 import com.group27.tarecruitment.model.AiProfileSuggestion;
+import com.group27.tarecruitment.model.AiVacancyRecommendation;
+import com.group27.tarecruitment.model.ApplicantProfile;
+import com.group27.tarecruitment.model.Vacancy;
 import com.group27.tarecruitment.repository.AiImportTaskRepository;
 import com.group27.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -21,11 +25,14 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class AiProfileImportService {
-    public static final String SCHEMA_VERSION = "profile-import-v1";
+    public static final String SCHEMA_VERSION = "profile-and-ranking-v1";
     private static final long TASK_TTL_MILLIS = 10 * 60 * 1000L;
     private static final long CV_DOWNLOAD_TTL_MILLIS = 10 * 60 * 1000L;
     private static final int CV_DOWNLOAD_MAX_ACCESS_COUNT = 5;
     private static final int MAX_CALLBACK_BODY_CHARS = 200_000;
+    private static final int MAX_REASONS_PER_VACANCY = 3;
+    private static final int MAX_REASON_LENGTH = 160;
+    private static final int MAX_RANKING_ITEMS = 12;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Set<String> PROFILE_FIELD_WHITELIST = Set.of(
             "fullName",
@@ -43,6 +50,7 @@ public class AiProfileImportService {
 
     private final AiImportTaskRepository aiImportTaskRepository = new AiImportTaskRepository();
     private final ApplicantProfileService applicantProfileService = new ApplicantProfileService();
+    private final VacancyService vacancyService = new VacancyService();
 
     public TaskCreationResult createTask(String userId, HttpServletRequest request) {
         expireOldTasks();
@@ -52,24 +60,55 @@ public class AiProfileImportService {
         task.setTaskId("ai-task-" + UUID.randomUUID().toString().replace("-", ""));
         task.setUserId(userId);
         task.setStatus(AiImportTask.STATUS_CREATED);
+        task.setProfileStatus(AiImportTask.IMPORT_STATUS_PENDING);
+        task.setRankingStatus(AiImportTask.IMPORT_STATUS_PENDING);
         task.setCallbackToken(UUID.randomUUID().toString().replace("-", ""));
         task.setSchemaVersion(SCHEMA_VERSION);
         task.setCreatedAtEpochMillis(now);
         task.setExpiresAtEpochMillis(now + TASK_TTL_MILLIS);
         task.setValidationErrors(new ArrayList<>());
+        task.setProfileValidationErrors(new ArrayList<>());
+        task.setRankingValidationErrors(new ArrayList<>());
+
+        List<Vacancy> candidateVacancies = getBrowsableVacancies();
+        task.setEligibleVacancyIds(candidateVacancies.stream()
+                .map(Vacancy::getVacancyId)
+                .filter(id -> !ValidationUtil.isBlank(id))
+                .toList());
 
         String cvDownloadUrl = resolveCvDownloadUrl(task, userId, request, now);
         aiImportTaskRepository.save(task);
 
         String callbackUrl = buildAbsoluteUrl(request, request.getContextPath()
                 + "/ai/callback?taskId=" + task.getTaskId());
-        return new TaskCreationResult(task, callbackUrl, cvDownloadUrl, buildPromptTemplate(task, callbackUrl, cvDownloadUrl));
+        return new TaskCreationResult(
+                task,
+                callbackUrl,
+                cvDownloadUrl,
+                buildPromptTemplate(task, callbackUrl, cvDownloadUrl, candidateVacancies)
+        );
     }
 
     public Optional<AiImportTask> findTaskForUser(String userId, String taskId) {
         expireOldTasks();
         return aiImportTaskRepository.findById(taskId)
                 .filter(task -> userId.equals(task.getUserId()));
+    }
+
+    public Optional<AiImportTask> findLatestValidatedRankingTaskForUser(String userId) {
+        expireOldTasks();
+        return aiImportTaskRepository.findAll().stream()
+                .filter(task -> userId.equals(task.getUserId()))
+                .filter(task -> AiImportTask.IMPORT_STATUS_VALIDATED.equals(task.getRankingStatus()))
+                .filter(task -> task.getRecommendations() != null && !task.getRecommendations().isEmpty())
+                .max(Comparator.comparingLong(this::rankingSortKey));
+    }
+
+    private long rankingSortKey(AiImportTask task) {
+        if (task.getValidatedAtEpochMillis() != null) {
+            return task.getValidatedAtEpochMillis();
+        }
+        return task.getCreatedAtEpochMillis();
     }
 
     public CallbackResult acceptCallback(String taskId, String callbackToken, String payloadJson) {
@@ -107,21 +146,48 @@ public class AiProfileImportService {
         task.setReceivedAtEpochMillis(Instant.now().toEpochMilli());
         task.setRawPayloadJson(payloadJson);
 
-        List<String> errors = new ArrayList<>();
-        AiProfileSuggestion suggestion = parseSuggestion(payloadJson, errors);
-        if (!errors.isEmpty()) {
-            task.setStatus(AiImportTask.STATUS_FAILED);
-            task.setValidationErrors(errors);
-            aiImportTaskRepository.save(task);
-            return CallbackResult.error("VALIDATION_FAILED", "Payload failed schema validation.");
+        List<String> profileErrors = new ArrayList<>();
+        List<String> rankingErrors = new ArrayList<>();
+        List<String> sharedErrors = new ArrayList<>();
+        ParseResult parseResult = parsePayload(task, payloadJson, profileErrors, rankingErrors, sharedErrors);
+
+        if (!sharedErrors.isEmpty()) {
+            profileErrors.addAll(sharedErrors);
+            rankingErrors.addAll(sharedErrors);
         }
 
-        task.setSuggestion(suggestion);
-        task.setValidatedAtEpochMillis(Instant.now().toEpochMilli());
-        task.setStatus(AiImportTask.STATUS_VALIDATED);
-        task.setValidationErrors(new ArrayList<>());
+        task.setSuggestion(parseResult.suggestion());
+        task.setRecommendations(parseResult.recommendations());
+
+        task.setProfileStatus(profileErrors.isEmpty()
+                ? AiImportTask.IMPORT_STATUS_VALIDATED
+                : AiImportTask.IMPORT_STATUS_FAILED);
+        task.setRankingStatus(rankingErrors.isEmpty()
+                ? AiImportTask.IMPORT_STATUS_VALIDATED
+                : AiImportTask.IMPORT_STATUS_FAILED);
+        task.setProfileValidationErrors(profileErrors);
+        task.setRankingValidationErrors(rankingErrors);
+
+        List<String> mergedErrors = new ArrayList<>();
+        mergedErrors.addAll(profileErrors);
+        mergedErrors.addAll(rankingErrors);
+        task.setValidationErrors(mergedErrors);
+
+        if (AiImportTask.IMPORT_STATUS_VALIDATED.equals(task.getProfileStatus())
+                || AiImportTask.IMPORT_STATUS_VALIDATED.equals(task.getRankingStatus())) {
+            task.setValidatedAtEpochMillis(Instant.now().toEpochMilli());
+            if (AiImportTask.IMPORT_STATUS_VALIDATED.equals(task.getProfileStatus())) {
+                task.setStatus(AiImportTask.STATUS_VALIDATED);
+            } else {
+                task.setStatus(AiImportTask.STATUS_PARTIAL);
+            }
+            aiImportTaskRepository.save(task);
+            return CallbackResult.ok();
+        }
+
+        task.setStatus(AiImportTask.STATUS_FAILED);
         aiImportTaskRepository.save(task);
-        return CallbackResult.ok();
+        return CallbackResult.error("VALIDATION_FAILED", "Payload failed schema validation.");
     }
 
     public void expireOldTasks() {
@@ -221,8 +287,8 @@ public class AiProfileImportService {
         if (AiImportTask.STATUS_APPLIED.equals(task.getStatus())) {
             return ApplyResult.error("TASK_LOCKED", "Task has already been applied.");
         }
-        if (!AiImportTask.STATUS_VALIDATED.equals(task.getStatus())) {
-            return ApplyResult.error("TASK_NOT_READY", "Task is not validated yet.");
+        if (!AiImportTask.IMPORT_STATUS_VALIDATED.equals(task.getProfileStatus())) {
+            return ApplyResult.error("TASK_NOT_READY", "Profile fields are not validated yet.");
         }
         if (task.getSuggestion() == null) {
             return ApplyResult.error("TASK_NO_SUGGESTION", "Task has no validated suggestion.");
@@ -233,6 +299,7 @@ public class AiProfileImportService {
         mergeSuggestionIntoProfile(profile, task.getSuggestion());
         applicantProfileService.saveProfile(profile);
 
+        task.setProfileStatus(AiImportTask.IMPORT_STATUS_APPLIED);
         task.setStatus(AiImportTask.STATUS_APPLIED);
         task.setAppliedAtEpochMillis(Instant.now().toEpochMilli());
         aiImportTaskRepository.save(task);
@@ -271,53 +338,157 @@ public class AiProfileImportService {
         }
     }
 
-    private AiProfileSuggestion parseSuggestion(String payloadJson, List<String> errors) {
+    private ParseResult parsePayload(AiImportTask task,
+                                     String payloadJson,
+                                     List<String> profileErrors,
+                                     List<String> rankingErrors,
+                                     List<String> sharedErrors) {
         try {
             JsonNode root = OBJECT_MAPPER.readTree(payloadJson);
             String schemaVersion = readText(root.get("schemaVersion"));
             if (!SCHEMA_VERSION.equals(schemaVersion)) {
-                errors.add("schemaVersion must be " + SCHEMA_VERSION + ".");
+                sharedErrors.add("schemaVersion must be " + SCHEMA_VERSION + ".");
             }
 
-            JsonNode profile = root.get("profile");
-            if (profile == null || !profile.isObject()) {
-                errors.add("profile object is required.");
-                return null;
-            }
-
-            Set<String> seenFields = new HashSet<>();
-            profile.fieldNames().forEachRemaining(seenFields::add);
-            for (String field : seenFields) {
-                if (!PROFILE_FIELD_WHITELIST.contains(field)) {
-                    errors.add("Unsupported profile field: " + field);
-                }
-            }
-
-            AiProfileSuggestion suggestion = new AiProfileSuggestion();
-            suggestion.setFullName(readText(profile.get("fullName")));
-            suggestion.setStudentId(readText(profile.get("studentId")));
-            suggestion.setEmail(readText(profile.get("email")));
-            suggestion.setPhone(readText(profile.get("phone")));
-            suggestion.setDegreeProgramme(readText(profile.get("degreeProgramme")));
-            suggestion.setYearOfStudy(readText(profile.get("yearOfStudy")));
-            suggestion.setTaExperience(readText(profile.get("taExperience")));
-            suggestion.setProjectOrLeadershipExperience(readText(profile.get("projectOrLeadershipExperience")));
-            suggestion.setAvailability(readText(profile.get("availability")));
-            suggestion.setRelevantCourses(readStringList(profile.get("relevantCourses"), "relevantCourses", errors));
-            suggestion.setSkills(readStringList(profile.get("skills"), "skills", errors));
-
-            if (!ValidationUtil.isBlank(suggestion.getEmail()) && !ValidationUtil.isValidEmail(suggestion.getEmail())) {
-                errors.add("email must be a valid email address.");
-            }
-            if (!ValidationUtil.isBlank(suggestion.getYearOfStudy())
-                    && !ValidationUtil.isPositiveInteger(suggestion.getYearOfStudy())) {
-                errors.add("yearOfStudy must be a positive integer.");
-            }
-            return suggestion;
+            AiProfileSuggestion suggestion = parseSuggestion(root.get("profile"), profileErrors);
+            List<AiVacancyRecommendation> recommendations =
+                    parseRecommendations(root.get("rankings"), task.getEligibleVacancyIds(), rankingErrors);
+            return new ParseResult(suggestion, recommendations);
         } catch (Exception exception) {
-            errors.add("payload must be valid JSON.");
+            sharedErrors.add("payload must be valid JSON.");
+            return new ParseResult(null, new ArrayList<>());
+        }
+    }
+
+    private AiProfileSuggestion parseSuggestion(JsonNode profileNode, List<String> errors) {
+        if (profileNode == null || !profileNode.isObject()) {
+            errors.add("profile object is required.");
             return null;
         }
+
+        Set<String> seenFields = new HashSet<>();
+        profileNode.fieldNames().forEachRemaining(seenFields::add);
+        for (String field : seenFields) {
+            if (!PROFILE_FIELD_WHITELIST.contains(field)) {
+                errors.add("Unsupported profile field: " + field);
+            }
+        }
+
+        AiProfileSuggestion suggestion = new AiProfileSuggestion();
+        suggestion.setFullName(readText(profileNode.get("fullName")));
+        suggestion.setStudentId(readText(profileNode.get("studentId")));
+        suggestion.setEmail(readText(profileNode.get("email")));
+        suggestion.setPhone(readText(profileNode.get("phone")));
+        suggestion.setDegreeProgramme(readText(profileNode.get("degreeProgramme")));
+        suggestion.setYearOfStudy(readText(profileNode.get("yearOfStudy")));
+        suggestion.setTaExperience(readText(profileNode.get("taExperience")));
+        suggestion.setProjectOrLeadershipExperience(readText(profileNode.get("projectOrLeadershipExperience")));
+        suggestion.setAvailability(readText(profileNode.get("availability")));
+        suggestion.setRelevantCourses(readStringList(profileNode.get("relevantCourses"), "relevantCourses", errors));
+        suggestion.setSkills(readStringList(profileNode.get("skills"), "skills", errors));
+
+        if (!ValidationUtil.isBlank(suggestion.getEmail()) && !ValidationUtil.isValidEmail(suggestion.getEmail())) {
+            errors.add("email must be a valid email address.");
+        }
+        if (!ValidationUtil.isBlank(suggestion.getYearOfStudy())
+                && !ValidationUtil.isPositiveInteger(suggestion.getYearOfStudy())) {
+            errors.add("yearOfStudy must be a positive integer.");
+        }
+
+        if (errors.isEmpty()) {
+            return suggestion;
+        }
+        return null;
+    }
+
+    private List<AiVacancyRecommendation> parseRecommendations(JsonNode rankingsNode,
+                                                               List<String> eligibleVacancyIds,
+                                                               List<String> errors) {
+        if (rankingsNode == null || !rankingsNode.isArray()) {
+            errors.add("rankings array is required.");
+            return new ArrayList<>();
+        }
+
+        Set<String> allowedIds = new LinkedHashSet<>(eligibleVacancyIds == null ? List.of() : eligibleVacancyIds);
+        Set<String> seenIds = new HashSet<>();
+        List<AiVacancyRecommendation> recommendations = new ArrayList<>();
+        for (JsonNode itemNode : rankingsNode) {
+            if (recommendations.size() >= MAX_RANKING_ITEMS) {
+                break;
+            }
+            if (!itemNode.isObject()) {
+                errors.add("Each rankings item must be an object.");
+                return new ArrayList<>();
+            }
+            String vacancyId = readText(itemNode.get("vacancyId"));
+            if (ValidationUtil.isBlank(vacancyId)) {
+                errors.add("vacancyId is required for each rankings item.");
+                continue;
+            }
+            if (!allowedIds.contains(vacancyId)) {
+                errors.add("vacancyId not in current browse list: " + vacancyId);
+                continue;
+            }
+            if (!seenIds.add(vacancyId)) {
+                errors.add("Duplicate vacancyId in rankings: " + vacancyId);
+                continue;
+            }
+            Integer score = readScore(itemNode.get("score"));
+            if (score == null || score < 0 || score > 100) {
+                errors.add("score must be an integer between 0 and 100 for " + vacancyId + ".");
+                continue;
+            }
+
+            AiVacancyRecommendation recommendation = new AiVacancyRecommendation();
+            recommendation.setVacancyId(vacancyId);
+            recommendation.setScore(score);
+            recommendation.setReasons(readReasons(itemNode.get("reasons"), errors, vacancyId));
+            recommendations.add(recommendation);
+        }
+
+        if (recommendations.isEmpty()) {
+            errors.add("rankings must contain at least one valid item.");
+        }
+        recommendations.sort(Comparator.comparingInt((AiVacancyRecommendation item) ->
+                        item.getScore() == null ? -1 : item.getScore())
+                .reversed());
+        return recommendations;
+    }
+
+    private List<String> readReasons(JsonNode reasonsNode, List<String> errors, String vacancyId) {
+        if (reasonsNode == null || reasonsNode.isNull()) {
+            return new ArrayList<>();
+        }
+        if (!reasonsNode.isArray()) {
+            errors.add("reasons must be an array for " + vacancyId + ".");
+            return new ArrayList<>();
+        }
+        List<String> reasons = new ArrayList<>();
+        for (JsonNode reasonNode : reasonsNode) {
+            if (!reasonNode.isTextual()) {
+                errors.add("reasons must contain only strings for " + vacancyId + ".");
+                return new ArrayList<>();
+            }
+            String reason = ValidationUtil.trimToEmpty(reasonNode.asText());
+            if (reason.isEmpty()) {
+                continue;
+            }
+            if (reason.length() > MAX_REASON_LENGTH) {
+                reason = reason.substring(0, MAX_REASON_LENGTH);
+            }
+            reasons.add(reason);
+            if (reasons.size() >= MAX_REASONS_PER_VACANCY) {
+                break;
+            }
+        }
+        return reasons;
+    }
+
+    private Integer readScore(JsonNode scoreNode) {
+        if (scoreNode == null || scoreNode.isNull() || !scoreNode.isNumber()) {
+            return null;
+        }
+        return scoreNode.asInt();
     }
 
     private List<String> readStringList(JsonNode node, String fieldName, List<String> errors) {
@@ -385,9 +556,14 @@ public class AiProfileImportService {
                 + "/ai/cv-download?taskId=" + task.getTaskId() + "&token=" + downloadToken);
     }
 
-    private String buildPromptTemplate(AiImportTask task, String callbackUrl, String cvDownloadUrl) {
+    private String buildPromptTemplate(AiImportTask task,
+                                       String callbackUrl,
+                                       String cvDownloadUrl,
+                                       List<Vacancy> candidateVacancies) {
         StringBuilder builder = new StringBuilder();
-        builder.append("You are extracting a candidate profile from CV text.\n");
+        builder.append("You are completing two outputs from one CV and one vacancy list:\n");
+        builder.append("1) profile field extraction\n");
+        builder.append("2) TA vacancy fit ranking\n");
         if (!ValidationUtil.isBlank(cvDownloadUrl)) {
             builder.append("First, download the CV file from this short-lived URL (it may be fetched more than once by your client):\n")
                     .append(cvDownloadUrl)
@@ -411,13 +587,49 @@ public class AiProfileImportService {
                 .append("    \"taExperience\": \"\",\n")
                 .append("    \"projectOrLeadershipExperience\": \"\",\n")
                 .append("    \"availability\": \"\"\n")
-                .append("  }\n")
+                .append("  },\n")
+                .append("  \"rankings\": [\n")
+                .append("    {\"vacancyId\": \"\", \"score\": 0, \"reasons\": [\"\"]}\n")
+                .append("  ]\n")
                 .append("}\n")
-                .append("Then call this callback endpoint with POST and raw JSON body:\n")
+                .append("Ranking rules:\n")
+                .append("- score must be an integer 0-100\n")
+                .append("- use only vacancyId values from the list below\n")
+                .append("- return up to ").append(MAX_RANKING_ITEMS).append(" items sorted by score descending\n")
+                .append("- reasons should be short (1-3 per vacancy)\n")
+                .append("\nVacancy list:\n")
+                .append(buildVacancySummary(candidateVacancies))
+                .append("\nThen call this callback endpoint with POST and raw JSON body:\n")
                 .append(callbackUrl).append("\n")
                 .append("Set header: X-Callback-Token: ").append(task.getCallbackToken()).append("\n")
                 .append("Do not include markdown fences.");
         return builder.toString();
+    }
+
+    private List<Vacancy> getBrowsableVacancies() {
+        return vacancyService.getAllVacancies().stream()
+                .filter(vacancy -> isBrowsableStatus(vacancy.getStatus()))
+                .toList();
+    }
+
+    private String buildVacancySummary(List<Vacancy> vacancies) {
+        StringBuilder builder = new StringBuilder();
+        for (Vacancy vacancy : vacancies) {
+            builder.append("- vacancyId=").append(ValidationUtil.trimToEmpty(vacancy.getVacancyId()))
+                    .append("; moduleCode=").append(ValidationUtil.trimToEmpty(vacancy.getModuleCode()))
+                    .append("; moduleName=").append(ValidationUtil.trimToEmpty(vacancy.getModuleName()))
+                    .append("; campus=").append(ValidationUtil.trimToEmpty(vacancy.getCampus()))
+                    .append("; requiredSkills=")
+                    .append(vacancy.getRequiredSkills() == null ? List.of() : vacancy.getRequiredSkills())
+                    .append("; description=").append(ValidationUtil.trimToEmpty(vacancy.getDescription()))
+                    .append("\n");
+        }
+        return builder.toString();
+    }
+
+    private boolean isBrowsableStatus(String status) {
+        String normalized = ValidationUtil.trimToEmpty(status);
+        return "OPEN".equalsIgnoreCase(normalized) || "CLOSED".equalsIgnoreCase(normalized);
     }
 
     public static class TaskCreationResult {
@@ -562,5 +774,8 @@ public class AiProfileImportService {
         public String getFileName() {
             return fileName;
         }
+    }
+
+    private record ParseResult(AiProfileSuggestion suggestion, List<AiVacancyRecommendation> recommendations) {
     }
 }

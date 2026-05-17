@@ -18,6 +18,7 @@
             <a class="btn btn-nav btn-nav-subtle" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
             <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/applicant/status">Application History</a>
+            <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
         </div>
     </div>

@@ -227,6 +227,28 @@ body {
     background: #fff1ec;
 }
 
+.btn-nav-with-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-unread-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    border: 1px solid #ef4444;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 .btn.primary {
     background: var(--accent);
     color: white;
@@ -395,6 +417,12 @@ body {
 .status-chip-withdrawn {
     background: #fff7ed;
     color: #9a3412;
+}
+
+.status-chip-unread {
+    background: #ef4444;
+    color: #ffffff;
+    border: 1px solid #dc2626;
 }
 
 .application-status-grid {
@@ -1779,4 +1807,14 @@ body.modal-open {
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 4px;
+}
+
+.status-card-unread-offered {
+    border: 2px solid rgba(27, 154, 110, 0.45);
+    box-shadow: 0 0 0 3px rgba(27, 154, 110, 0.12);
+}
+
+.status-card-unread-unsuccessful {
+    border: 2px solid rgba(211, 74, 55, 0.45);
+    box-shadow: 0 0 0 3px rgba(211, 74, 55, 0.1);
 }

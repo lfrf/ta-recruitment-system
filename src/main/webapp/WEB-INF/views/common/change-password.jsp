@@ -36,11 +36,13 @@
             <div class="field">
                 <label for="newPassword">New Password</label>
                 <input id="newPassword" name="newPassword" type="password" minlength="8" maxlength="64" autocomplete="new-password" required>
-                <div class="hint">Use 8-64 characters.</div>
             </div>
             <div class="field">
                 <label for="confirmPassword">Confirm New Password</label>
                 <input id="confirmPassword" name="confirmPassword" type="password" minlength="8" maxlength="64" autocomplete="new-password" required>
+            </div>
+            <div class="field field-span-2">
+                <div class="field-hint">Password length must be 8-64 characters.</div>
             </div>
             <div class="field field-span-2">
                 <div class="config-submit-bar">

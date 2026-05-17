@@ -19,6 +19,7 @@
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/workload">Workload</a>
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/blacklist">Blacklist</a>
             <a class="btn btn-nav btn-nav-subtle" href="${pageContext.request.contextPath}/vacancies">Browse Vacancies</a>
+            <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
         </div>
     </div>

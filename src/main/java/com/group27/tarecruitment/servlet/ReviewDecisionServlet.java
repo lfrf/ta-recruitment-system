@@ -35,6 +35,7 @@ public class ReviewDecisionServlet extends HttpServlet {
         String decision = ValidationUtil.trimToEmpty(request.getParameter("decision"));
         String reviewNote = ValidationUtil.trimToEmpty(request.getParameter("reviewNote"));
         String optionalFeedback = ValidationUtil.trimToEmpty(request.getParameter("optionalFeedback"));
+        String orderMode = ValidationUtil.trimToEmpty(request.getParameter("orderMode"));
         boolean appointLeadTa = request.getParameter("appointLeadTa") != null;
 
         String error = reviewService.updateDecision(currentUser, vacancyId, applicationId, decision, reviewNote, optionalFeedback, appointLeadTa);
@@ -44,6 +45,12 @@ public class ReviewDecisionServlet extends HttpServlet {
             SessionUtil.storeFlashMessage(request, "Application decision updated successfully.");
         }
 
-        response.sendRedirect(request.getContextPath() + "/mo/applicants?vacancyId=" + vacancyId);
+        StringBuilder redirectUrl = new StringBuilder(request.getContextPath())
+                .append("/mo/applicants?vacancyId=")
+                .append(vacancyId);
+        if ("ai".equalsIgnoreCase(orderMode)) {
+            redirectUrl.append("&orderMode=ai");
+        }
+        response.sendRedirect(redirectUrl.toString());
     }
 }

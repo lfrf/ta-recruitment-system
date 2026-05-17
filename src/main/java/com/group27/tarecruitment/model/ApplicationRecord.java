@@ -9,6 +9,8 @@ public class ApplicationRecord {
     private String reviewNote;
     private String optionalFeedback;
     private boolean leadTa;
+    private String decisionUpdatedAt;
+    private Boolean decisionRead;
 
     public String getApplicationId() {
         return applicationId;
@@ -72,5 +74,21 @@ public class ApplicationRecord {
 
     public void setLeadTa(boolean leadTa) {
         this.leadTa = leadTa;
+    }
+
+    public String getDecisionUpdatedAt() {
+        return decisionUpdatedAt;
+    }
+
+    public void setDecisionUpdatedAt(String decisionUpdatedAt) {
+        this.decisionUpdatedAt = decisionUpdatedAt;
+    }
+
+    public Boolean getDecisionRead() {
+        return decisionRead;
+    }
+
+    public void setDecisionRead(Boolean decisionRead) {
+        this.decisionRead = decisionRead;
     }
 }

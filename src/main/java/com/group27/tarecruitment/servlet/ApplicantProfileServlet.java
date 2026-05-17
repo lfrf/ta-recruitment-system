@@ -5,6 +5,7 @@ import com.group27.tarecruitment.model.QuickLoginBinding;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
 import com.group27.tarecruitment.service.ApplicantProfileService;
+import com.group27.tarecruitment.service.ApplicationService;
 import com.group27.tarecruitment.service.QuickLoginBindingService;
 import com.group27.tarecruitment.util.JsonFileUtil;
 import com.group27.tarecruitment.util.SessionUtil;
@@ -30,6 +31,7 @@ public class ApplicantProfileServlet extends HttpServlet {
     private static final List<String> ALLOWED_CV_EXTENSIONS = List.of(".pdf", ".doc", ".docx");
     private final ApplicantProfileService applicantProfileService = new ApplicantProfileService();
     private final QuickLoginBindingService quickLoginBindingService = new QuickLoginBindingService();
+    private final ApplicationService applicationService = new ApplicationService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -106,6 +108,7 @@ public class ApplicantProfileServlet extends HttpServlet {
         request.setAttribute("currentUser", currentUser);
         request.setAttribute("profile", profile);
         request.setAttribute("profileReady", applicantProfileService.isProfileReady(profile));
+        request.setAttribute("unreadDecisionCount", applicationService.countUnreadDecisions(currentUser.getUserId()));
         request.setAttribute("relevantCoursesValue", join(profile.getRelevantCourses()));
         request.setAttribute("skillsValue", join(profile.getSkills()));
         Optional<QuickLoginBinding> quickLoginBinding = quickLoginBindingService.getActiveBinding(currentUser.getUserId());

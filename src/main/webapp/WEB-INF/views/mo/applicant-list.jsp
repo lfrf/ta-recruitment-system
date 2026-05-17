@@ -18,6 +18,7 @@
             <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a>
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/mo/create-vacancy">Publish Course Job</a>
             <a class="btn btn-nav btn-nav-subtle" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>
+            <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
         </div>
     </div>

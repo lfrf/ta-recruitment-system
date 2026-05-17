@@ -11,15 +11,20 @@
 </head>
 <body>
 <div class="page page-admin">
+    <c:url var="currentReviewUrl" value="/mo/applicants">
+        <c:param name="vacancyId" value="${vacancy.vacancyId}" />
+        <c:param name="orderMode" value="${reviewOrderMode}" />
+    </c:url>
     <div class="topbar-wide">
         <div class="brand">
             <h1>Review Course Applicants</h1>
             <p>Review applicants for <strong>${vacancy.moduleCode} - ${vacancy.moduleName}</strong>, record decisions, and appoint one lead TA if the course allows it.</p>
         </div>
         <div class="nav-actions panel-nav">
-            <a href="${pageContext.request.contextPath}/mo/applicants?vacancyId=${vacancy.vacancyId}" class="btn btn-nav btn-nav-active">MO Review</a>
+            <a href="${currentReviewUrl}" class="btn btn-nav btn-nav-active">MO Review</a>
             <a href="${pageContext.request.contextPath}/mo/create-vacancy" class="btn btn-nav">Publish Course Job</a>
             <a href="${pageContext.request.contextPath}/vacancies" class="btn btn-nav btn-nav-subtle">Browse Jobs</a>
+            <a href="${pageContext.request.contextPath}/account/password" class="btn btn-nav">Change Password</a>
             <a href="${pageContext.request.contextPath}/logout" class="btn btn-nav btn-nav-logout">Log Out</a>
         </div>
     </div>
@@ -41,6 +46,22 @@
                 <span class="tag">One lead TA can be appointed</span>
             </c:if>
         </div>
+        <div class="detail-actions">
+            <c:url var="defaultOrderUrl" value="/mo/applicants">
+                <c:param name="vacancyId" value="${vacancy.vacancyId}" />
+                <c:param name="orderMode" value="default" />
+            </c:url>
+            <c:url var="aiOrderUrl" value="/mo/applicants">
+                <c:param name="vacancyId" value="${vacancy.vacancyId}" />
+                <c:param name="orderMode" value="ai" />
+            </c:url>
+            <a href="${defaultOrderUrl}" class="btn btn-nav ${reviewOrderMode == 'default' ? 'btn-nav-active' : ''}">Default review order</a>
+            <a href="${aiOrderUrl}" class="btn btn-nav ${reviewOrderMode == 'ai' ? 'btn-nav-active' : ''}">AI fit order</a>
+            <span class="hint">AI order is advisory only. Final offer decisions remain manual.</span>
+        </div>
+        <c:if test="${reviewOrderMode == 'ai'}">
+            <div class="hint">AI score available for ${aiScoredApplicantCount} applicant<c:if test="${aiScoredApplicantCount != 1}">s</c:if>; ${aiMissingApplicantCount} without AI score remain in this queue.</div>
+        </c:if>
         <div class="detail-actions">
             <a href="${pageContext.request.contextPath}/mo/applicants" class="btn btn-nav">Back to course list</a>
             <form method="post"
@@ -73,6 +94,7 @@
                     <c:set var="profile" value="${profileByApplicantId[application.applicantId]}" />
                     <c:set var="user" value="${userByApplicantId[application.applicantId]}" />
                     <c:set var="activeCount" value="${activeCountByApplicantId[application.applicantId]}" />
+                    <c:set var="aiFit" value="${aiFitByApplicantId[application.applicantId]}" />
                     <div class="summary-card review-card">
                         <div class="summary-card-header">
                             <div>
@@ -113,6 +135,15 @@
                                 <span class="summary-metric-label">Submitted at</span>
                                 <strong><c:out value="${empty application.submittedAt ? '-' : (fn:length(application.submittedAt) gt 19 ? fn:substring(fn:replace(application.submittedAt, 'T', ' '), 0, 19) : fn:replace(application.submittedAt, 'T', ' '))}" /></strong>
                             </div>
+                            <div class="summary-metric">
+                                <span class="summary-metric-label">AI fit</span>
+                                <strong>
+                                    <c:choose>
+                                        <c:when test="${not empty aiFit and aiFit.score != null}">${aiFit.score}</c:when>
+                                        <c:otherwise>No AI score</c:otherwise>
+                                    </c:choose>
+                                </strong>
+                            </div>
                         </div>
 
                         <div class="review-body-grid">
@@ -129,6 +160,17 @@
                                     <dd><c:out value="${empty profile.skills ? '-' : profile.skills}" /></dd>
                                     <dt>Availability</dt>
                                     <dd><c:out value="${empty profile.availability ? '-' : profile.availability}" /></dd>
+                                    <dt>AI reasons</dt>
+                                    <dd>
+                                        <c:choose>
+                                            <c:when test="${not empty aiFit and not empty aiFit.reasons}">
+                                                <c:forEach items="${aiFit.reasons}" var="reason" varStatus="reasonStatus">
+                                                    <c:out value="${reason}" /><c:if test="${not reasonStatus.last}"> | </c:if>
+                                                </c:forEach>
+                                            </c:when>
+                                            <c:otherwise>-</c:otherwise>
+                                        </c:choose>
+                                    </dd>
                                     <dt>CV</dt>
                                     <dd>
                                         <c:choose>
@@ -147,6 +189,7 @@
                             <form method="post" action="${pageContext.request.contextPath}/mo/review" class="subcard section-stack review-form-card">
                                 <input type="hidden" name="vacancyId" value="${vacancy.vacancyId}">
                                 <input type="hidden" name="applicationId" value="${application.applicationId}">
+                                <input type="hidden" name="orderMode" value="${reviewOrderMode}">
 
                                 <div class="form-grid review-form-grid">
                                     <div class="form-field review-field">

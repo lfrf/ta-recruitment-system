@@ -227,6 +227,28 @@ body {
     background: #fff1ec;
 }
 
+.btn-nav-with-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-unread-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    border: 1px solid #ef4444;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 .btn.primary {
     background: var(--accent);
     color: white;
@@ -395,6 +417,12 @@ body {
 .status-chip-withdrawn {
     background: #fff7ed;
     color: #9a3412;
+}
+
+.status-chip-unread {
+    background: #ef4444;
+    color: #ffffff;
+    border: 1px solid #dc2626;
 }
 
 .application-status-grid {
@@ -607,6 +635,48 @@ body {
     gap: 16px;
 }
 
+.ai-top-matches-card h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.ai-top-matches-toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.ai-top-matches-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.ai-top-matches-icon {
+    margin-left: auto;
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+}
+
+.ai-top-match-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.ai-top-match-item {
+    border: 1px solid #dbe4ef;
+    border-radius: 14px;
+    padding: 12px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
 .browse-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.7fr) minmax(280px, 360px);
@@ -625,6 +695,72 @@ body {
 .release-card {
     position: sticky;
     top: 16px;
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.95fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.profile-main {
+    min-width: 0;
+}
+
+.profile-side {
+    min-width: 0;
+    position: sticky;
+    top: 16px;
+}
+
+.profile-submit-card .btn-hero {
+    width: 100%;
+}
+
+.applicant-upload-card .hint {
+    margin-top: 0.45rem;
+    line-height: 1.65;
+}
+
+.ai-import-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.ai-import-prompt {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid #d7e1eb;
+    border-radius: 12px;
+    background: #ffffff;
+    font: 0.86rem/1.5 Consolas, "Courier New", monospace;
+    color: var(--ink);
+    resize: vertical;
+}
+
+.ai-import-preview-lines {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink);
+    font: 0.86rem/1.55 "Segoe UI", sans-serif;
+    max-height: 240px;
+    overflow: auto;
+}
+
+.ai-import-summary {
+    margin: 6px 0 0;
+    line-height: 1.45;
+}
+
+.ai-import-card #ai-import-apply {
+    width: 100%;
+    justify-content: center;
+    font-weight: 700;
 }
 
 .release-card-header h2 {
@@ -959,6 +1095,14 @@ body {
     }
 
     .release-card {
+        position: static;
+    }
+
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-side {
         position: static;
     }
 
@@ -1663,4 +1807,14 @@ body.modal-open {
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 4px;
+}
+
+.status-card-unread-offered {
+    border: 2px solid rgba(27, 154, 110, 0.45);
+    box-shadow: 0 0 0 3px rgba(27, 154, 110, 0.12);
+}
+
+.status-card-unread-unsuccessful {
+    border: 2px solid rgba(211, 74, 55, 0.45);
+    box-shadow: 0 0 0 3px rgba(211, 74, 55, 0.1);
 }

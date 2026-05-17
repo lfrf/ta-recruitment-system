@@ -21,6 +21,7 @@
                     <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/workload">Workload</a>
                     <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/blacklist">Blacklist</a>
                     <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/vacancies">Browse Vacancies</a>
+                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
                     <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
                 </div>
             </c:when>
@@ -32,6 +33,7 @@
                             <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a></c:if>
                             <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/status">Application History</a></c:if>
                             <c:if test="${isMO}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a></c:if>
+                            <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
                             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
                         </c:when>
                         <c:otherwise><a class="btn btn-nav" href="${pageContext.request.contextPath}/login">Log In</a></c:otherwise>
@@ -118,11 +120,11 @@
                     </c:when>
                     <c:when test="${loggedIn and isApplicant}">
                         <div class="subcard">
-                            <strong>Apply from this page</strong>
-                            <div class="hint">You can click Apply now directly. If your basic profile is still missing, the system will quickly ask you to confirm your full name, student ID, and email first.</div>
+                            <strong>Complete basic profile first</strong>
+                            <div class="hint">Before applying, please complete your full name, student ID, and email in My Profile. Then you can return here and apply directly.</div>
                             <div class="detail-actions spacing-top">
-                                <form method="post" action="${pageContext.request.contextPath}/applicant/apply" class="inline-form"><input type="hidden" name="vacancyId" value="${vacancy.vacancyId}"><button class="btn primary" type="submit">Apply now</button></form>
-                                <a class="btn" href="${pageContext.request.contextPath}/applicant/profile">Review basic profile</a>
+                                <a class="btn primary" href="${pageContext.request.contextPath}/applicant/profile">Complete profile to apply</a>
+                                <a class="btn" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
                             </div>
                         </div>
                     </c:when>

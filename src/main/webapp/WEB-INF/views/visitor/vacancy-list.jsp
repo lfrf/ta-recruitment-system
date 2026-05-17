@@ -22,6 +22,7 @@
                     <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/workload">Workload</a>
                     <a class="btn btn-nav" href="${pageContext.request.contextPath}/admin/blacklist">Blacklist</a>
                     <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/vacancies">Browse Vacancies</a>
+                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
                     <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
                 </div>
             </c:when>
@@ -33,6 +34,7 @@
                             <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a></c:if>
                             <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/status">Application History</a></c:if>
                             <c:if test="${isMO}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a></c:if>
+                            <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
                             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
                         </c:when>
                         <c:otherwise><a class="btn btn-nav" href="${pageContext.request.contextPath}/login">Log In</a></c:otherwise>
@@ -48,7 +50,37 @@
     <div class="browse-layout">
         <div class="browse-main section-stack">
             <div class="card section-stack">
+                <c:url var="clearBrowseUrl" value="/vacancies">
+                    <c:param name="rankingMode" value="${rankingMode}" />
+                </c:url>
+                <div class="detail-actions">
+                    <c:url var="standardModeUrl" value="/vacancies">
+                        <c:param name="keyword" value="${keyword}" />
+                        <c:param name="campus" value="${selectedCampus}" />
+                        <c:param name="rankingMode" value="standard" />
+                    </c:url>
+                    <a class="btn btn-nav ${rankingMode == 'standard' ? 'btn-nav-active' : ''}" href="${standardModeUrl}">Course order</a>
+                    <c:if test="${isApplicant}">
+                        <c:url var="aiModeUrl" value="/vacancies">
+                            <c:param name="keyword" value="${keyword}" />
+                            <c:param name="campus" value="${selectedCampus}" />
+                            <c:param name="rankingMode" value="ai" />
+                        </c:url>
+                        <a class="btn btn-nav ${rankingMode == 'ai' ? 'btn-nav-active' : ''}" href="${aiModeUrl}">AI fit order</a>
+                    </c:if>
+                    <span class="hint">
+                        <c:choose>
+                            <c:when test="${rankingMode == 'ai' and aiRankingEffective}">AI scores are applied automatically. You only choose whether to use this order.</c:when>
+                            <c:when test="${rankingMode == 'ai'}">AI order requested, currently falling back to course order.</c:when>
+                            <c:otherwise>Course order follows module code, which is easier for direct browsing.</c:otherwise>
+                        </c:choose>
+                    </span>
+                </div>
+                <c:if test="${rankingMode == 'ai' and not empty aiRankingHint}">
+                    <div class="warning">${aiRankingHint}</div>
+                </c:if>
                 <form method="get" action="${pageContext.request.contextPath}/vacancies" class="form-grid vacancy-filter-grid">
+                    <input type="hidden" name="rankingMode" value="${rankingMode}">
                     <div class="field">
                         <label for="keyword">Search TA jobs</label>
                         <input id="keyword"
@@ -67,7 +99,7 @@
                     </div>
                     <div class="field field-span-2 filter-actions">
                         <button class="btn primary" type="submit">Apply filters</button>
-                        <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Clear filters</a>
+                        <a class="btn btn-nav" href="${clearBrowseUrl}">Clear filters</a>
                         <span class="hint">Showing ${resultCount} matching job<c:if test="${resultCount != 1}">s</c:if>.</span>
                     </div>
                 </form>
@@ -80,7 +112,7 @@
                             <c:when test="${hasBrowseVacancies and filtersApplied}">
                                 <h2>No matching jobs</h2>
                                 <p class="hint">No course jobs matched your current keyword or campus filter.</p>
-                                <div><a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Clear filters</a></div>
+                                <div><a class="btn btn-nav" href="${clearBrowseUrl}">Clear filters</a></div>
                             </c:when>
                             <c:otherwise>
                                 <h2>No course jobs available</h2>
@@ -95,6 +127,7 @@
                         <c:forEach items="${vacancies}" var="vacancy">
                             <c:set var="vacancyFull" value="${vacancyFullById[vacancy.vacancyId]}" />
                             <c:set var="vacancyOpen" value="${vacancy.status eq 'OPEN'}" />
+                            <c:set var="aiRec" value="${aiRecommendationByVacancyId[vacancy.vacancyId]}" />
                             <c:set var="skillCount" value="${fn:length(vacancy.requiredSkills)}" />
                             <c:set var="campusLower" value="${fn:toLowerCase(empty vacancy.campus ? '' : vacancy.campus)}" />
                             <c:set var="isShaheCampus" value="${fn:contains(campusLower, 'shahe')}" />
@@ -107,6 +140,9 @@
                                         <h2>${vacancy.moduleCode} - ${vacancy.moduleName}</h2>
                                     </div>
                                     <div class="vacancy-card-flags">
+                                        <c:if test="${rankingMode == 'ai' and aiRankingEffective and not empty aiRec}">
+                                            <span class="status-badge status-open">Match ${aiRec.score}</span>
+                                        </c:if>
                                         <c:choose>
                                             <c:when test="${vacancyFull}">
                                                 <span class="status-badge status-full">FULL</span>
@@ -120,6 +156,13 @@
                                         </c:choose>
                                     </div>
                                 </div>
+                                <c:if test="${rankingMode == 'ai' and aiRankingEffective and not empty aiRec and not empty aiRec.reasons}">
+                                    <div class="meta spacing-top">
+                                        <c:forEach items="${aiRec.reasons}" var="reason">
+                                            <span class="tag">${reason}</span>
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
                                 <p>
                                     ${vacancy.description}
                                     <c:if test="${skillCount > 0 and skillCount <= 4}">
@@ -182,11 +225,15 @@
                                             <span class="status-chip status-chip-unsuccessful">Closed</span>
                                             <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
                                         </c:when>
-                                        <c:when test="${isApplicant and vacancyOpen}">
+                                        <c:when test="${isApplicant and vacancyOpen and profileReady}">
                                             <form method="post" action="${pageContext.request.contextPath}/applicant/apply" class="inline-form">
                                                 <input type="hidden" name="vacancyId" value="${vacancy.vacancyId}">
                                                 <button class="btn primary" type="submit">Apply now</button>
                                             </form>
+                                            <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
+                                        </c:when>
+                                        <c:when test="${isApplicant and vacancyOpen and not profileReady}">
+                                            <a class="btn primary" href="${pageContext.request.contextPath}/applicant/profile">Complete profile to apply</a>
                                             <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancy?id=${vacancy.vacancyId}">View details</a>
                                         </c:when>
                                         <c:when test="${loggedIn and vacancyOpen}">
@@ -214,6 +261,60 @@
         </div>
 
         <aside class="browse-side">
+            <c:if test="${isApplicant}">
+                <div id="ai-top-matches-card" class="card section-stack ai-top-matches-card">
+                    <button id="ai-top-matches-toggle" type="button" class="ai-top-matches-toggle" aria-expanded="true">
+                        <span class="ai-top-matches-title">Top AI matches</span>
+                        <span class="tag">Top ${empty aiTopVacancies ? 0 : fn:length(aiTopVacancies)}</span>
+                        <span id="ai-top-matches-icon" class="ai-top-matches-icon">▾</span>
+                    </button>
+                    <div id="ai-top-matches-body" class="section-stack">
+                        <p class="hint">These recommendations are generated from your latest AI import in My Profile. You can switch between AI fit order and course order anytime.</p>
+                        <div class="detail-actions">
+                            <c:url var="aiOrderUrl" value="/vacancies">
+                                <c:param name="keyword" value="${keyword}" />
+                                <c:param name="campus" value="${selectedCampus}" />
+                                <c:param name="rankingMode" value="ai" />
+                            </c:url>
+                            <c:url var="courseOrderUrl" value="/vacancies">
+                                <c:param name="keyword" value="${keyword}" />
+                                <c:param name="campus" value="${selectedCampus}" />
+                                <c:param name="rankingMode" value="standard" />
+                            </c:url>
+                            <a class="btn btn-nav ${rankingMode == 'ai' ? 'btn-nav-active' : ''}" href="${aiOrderUrl}">Use AI fit order</a>
+                            <a class="btn btn-nav ${rankingMode == 'standard' ? 'btn-nav-active' : ''}" href="${courseOrderUrl}">Use course order</a>
+                        </div>
+                        <c:choose>
+                            <c:when test="${not empty aiTopVacancies}">
+                                <div class="ai-top-match-grid">
+                                    <c:forEach items="${aiTopVacancies}" var="topVacancy">
+                                        <c:set var="topRec" value="${aiRecommendationByVacancyId[topVacancy.vacancyId]}" />
+                                        <div class="ai-top-match-item">
+                                            <div class="card-header">
+                                                <strong>${topVacancy.moduleCode} - ${topVacancy.moduleName}</strong>
+                                                <span class="status-badge status-open">Match ${topRec.score}</span>
+                                            </div>
+                                            <c:if test="${not empty topRec.reasons}">
+                                                <div class="hint">
+                                                    <c:forEach items="${topRec.reasons}" var="reason" varStatus="reasonStatus">
+                                                        ${reason}<c:if test="${not reasonStatus.last}"> | </c:if>
+                                                    </c:forEach>
+                                                </div>
+                                            </c:if>
+                                            <div class="spacing-top">
+                                                <a class="btn btn-nav" href="#vacancy-${topVacancy.vacancyId}">Jump to card</a>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <p class="hint">No AI ranking yet. Start AI import in My Profile, then return here to see Top matches.</p>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+            </c:if>
             <div class="card release-card section-stack">
                 <div class="card-header release-card-header">
                     <div>
@@ -236,7 +337,7 @@
                 </c:if>
                 <c:if test="${filtersApplied}">
                     <p class="hint">Filters are active on the left list. Use clear to return to full browse mode.</p>
-                    <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Show full list</a>
+                    <a class="btn btn-nav" href="${clearBrowseUrl}">Show full list</a>
                 </c:if>
                 <div class="release-subsection">
                     <h3>All job releases</h3>
@@ -294,6 +395,38 @@
 </div>
 
 <script>
+    (function () {
+        const toggle = document.getElementById('ai-top-matches-toggle');
+        const body = document.getElementById('ai-top-matches-body');
+        const icon = document.getElementById('ai-top-matches-icon');
+        if (!toggle || !body || !icon) {
+            return;
+        }
+
+        const storageKey = 'vacancies.aiTopMatchesCollapsed';
+        const setCollapsed = function (collapsed) {
+            body.classList.toggle('hidden', collapsed);
+            toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            icon.textContent = collapsed ? '▸' : '▾';
+            try {
+                window.localStorage.setItem(storageKey, collapsed ? '1' : '0');
+            } catch (error) {
+                // ignore storage failures
+            }
+        };
+
+        let saved = null;
+        try {
+            saved = window.localStorage.getItem(storageKey);
+        } catch (error) {
+            saved = null;
+        }
+        setCollapsed(saved === '1');
+        toggle.addEventListener('click', function () {
+            setCollapsed(!body.classList.contains('hidden'));
+        });
+    })();
+
     (function () {
         const modal = document.getElementById('cancel-confirm-modal');
         if (!modal) return;

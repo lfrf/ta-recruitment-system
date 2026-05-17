@@ -1,9 +1,12 @@
 package com.group27.tarecruitment.servlet;
 
 import com.group27.tarecruitment.model.ApplicationRecord;
+import com.group27.tarecruitment.model.AiImportTask;
+import com.group27.tarecruitment.model.AiVacancyRecommendation;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
 import com.group27.tarecruitment.model.Vacancy;
+import com.group27.tarecruitment.service.AiProfileImportService;
 import com.group27.tarecruitment.service.AdminService;
 import com.group27.tarecruitment.service.ApplicantProfileService;
 import com.group27.tarecruitment.service.ApplicationService;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @WebServlet("/vacancies")
@@ -29,6 +33,7 @@ public class PublicVacancyListServlet extends HttpServlet {
     private final AdminService adminService = new AdminService();
     private final ApplicantProfileService applicantProfileService = new ApplicantProfileService();
     private final ApplicationService applicationService = new ApplicationService();
+    private final AiProfileImportService aiProfileImportService = new AiProfileImportService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -70,6 +75,12 @@ public class PublicVacancyListServlet extends HttpServlet {
                 .toList();
         String keyword = ValidationUtil.trimToEmpty(request.getParameter("keyword"));
         String selectedCampus = ValidationUtil.trimToEmpty(request.getParameter("campus"));
+        String rankingMode = ValidationUtil.trimToEmpty(request.getParameter("rankingMode"));
+        if (!"ai".equalsIgnoreCase(rankingMode)) {
+            rankingMode = "standard";
+        } else {
+            rankingMode = "ai";
+        }
         boolean filtersApplied = !keyword.isEmpty() || !selectedCampus.isEmpty();
 
         Set<String> campusOptions = new LinkedHashSet<>();
@@ -100,6 +111,47 @@ public class PublicVacancyListServlet extends HttpServlet {
                 .sorted(browseOrder)
                 .toList();
 
+        Map<String, AiVacancyRecommendation> aiRecommendationByVacancyId = new LinkedHashMap<>();
+        List<Vacancy> aiTopVacancies = List.of();
+        String aiRankingHint = "";
+        String aiRankingStatus = "UNAVAILABLE";
+        Optional<AiImportTask> latestRecommendTask = Optional.empty();
+        if (isApplicant) {
+            latestRecommendTask = aiProfileImportService.findLatestValidatedRankingTaskForUser(currentUser.getUserId());
+            if (latestRecommendTask.isPresent() && latestRecommendTask.get().getRecommendations() != null) {
+                for (AiVacancyRecommendation recommendation : latestRecommendTask.get().getRecommendations()) {
+                    aiRecommendationByVacancyId.put(recommendation.getVacancyId(), recommendation);
+                }
+                aiRankingStatus = aiRecommendationByVacancyId.isEmpty() ? "EMPTY" : "READY";
+            }
+        }
+
+        boolean aiRankingRequested = isApplicant && "ai".equalsIgnoreCase(rankingMode);
+        boolean aiRankingEffective = false;
+        if (aiRankingRequested && !aiRecommendationByVacancyId.isEmpty()) {
+            Comparator<Vacancy> aiOrder = Comparator
+                    .comparingInt((Vacancy vacancy) -> aiScore(aiRecommendationByVacancyId.get(vacancy.getVacancyId())))
+                    .reversed()
+                    .thenComparing(browseOrder);
+            filteredVacancies = filteredVacancies.stream()
+                    .sorted(aiOrder)
+                    .toList();
+            aiRankingEffective = true;
+        } else if (aiRankingRequested) {
+            aiRankingHint = "No validated AI recommendation is available yet. Please start AI import from My Profile, then return.";
+        }
+
+        if (!aiRecommendationByVacancyId.isEmpty()) {
+            aiTopVacancies = filteredVacancies.stream()
+                    .filter(vacancy -> aiRecommendationByVacancyId.containsKey(vacancy.getVacancyId()))
+                    .sorted(Comparator
+                            .comparingInt((Vacancy vacancy) -> aiScore(aiRecommendationByVacancyId.get(vacancy.getVacancyId())))
+                            .reversed()
+                            .thenComparing(browseOrder))
+                    .limit(5)
+                    .toList();
+        }
+
         int releaseTotalCount = releaseVacancies.size();
         long releaseFullCount = releaseVacancies.stream()
                 .filter(vacancy -> vacancyFullById.getOrDefault(vacancy.getVacancyId(), false))
@@ -128,6 +180,14 @@ public class PublicVacancyListServlet extends HttpServlet {
         request.setAttribute("releaseClosedCount", releaseClosedCount);
         request.setAttribute("releaseShaheCount", releaseShaheCount);
         request.setAttribute("vacancyFullById", vacancyFullById);
+        request.setAttribute("rankingMode", rankingMode);
+        request.setAttribute("aiRankingRequested", aiRankingRequested);
+        request.setAttribute("aiRankingEffective", aiRankingEffective);
+        request.setAttribute("aiRankingStatus", aiRankingStatus);
+        request.setAttribute("aiRankingHint", aiRankingHint);
+        request.setAttribute("aiRecommendationByVacancyId", aiRecommendationByVacancyId);
+        request.setAttribute("aiTopVacancies", aiTopVacancies);
+        request.setAttribute("aiLatestTaskId", latestRecommendTask.map(AiImportTask::getTaskId).orElse(""));
         request.setAttribute("loggedIn", currentUser != null);
         request.setAttribute("isApplicant", isApplicant);
         request.setAttribute("isMO", currentUser != null && currentUser.getRole() == UserRole.MO);
@@ -172,5 +232,9 @@ public class PublicVacancyListServlet extends HttpServlet {
     private boolean isBrowsableStatus(String status) {
         String normalized = ValidationUtil.trimToEmpty(status);
         return "OPEN".equalsIgnoreCase(normalized) || "CLOSED".equalsIgnoreCase(normalized);
+    }
+
+    private int aiScore(AiVacancyRecommendation recommendation) {
+        return recommendation == null || recommendation.getScore() == null ? -1 : recommendation.getScore();
     }
 }

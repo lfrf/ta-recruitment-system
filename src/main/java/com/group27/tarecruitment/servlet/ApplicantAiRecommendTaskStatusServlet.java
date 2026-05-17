@@ -1,11 +1,10 @@
 package com.group27.tarecruitment.servlet;
 
-import com.group27.tarecruitment.model.AiImportTask;
-import com.group27.tarecruitment.model.AiProfileSuggestion;
+import com.group27.tarecruitment.model.AiVacancyRecommendTask;
 import com.group27.tarecruitment.model.AiVacancyRecommendation;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.UserRole;
-import com.group27.tarecruitment.service.AiProfileImportService;
+import com.group27.tarecruitment.service.AiVacancyRecommendService;
 import com.group27.tarecruitment.util.SessionUtil;
 import com.group27.tarecruitment.util.ValidationUtil;
 import jakarta.servlet.ServletException;
@@ -17,9 +16,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-@WebServlet("/applicant/ai/tasks/status")
-public class ApplicantAiTaskStatusServlet extends HttpServlet {
-    private final AiProfileImportService aiProfileImportService = new AiProfileImportService();
+@WebServlet("/applicant/ai/recommend/tasks/status")
+public class ApplicantAiRecommendTaskStatusServlet extends HttpServlet {
+    private final AiVacancyRecommendService recommendService = new AiVacancyRecommendService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -37,26 +36,22 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
             return;
         }
 
-        Optional<AiImportTask> optionalTask = aiProfileImportService.findTaskForUser(currentUser.getUserId(), taskId);
+        Optional<AiVacancyRecommendTask> optionalTask =
+                recommendService.findTaskForUser(currentUser.getUserId(), taskId);
         if (optionalTask.isEmpty()) {
             writeJson(response, HttpServletResponse.SC_NOT_FOUND,
                     "{\"status\":\"NOT_FOUND\",\"message\":\"Task was not found.\"}");
             return;
         }
 
-        AiImportTask task = optionalTask.get();
+        AiVacancyRecommendTask task = optionalTask.get();
         String body = "{"
                 + "\"status\":\"OK\","
                 + "\"taskId\":\"" + escapeJson(task.getTaskId()) + "\","
                 + "\"taskStatus\":\"" + escapeJson(task.getStatus()) + "\","
-                + "\"profileStatus\":\"" + escapeJson(task.getProfileStatus()) + "\","
-                + "\"rankingStatus\":\"" + escapeJson(task.getRankingStatus()) + "\","
                 + "\"expiresAt\":" + task.getExpiresAtEpochMillis() + ","
                 + "\"validationErrors\":" + toJsonArray(task.getValidationErrors()) + ","
-                + "\"profileValidationErrors\":" + toJsonArray(task.getProfileValidationErrors()) + ","
-                + "\"rankingValidationErrors\":" + toJsonArray(task.getRankingValidationErrors()) + ","
-                + "\"rankings\":" + toRankingJson(task.getRecommendations()) + ","
-                + "\"profile\":" + toProfileJson(task.getSuggestion())
+                + "\"rankings\":" + toRankingJson(task.getRecommendations())
                 + "}";
         writeJson(response, HttpServletResponse.SC_OK, body);
     }
@@ -80,25 +75,6 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
         }
         builder.append("]");
         return builder.toString();
-    }
-
-    private String toProfileJson(AiProfileSuggestion suggestion) {
-        if (suggestion == null) {
-            return "null";
-        }
-        return "{"
-                + "\"fullName\":\"" + escapeJson(suggestion.getFullName()) + "\","
-                + "\"studentId\":\"" + escapeJson(suggestion.getStudentId()) + "\","
-                + "\"email\":\"" + escapeJson(suggestion.getEmail()) + "\","
-                + "\"phone\":\"" + escapeJson(suggestion.getPhone()) + "\","
-                + "\"degreeProgramme\":\"" + escapeJson(suggestion.getDegreeProgramme()) + "\","
-                + "\"yearOfStudy\":\"" + escapeJson(suggestion.getYearOfStudy()) + "\","
-                + "\"taExperience\":\"" + escapeJson(suggestion.getTaExperience()) + "\","
-                + "\"projectOrLeadershipExperience\":\"" + escapeJson(suggestion.getProjectOrLeadershipExperience()) + "\","
-                + "\"availability\":\"" + escapeJson(suggestion.getAvailability()) + "\","
-                + "\"relevantCourses\":" + toJsonArray(suggestion.getRelevantCourses()) + ","
-                + "\"skills\":" + toJsonArray(suggestion.getSkills())
-                + "}";
     }
 
     private String toJsonArray(Iterable<String> values) {
@@ -136,3 +112,4 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
                 .replace("\n", "\\n");
     }
 }
+

@@ -1,18 +1,33 @@
 package com.group27.tarecruitment.service;
 
 import com.group27.tarecruitment.model.ApplicationRecord;
+import com.group27.tarecruitment.model.AiImportTask;
+import com.group27.tarecruitment.model.AiVacancyRecommendation;
 import com.group27.tarecruitment.model.UserAccount;
 import com.group27.tarecruitment.model.Vacancy;
+import com.group27.tarecruitment.repository.AiImportTaskRepository;
 import com.group27.tarecruitment.repository.ApplicationRepository;
 import com.group27.tarecruitment.repository.VacancyRepository;
 import com.group27.tarecruitment.util.ValidationUtil;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ReviewService {
+    public static final String ORDER_MODE_DEFAULT = "default";
+    public static final String ORDER_MODE_AI = "ai";
+
     private final ApplicationRepository applicationRepository = new ApplicationRepository();
     private final VacancyRepository vacancyRepository = new VacancyRepository();
+    private final AiImportTaskRepository aiImportTaskRepository = new AiImportTaskRepository();
 
     public List<Vacancy> getManagedVacancies(UserAccount organiser) {
         return vacancyRepository.findAll().stream()
@@ -34,6 +49,79 @@ public class ReviewService {
                 .filter(application -> !ValidationUtil.STATUS_WITHDRAWN.equalsIgnoreCase(
                         ValidationUtil.normalizeApplicationStatus(application.getStatus())))
                 .toList();
+    }
+
+    public String normalizeOrderMode(String rawMode) {
+        return ORDER_MODE_AI.equalsIgnoreCase(ValidationUtil.trimToEmpty(rawMode))
+                ? ORDER_MODE_AI
+                : ORDER_MODE_DEFAULT;
+    }
+
+    public List<ApplicationRecord> sortApplicationsForReview(List<ApplicationRecord> applications,
+                                                             Map<String, ApplicantAiFit> aiFitByApplicantId,
+                                                             String orderMode) {
+        List<ApplicationRecord> sorted = new ArrayList<>(applications == null ? List.of() : applications);
+        Comparator<ApplicationRecord> comparator = ORDER_MODE_AI.equalsIgnoreCase(orderMode)
+                ? aiReviewComparator(aiFitByApplicantId)
+                : defaultReviewComparator();
+        sorted.sort(comparator);
+        return sorted;
+    }
+
+    public Map<String, ApplicantAiFit> getApplicantAiFitForVacancy(List<ApplicationRecord> applications, String vacancyId) {
+        if (applications == null || applications.isEmpty() || ValidationUtil.isBlank(vacancyId)) {
+            return new LinkedHashMap<>();
+        }
+
+        Set<String> applicantIds = applications.stream()
+                .map(ApplicationRecord::getApplicantId)
+                .filter(id -> !ValidationUtil.isBlank(id))
+                .collect(Collectors.toSet());
+        if (applicantIds.isEmpty()) {
+            return new LinkedHashMap<>();
+        }
+
+        Map<String, AiImportTask> latestTaskByApplicantId = new LinkedHashMap<>();
+        for (AiImportTask task : aiImportTaskRepository.findAll()) {
+            String userId = ValidationUtil.trimToEmpty(task.getUserId());
+            if (!applicantIds.contains(userId)) {
+                continue;
+            }
+            if (!AiImportTask.IMPORT_STATUS_VALIDATED.equals(task.getRankingStatus())) {
+                continue;
+            }
+            if (task.getRecommendations() == null || task.getRecommendations().isEmpty()) {
+                continue;
+            }
+
+            AiImportTask existing = latestTaskByApplicantId.get(userId);
+            if (existing == null || aiTaskSortKey(task) > aiTaskSortKey(existing)) {
+                latestTaskByApplicantId.put(userId, task);
+            }
+        }
+
+        Map<String, ApplicantAiFit> result = new LinkedHashMap<>();
+        for (String applicantId : applicantIds) {
+            AiImportTask task = latestTaskByApplicantId.get(applicantId);
+            if (task == null || task.getRecommendations() == null) {
+                continue;
+            }
+            AiVacancyRecommendation match = task.getRecommendations().stream()
+                    .filter(item -> vacancyId.equals(ValidationUtil.trimToEmpty(item.getVacancyId())))
+                    .findFirst()
+                    .orElse(null);
+            if (match == null || match.getScore() == null) {
+                continue;
+            }
+
+            ApplicantAiFit fit = new ApplicantAiFit();
+            fit.setScore(match.getScore());
+            fit.setReasons(match.getReasons() == null ? List.of() : match.getReasons());
+            fit.setTaskId(task.getTaskId());
+            fit.setValidatedAtEpochMillis(task.getValidatedAtEpochMillis());
+            result.put(applicantId, fit);
+        }
+        return result;
     }
 
     public String updateDecision(UserAccount organiser,
@@ -160,5 +248,113 @@ public class ReviewService {
     private boolean isManageableStatus(String status) {
         String normalized = ValidationUtil.trimToEmpty(status);
         return "OPEN".equalsIgnoreCase(normalized) || "CLOSED".equalsIgnoreCase(normalized);
+    }
+
+    private Comparator<ApplicationRecord> defaultReviewComparator() {
+        return Comparator.comparingInt(this::reviewStatusPriority)
+                .thenComparingLong(this::submittedAtSortKey)
+                .thenComparing(item -> ValidationUtil.trimToEmpty(item.getApplicationId()), String.CASE_INSENSITIVE_ORDER);
+    }
+
+    private Comparator<ApplicationRecord> aiReviewComparator(Map<String, ApplicantAiFit> aiFitByApplicantId) {
+        return Comparator.comparingInt(this::reviewStatusPriority)
+                .thenComparingInt(item -> aiPresencePriority(item, aiFitByApplicantId))
+                .thenComparingInt(item -> aiScoreSortKey(item, aiFitByApplicantId))
+                .thenComparingLong(this::submittedAtSortKey)
+                .thenComparing(item -> ValidationUtil.trimToEmpty(item.getApplicationId()), String.CASE_INSENSITIVE_ORDER);
+    }
+
+    private int reviewStatusPriority(ApplicationRecord application) {
+        String status = ValidationUtil.normalizeApplicationStatus(application.getStatus());
+        if (ValidationUtil.STATUS_SUBMITTED.equals(status)) {
+            return 0;
+        }
+        if (ValidationUtil.STATUS_OFFERED.equals(status)) {
+            return 1;
+        }
+        if (ValidationUtil.STATUS_UNSUCCESSFUL.equals(status)) {
+            return 2;
+        }
+        return 3;
+    }
+
+    private int aiPresencePriority(ApplicationRecord application, Map<String, ApplicantAiFit> aiFitByApplicantId) {
+        if (reviewStatusPriority(application) != 0) {
+            return 0;
+        }
+        ApplicantAiFit fit = aiFitByApplicantId == null ? null : aiFitByApplicantId.get(application.getApplicantId());
+        return fit == null || fit.getScore() == null ? 1 : 0;
+    }
+
+    private int aiScoreSortKey(ApplicationRecord application, Map<String, ApplicantAiFit> aiFitByApplicantId) {
+        if (reviewStatusPriority(application) != 0) {
+            return 0;
+        }
+        ApplicantAiFit fit = aiFitByApplicantId == null ? null : aiFitByApplicantId.get(application.getApplicantId());
+        if (fit == null || fit.getScore() == null) {
+            return 0;
+        }
+        return -fit.getScore();
+    }
+
+    private long submittedAtSortKey(ApplicationRecord application) {
+        String submittedAt = ValidationUtil.trimToEmpty(application.getSubmittedAt());
+        if (submittedAt.isEmpty()) {
+            return Long.MAX_VALUE;
+        }
+        try {
+            return LocalDateTime.parse(submittedAt)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli();
+        } catch (DateTimeParseException ignored) {
+            return Long.MAX_VALUE;
+        }
+    }
+
+    private long aiTaskSortKey(AiImportTask task) {
+        if (task.getValidatedAtEpochMillis() != null) {
+            return task.getValidatedAtEpochMillis();
+        }
+        return task.getCreatedAtEpochMillis();
+    }
+
+    public static class ApplicantAiFit {
+        private Integer score;
+        private List<String> reasons;
+        private String taskId;
+        private Long validatedAtEpochMillis;
+
+        public Integer getScore() {
+            return score;
+        }
+
+        public void setScore(Integer score) {
+            this.score = score;
+        }
+
+        public List<String> getReasons() {
+            return reasons;
+        }
+
+        public void setReasons(List<String> reasons) {
+            this.reasons = reasons;
+        }
+
+        public String getTaskId() {
+            return taskId;
+        }
+
+        public void setTaskId(String taskId) {
+            this.taskId = taskId;
+        }
+
+        public Long getValidatedAtEpochMillis() {
+            return validatedAtEpochMillis;
+        }
+
+        public void setValidatedAtEpochMillis(Long validatedAtEpochMillis) {
+            this.validatedAtEpochMillis = validatedAtEpochMillis;
+        }
     }
 }

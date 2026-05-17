@@ -9,6 +9,7 @@ import com.group27.tarecruitment.repository.ApplicantProfileRepository;
 import com.group27.tarecruitment.repository.UserRepository;
 import com.group27.tarecruitment.service.ReviewService;
 import com.group27.tarecruitment.service.WorkloadService;
+import com.group27.tarecruitment.util.ValidationUtil;
 import com.group27.tarecruitment.util.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet("/mo/applicants")
 public class MOApplicantListServlet extends HttpServlet {
@@ -42,10 +44,12 @@ public class MOApplicantListServlet extends HttpServlet {
         }
 
         String vacancyId = request.getParameter("vacancyId");
+        String orderMode = reviewService.normalizeOrderMode(request.getParameter("orderMode"));
         request.setAttribute("currentUser", currentUser);
         request.setAttribute("managedVacancies", reviewService.getManagedVacancies(currentUser));
         request.setAttribute("flashMessage", SessionUtil.consumeFlashMessage(request));
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
+        request.setAttribute("reviewOrderMode", orderMode);
 
         if (vacancyId == null || vacancyId.isBlank()) {
             request.getRequestDispatcher("/WEB-INF/views/mo/applicant-list.jsp").forward(request, response);
@@ -60,6 +64,9 @@ public class MOApplicantListServlet extends HttpServlet {
         }
 
         List<ApplicationRecord> applications = reviewService.getApplicationsForVacancy(vacancyId);
+        Map<String, ReviewService.ApplicantAiFit> aiFitByApplicantId =
+                reviewService.getApplicantAiFitForVacancy(applications, vacancyId);
+        applications = reviewService.sortApplicationsForReview(applications, aiFitByApplicantId, orderMode);
         Map<String, ApplicantProfile> profileByApplicantId = new LinkedHashMap<>();
         for (ApplicantProfile profile : applicantProfileRepository.findAll()) {
             profileByApplicantId.put(profile.getApplicantId(), profile);
@@ -74,6 +81,16 @@ public class MOApplicantListServlet extends HttpServlet {
         request.setAttribute("profileByApplicantId", profileByApplicantId);
         request.setAttribute("userByApplicantId", userByApplicantId);
         request.setAttribute("activeCountByApplicantId", workloadService.getActiveCountByApplicantId());
+        request.setAttribute("aiFitByApplicantId", aiFitByApplicantId);
+        request.setAttribute("aiScoredApplicantCount", aiFitByApplicantId.size());
+        request.setAttribute("aiMissingApplicantCount",
+                (int) applications.stream()
+                        .map(ApplicationRecord::getApplicantId)
+                        .map(ValidationUtil::trimToEmpty)
+                        .filter(id -> !id.isEmpty())
+                        .filter(id -> !aiFitByApplicantId.containsKey(id))
+                        .collect(Collectors.toSet())
+                        .size());
         request.getRequestDispatcher("/WEB-INF/views/mo/review.jsp").forward(request, response);
     }
 }

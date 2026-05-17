@@ -17,7 +17,12 @@
         <div class="nav-actions panel-nav">
             <a class="btn btn-nav btn-nav-subtle" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
-            <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/applicant/status">Application History</a>
+            <a class="btn btn-nav btn-nav-active btn-nav-with-badge" href="${pageContext.request.contextPath}/applicant/status">
+                <span>Application History</span>
+                <c:if test="${unreadDecisionCount > 0}">
+                    <span class="nav-unread-badge" aria-label="${unreadDecisionCount} unread decisions">${unreadDecisionCount}</span>
+                </c:if>
+            </a>
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
         </div>
@@ -25,6 +30,9 @@
 
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>
     <c:if test="${not empty flashError}"><div class="alert error">${flashError}</div></c:if>
+    <c:if test="${unreadDecisionCount > 0}">
+        <div class="warning">You have ${unreadDecisionCount} unread application decision<c:if test="${unreadDecisionCount != 1}">s</c:if>.</div>
+    </c:if>
 
     <div class="card section-stack">
         <div class="subcard">
@@ -33,6 +41,11 @@
             <div class="detail-actions spacing-top">
                 <a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">Edit my profile</a>
                 <a class="btn btn-nav" href="${pageContext.request.contextPath}/vacancies">Back to Browse Jobs</a>
+                <c:if test="${unreadDecisionCount > 0}">
+                    <form method="post" action="${pageContext.request.contextPath}/applicant/status/read" class="inline-form">
+                        <button type="submit" class="btn btn-nav">Mark all as read</button>
+                    </form>
+                </c:if>
             </div>
         </div>
 
@@ -48,16 +61,19 @@
                 <div class="summary-card-grid application-status-grid">
                     <c:forEach items="${applications}" var="application">
                         <c:set var="vacancy" value="${vacancyById[application.vacancyId]}" />
-                        <div class="summary-card status-card">
+                        <c:set var="isUnreadDecision" value="${unreadDecisionByApplicationId[application.applicationId]}" />
+                        <div class="summary-card status-card ${isUnreadDecision ? (application.status == 'Offered' ? 'status-card-unread-offered' : 'status-card-unread-unsuccessful') : ''}">
                             <div class="summary-card-header">
                                 <div>
                                     <h3><c:out value="${vacancy != null ? vacancy.moduleCode : application.vacancyId}" /> - <c:out value="${vacancy != null ? vacancy.moduleName : 'Course'}" /></h3>
                                     <div class="summary-card-meta">
                                         <span>Applied <c:out value="${application.submittedAt}" /></span>
                                         <c:if test="${application.leadTa}"><span>Lead TA appointment</span></c:if>
+                                        <c:if test="${isUnreadDecision}"><span>Decision updated <c:out value="${application.decisionUpdatedAt}" /></span></c:if>
                                     </div>
                                 </div>
                                 <div class="summary-card-flags">
+                                    <c:if test="${isUnreadDecision}"><span class="status-chip status-chip-unread">NEW</span></c:if>
                                     <c:choose>
                                         <c:when test='${application.status == "Offered"}'><span class="status-chip status-chip-offered"><c:out value="${application.leadTa ? 'Lead TA offer' : 'Offer made'}" /></span></c:when>
                                         <c:when test='${application.status == "Unsuccessful"}'><span class="status-chip status-chip-unsuccessful">Not selected</span></c:when>

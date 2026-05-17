@@ -32,7 +32,14 @@
                     <c:choose>
                         <c:when test="${loggedIn}">
                             <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a></c:if>
-                            <c:if test="${isApplicant}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/status">Application History</a></c:if>
+                            <c:if test="${isApplicant}">
+                                <a class="btn btn-nav btn-nav-with-badge" href="${pageContext.request.contextPath}/applicant/status">
+                                    <span>Application History</span>
+                                    <c:if test="${unreadDecisionCount > 0}">
+                                        <span class="nav-unread-badge" aria-label="${unreadDecisionCount} unread decisions">${unreadDecisionCount}</span>
+                                    </c:if>
+                                </a>
+                            </c:if>
                             <c:if test="${isMO}"><a class="btn btn-nav" href="${pageContext.request.contextPath}/mo/applicants">MO Review</a></c:if>
                             <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
                             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
@@ -46,6 +53,9 @@
 
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>
     <c:if test="${not empty flashError}"><div class="alert error">${flashError}</div></c:if>
+    <c:if test="${isApplicant and unreadDecisionCount > 0}">
+        <div class="warning">You have ${unreadDecisionCount} unread application decision<c:if test="${unreadDecisionCount != 1}">s</c:if>. Open Application History to review them.</div>
+    </c:if>
 
     <div class="browse-layout">
         <div class="browse-main section-stack">

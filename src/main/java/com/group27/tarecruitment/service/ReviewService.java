@@ -205,6 +205,8 @@ public class ReviewService {
         target.setReviewNote(reviewNote);
         target.setOptionalFeedback(optionalFeedback);
         target.setLeadTa(appointLeadTa && ValidationUtil.STATUS_OFFERED.equals(decision));
+        target.setDecisionUpdatedAt(LocalDateTime.now().toString());
+        target.setDecisionRead(Boolean.FALSE);
 
         if (ValidationUtil.STATUS_UNSUCCESSFUL.equals(decision)) {
             target.setLeadTa(false);

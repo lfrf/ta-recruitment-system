@@ -51,8 +51,10 @@ public class PublicVacancyListServlet extends HttpServlet {
         Map<String, Boolean> leadTaByVacancyId = new LinkedHashMap<>();
         Map<String, String> activeApplicationIdByVacancyId = new LinkedHashMap<>();
         boolean profileReady = false;
+        int unreadDecisionCount = 0;
         if (isApplicant) {
             profileReady = applicantProfileService.isProfileReady(currentUser.getUserId());
+            unreadDecisionCount = applicationService.countUnreadDecisions(currentUser.getUserId());
             List<ApplicationRecord> applications = applicationService.getApplicationsByApplicant(currentUser.getUserId());
             for (ApplicationRecord application : applications) {
                 String normalizedStatus = ValidationUtil.normalizeApplicationStatus(application.getStatus());
@@ -193,6 +195,7 @@ public class PublicVacancyListServlet extends HttpServlet {
         request.setAttribute("isMO", currentUser != null && currentUser.getRole() == UserRole.MO);
         request.setAttribute("isAdmin", currentUser != null && currentUser.getRole() == UserRole.ADMIN);
         request.setAttribute("profileReady", profileReady);
+        request.setAttribute("unreadDecisionCount", unreadDecisionCount);
         request.setAttribute("appliedVacancyIds", appliedVacancyIds);
         request.setAttribute("applicationStatusByVacancyId", applicationStatusByVacancyId);
         request.setAttribute("leadTaByVacancyId", leadTaByVacancyId);

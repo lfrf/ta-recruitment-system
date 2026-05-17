@@ -17,7 +17,12 @@
         <div class="nav-actions panel-nav">
             <a class="btn btn-nav btn-nav-subtle" href="${pageContext.request.contextPath}/vacancies">Browse Jobs</a>
             <a class="btn btn-nav btn-nav-active" href="${pageContext.request.contextPath}/applicant/profile">My Profile</a>
-            <a class="btn btn-nav" href="${pageContext.request.contextPath}/applicant/status">Application History</a>
+            <a class="btn btn-nav btn-nav-with-badge" href="${pageContext.request.contextPath}/applicant/status">
+                <span>Application History</span>
+                <c:if test="${unreadDecisionCount > 0}">
+                    <span class="nav-unread-badge" aria-label="${unreadDecisionCount} unread decisions">${unreadDecisionCount}</span>
+                </c:if>
+            </a>
             <a class="btn btn-nav" href="${pageContext.request.contextPath}/account/password">Change Password</a>
             <a class="btn btn-nav btn-nav-logout" href="${pageContext.request.contextPath}/logout">Log Out</a>
         </div>
@@ -25,6 +30,9 @@
 
     <c:if test="${not empty flashMessage}"><div class="alert success">${flashMessage}</div></c:if>
     <c:if test="${not empty flashError}"><div class="alert error">${flashError}</div></c:if>
+    <c:if test="${unreadDecisionCount > 0}">
+        <div class="warning">You have ${unreadDecisionCount} unread application decision<c:if test="${unreadDecisionCount != 1}">s</c:if>. Open Application History to review them.</div>
+    </c:if>
 
     <div class="card">
         <div class="profile-layout">

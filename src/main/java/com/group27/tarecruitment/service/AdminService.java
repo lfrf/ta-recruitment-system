@@ -19,16 +19,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * AdminService class type.
+ *
+ * <p>Service type that centralizes business rules and multi-step domain workflows.</p>
+ * <p>Package: {@code com.group27.tarecruitment.service}</p>
+ */
 public class AdminService {
     private final AdminConfigRepository adminConfigRepository = new AdminConfigRepository();
     private final ApplicantProfileRepository applicantProfileRepository = new ApplicantProfileRepository();
     private final BlacklistRepository blacklistRepository = new BlacklistRepository();
     private final UserRepository userRepository = new UserRepository();
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return the computed `AdminConfig` value for this operation.
+     */
     public AdminConfig getConfig() {
         return adminConfigRepository.load();
     }
 
+    /**
+     * Updates existing state while preserving consistency constraints.
+     * @param maxWorkloadValue input parameter of type {@code String}.
+     * @param allowVisitorBrowsing input parameter of type {@code boolean}.
+     * @return the computed `String` value for this operation.
+     */
     public String updateConfig(String maxWorkloadValue, boolean allowVisitorBrowsing) {
         Integer maxWorkload = ValidationUtil.parsePositiveInt(maxWorkloadValue);
         if (maxWorkload == null) {
@@ -45,6 +61,10 @@ public class AdminService {
         return null;
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return a collection containing the computed result elements.
+     */
     public List<ApplicantBlacklistSummary> getBlacklistSummaries() {
         List<BlacklistEntry> entries = blacklistRepository.findAll();
         Map<String, ApplicantBlacklistSummary> summaryByApplicantId = new LinkedHashMap<>();
@@ -77,6 +97,10 @@ public class AdminService {
                 .toList();
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return a collection containing the computed result elements.
+     */
     public List<UserAccount> findApplicantAccounts() {
         return userRepository.findAll().stream()
                 .filter(user -> user.getRole() == UserRole.APPLICANT)
@@ -85,6 +109,14 @@ public class AdminService {
                 .toList();
     }
 
+    /**
+     * Creates and initializes new business data for downstream use.
+     * @param adminUser input parameter of type {@code UserAccount}.
+     * @param applicantId input parameter of type {@code String}.
+     * @param reason input parameter of type {@code String}.
+     * @param confirmed input parameter of type {@code boolean}.
+     * @return the computed `String` value for this operation.
+     */
     public String addBlacklistEntry(UserAccount adminUser, String applicantId, String reason, boolean confirmed) {
         if (adminUser == null || adminUser.getRole() != UserRole.ADMIN) {
             return "Only admin accounts can update the blacklist.";
@@ -120,6 +152,11 @@ public class AdminService {
         return null;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param entryId input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     public String deactivateBlacklistEntry(String entryId) {
         if (ValidationUtil.isBlank(entryId)) {
             return "A blacklist entry ID is required.";
@@ -148,6 +185,11 @@ public class AdminService {
         return null;
     }
 
+    /**
+     * Updates existing state while preserving consistency constraints.
+     * @param applicantId input parameter of type {@code String}.
+     * @param blacklisted input parameter of type {@code boolean}.
+     */
     private void updateApplicantBlacklistFlag(String applicantId, boolean blacklisted) {
         List<ApplicantProfile> profiles = new ArrayList<>(applicantProfileRepository.findAll());
         boolean updated = false;

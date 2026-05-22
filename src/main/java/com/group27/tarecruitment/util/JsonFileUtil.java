@@ -20,9 +20,19 @@ public final class JsonFileUtil {
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     private static final Path RUNTIME_DATA_DIR = initialiseRuntimeDataDirectory();
 
+    /**
+     * Executes business behavior as part of the class contract.
+     */
     private JsonFileUtil() {
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param <T> generic element type.
+     * @param resourcePath input parameter of type {@code String}.
+     * @param elementClass input parameter of type {@code Class<T>}.
+     * @return the computed {@code List<T>} value for this operation.
+     */
     public static <T> List<T> readList(String resourcePath, Class<T> elementClass) {
         Path filePath = resolveRuntimeFile(resourcePath);
         if (Files.notExists(filePath)) {
@@ -37,6 +47,13 @@ public final class JsonFileUtil {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param <T> generic target type.
+     * @param resourcePath input parameter of type {@code String}.
+     * @param targetClass input parameter of type {@code Class<T>}.
+     * @return the computed {@code T} value for this operation.
+     */
     public static <T> T readObject(String resourcePath, Class<T> targetClass) {
         Path filePath = resolveRuntimeFile(resourcePath);
         if (Files.notExists(filePath)) {
@@ -50,18 +67,40 @@ public final class JsonFileUtil {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param <T> generic element type.
+     * @param resourcePath input parameter of type {@code String}.
+     * @param data input parameter of type {@code List<T>}.
+     */
     public static <T> void writeList(String resourcePath, List<T> data) {
         writeValue(resourcePath, data);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param <T> generic object type.
+     * @param resourcePath input parameter of type {@code String}.
+     * @param data input parameter of type {@code T}.
+     */
     public static <T> void writeObject(String resourcePath, T data) {
         writeValue(resourcePath, data);
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return the computed `Path` value for this operation.
+     */
     public static Path getRuntimeDataDirectory() {
         return RUNTIME_DATA_DIR;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param <T> generic object type.
+     * @param resourcePath input parameter of type {@code String}.
+     * @param data input parameter of type {@code T}.
+     */
     private static <T> void writeValue(String resourcePath, T data) {
         Path filePath = resolveRuntimeFile(resourcePath);
         try {
@@ -72,6 +111,11 @@ public final class JsonFileUtil {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param resourcePath input parameter of type {@code String}.
+     * @return the computed `Path` value for this operation.
+     */
     private static Path resolveRuntimeFile(String resourcePath) {
         String fileName = Path.of(resourcePath).getFileName().toString();
         Path filePath = RUNTIME_DATA_DIR.resolve(fileName);
@@ -81,6 +125,10 @@ public final class JsonFileUtil {
         return filePath;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @return the computed `Path` value for this operation.
+     */
     private static Path initialiseRuntimeDataDirectory() {
         String configuredPath = System.getProperty("ta.recruitment.dataDir");
         Path dataDir;
@@ -98,6 +146,11 @@ public final class JsonFileUtil {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param resourcePath input parameter of type {@code String}.
+     * @param targetPath input parameter of type {@code Path}.
+     */
     private static void copyFromClasspath(String resourcePath, Path targetPath) {
         try (InputStream inputStream = JsonFileUtil.class.getClassLoader().getResourceAsStream(resourcePath)) {
             if (inputStream == null) {

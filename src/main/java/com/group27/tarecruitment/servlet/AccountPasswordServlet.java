@@ -13,10 +13,23 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * AccountPasswordServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/account/password")
 public class AccountPasswordServlet extends HttpServlet {
     private final AccountSecurityService accountSecurityService = new AccountSecurityService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -33,6 +46,13 @@ public class AccountPasswordServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/common/change-password.jsp").forward(request, response);
     }
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -75,6 +95,12 @@ public class AccountPasswordServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/account/password");
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param user input parameter of type {@code UserAccount}.
+     * @return the computed `String` value for this operation.
+     */
     private String resolveBackHref(HttpServletRequest request, UserAccount user) {
         if (user == null || user.getRole() == null) {
             return request.getContextPath() + "/vacancies";

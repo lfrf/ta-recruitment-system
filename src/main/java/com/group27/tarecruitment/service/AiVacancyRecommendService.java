@@ -20,6 +20,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * AiVacancyRecommendService class type.
+ *
+ * <p>Service type that centralizes business rules and multi-step domain workflows.</p>
+ * <p>Package: {@code com.group27.tarecruitment.service}</p>
+ */
 public class AiVacancyRecommendService {
     public static final String SCHEMA_VERSION = "vacancy-rank-v1";
     private static final long TASK_TTL_MILLIS = 15 * 60 * 1000L;
@@ -30,6 +36,14 @@ public class AiVacancyRecommendService {
 
     private final AiVacancyRecommendTaskRepository taskRepository = new AiVacancyRecommendTaskRepository();
 
+    /**
+     * Creates and initializes new business data for downstream use.
+     * @param userId input parameter of type {@code String}.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param profile input parameter of type {@code ApplicantProfile}.
+     * @param candidateVacancies input parameter of type {@code List<Vacancy>}.
+     * @return the computed `TaskCreationResult` value for this operation.
+     */
     public TaskCreationResult createTask(String userId,
                                          HttpServletRequest request,
                                          ApplicantProfile profile,
@@ -58,12 +72,23 @@ public class AiVacancyRecommendService {
         return new TaskCreationResult(task, callbackUrl, prompt);
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param userId input parameter of type {@code String}.
+     * @param taskId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<AiVacancyRecommendTask> findTaskForUser(String userId, String taskId) {
         expireOldTasks();
         return taskRepository.findById(taskId)
                 .filter(task -> userId.equals(task.getUserId()));
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param userId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<AiVacancyRecommendTask> findLatestValidatedTaskForUser(String userId) {
         expireOldTasks();
         return taskRepository.findAll().stream()
@@ -72,6 +97,11 @@ public class AiVacancyRecommendService {
                 .max(Comparator.comparingLong(this::validatedSortKey));
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param task input parameter of type {@code AiVacancyRecommendTask}.
+     * @return the computed `long` value for this operation.
+     */
     private long validatedSortKey(AiVacancyRecommendTask task) {
         if (task.getValidatedAtEpochMillis() != null) {
             return task.getValidatedAtEpochMillis();
@@ -79,6 +109,13 @@ public class AiVacancyRecommendService {
         return task.getCreatedAtEpochMillis();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param taskId input parameter of type {@code String}.
+     * @param callbackToken input parameter of type {@code String}.
+     * @param payloadJson input parameter of type {@code String}.
+     * @return the computed `CallbackResult` value for this operation.
+     */
     public CallbackResult acceptCallback(String taskId, String callbackToken, String payloadJson) {
         expireOldTasks();
         if (ValidationUtil.isBlank(taskId)) {
@@ -128,6 +165,9 @@ public class AiVacancyRecommendService {
         return CallbackResult.ok();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     */
     public void expireOldTasks() {
         long now = Instant.now().toEpochMilli();
         List<AiVacancyRecommendTask> tasks = new ArrayList<>(taskRepository.findAll());
@@ -145,6 +185,13 @@ public class AiVacancyRecommendService {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param payloadJson input parameter of type {@code String}.
+     * @param task input parameter of type {@code AiVacancyRecommendTask}.
+     * @param errors input parameter of type {@code List<String>}.
+     * @return a collection containing the computed result elements.
+     */
     private List<AiVacancyRecommendation> parseRecommendations(String payloadJson,
                                                                AiVacancyRecommendTask task,
                                                                List<String> errors) {
@@ -209,6 +256,13 @@ public class AiVacancyRecommendService {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param reasonsNode input parameter of type {@code JsonNode}.
+     * @param errors input parameter of type {@code List<String>}.
+     * @param vacancyId input parameter of type {@code String}.
+     * @return a collection containing the computed result elements.
+     */
     private List<String> readReasons(JsonNode reasonsNode, List<String> errors, String vacancyId) {
         if (reasonsNode == null || reasonsNode.isNull()) {
             return new ArrayList<>();
@@ -238,6 +292,11 @@ public class AiVacancyRecommendService {
         return reasons;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param scoreNode input parameter of type {@code JsonNode}.
+     * @return the computed `Integer` value for this operation.
+     */
     private Integer readScore(JsonNode scoreNode) {
         if (scoreNode == null || scoreNode.isNull() || !scoreNode.isNumber()) {
             return null;
@@ -245,6 +304,11 @@ public class AiVacancyRecommendService {
         return scoreNode.asInt();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param node input parameter of type {@code JsonNode}.
+     * @return the computed `String` value for this operation.
+     */
     private String readText(JsonNode node) {
         if (node == null || node.isNull() || !node.isTextual()) {
             return "";
@@ -252,6 +316,12 @@ public class AiVacancyRecommendService {
         return ValidationUtil.trimToEmpty(node.asText());
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param path input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String buildAbsoluteUrl(HttpServletRequest request, String path) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
@@ -261,6 +331,14 @@ public class AiVacancyRecommendService {
         return scheme + "://" + serverName + (defaultPort ? "" : ":" + port) + path;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param task input parameter of type {@code AiVacancyRecommendTask}.
+     * @param profile input parameter of type {@code ApplicantProfile}.
+     * @param candidateVacancies input parameter of type {@code List<Vacancy>}.
+     * @param callbackUrl input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String buildPromptTemplate(AiVacancyRecommendTask task,
                                        ApplicantProfile profile,
                                        List<Vacancy> candidateVacancies,
@@ -288,6 +366,11 @@ public class AiVacancyRecommendService {
         return builder.toString();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param profile input parameter of type {@code ApplicantProfile}.
+     * @return the computed `String` value for this operation.
+     */
     private String buildProfileSummary(ApplicantProfile profile) {
         if (profile == null) {
             return "No profile provided.";
@@ -307,6 +390,11 @@ public class AiVacancyRecommendService {
         return builder.toString();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param vacancies input parameter of type {@code List<Vacancy>}.
+     * @return the computed `String` value for this operation.
+     */
     private String buildVacancySummary(List<Vacancy> vacancies) {
         StringBuilder builder = new StringBuilder();
         for (Vacancy vacancy : vacancies) {
@@ -332,14 +420,26 @@ public class AiVacancyRecommendService {
             this.promptTemplate = promptTemplate;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `AiVacancyRecommendTask` value for this operation.
+         */
         public AiVacancyRecommendTask getTask() {
             return task;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getCallbackUrl() {
             return callbackUrl;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getPromptTemplate() {
             return promptTemplate;
         }
@@ -356,22 +456,44 @@ public class AiVacancyRecommendService {
             this.message = message;
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @return the computed `CallbackResult` value for this operation.
+         */
         public static CallbackResult ok() {
             return new CallbackResult(true, "OK", "Accepted");
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @param code input parameter of type {@code String}.
+         * @param message input parameter of type {@code String}.
+         * @return the computed `CallbackResult` value for this operation.
+         */
         public static CallbackResult error(String code, String message) {
             return new CallbackResult(false, code, message);
         }
 
+        /**
+         * Evaluates and returns a boolean condition for caller logic.
+         * @return true when the condition is met; otherwise false.
+         */
         public boolean isOk() {
             return ok;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getCode() {
             return code;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getMessage() {
             return message;
         }

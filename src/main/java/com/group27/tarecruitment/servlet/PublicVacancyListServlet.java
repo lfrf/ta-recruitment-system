@@ -27,6 +27,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * PublicVacancyListServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/vacancies")
 public class PublicVacancyListServlet extends HttpServlet {
     private final VacancyService vacancyService = new VacancyService();
@@ -35,6 +41,13 @@ public class PublicVacancyListServlet extends HttpServlet {
     private final ApplicationService applicationService = new ApplicationService();
     private final AiProfileImportService aiProfileImportService = new AiProfileImportService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -206,6 +219,12 @@ public class PublicVacancyListServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/visitor/vacancy-list.jsp").forward(request, response);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param vacancy input parameter of type {@code Vacancy}.
+     * @param selectedCampus input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean matchesCampus(Vacancy vacancy, String selectedCampus) {
         if (selectedCampus == null || selectedCampus.isBlank()) {
             return true;
@@ -214,6 +233,12 @@ public class PublicVacancyListServlet extends HttpServlet {
         return campus.equalsIgnoreCase(selectedCampus);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param vacancy input parameter of type {@code Vacancy}.
+     * @param keyword input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean matchesKeyword(Vacancy vacancy, String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return true;
@@ -228,15 +253,31 @@ public class PublicVacancyListServlet extends HttpServlet {
                 && vacancy.getRequiredSkills().stream().anyMatch(skill -> contains(skill, q)));
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param source input parameter of type {@code String}.
+     * @param keyword input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean contains(String source, String keyword) {
         return source != null && source.toLowerCase().contains(keyword);
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param status input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean isBrowsableStatus(String status) {
         String normalized = ValidationUtil.trimToEmpty(status);
         return "OPEN".equalsIgnoreCase(normalized) || "CLOSED".equalsIgnoreCase(normalized);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param recommendation input parameter of type {@code AiVacancyRecommendation}.
+     * @return the computed `int` value for this operation.
+     */
     private int aiScore(AiVacancyRecommendation recommendation) {
         return recommendation == null || recommendation.getScore() == null ? -1 : recommendation.getScore();
     }

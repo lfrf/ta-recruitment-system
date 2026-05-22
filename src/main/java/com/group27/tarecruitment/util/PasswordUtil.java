@@ -7,9 +7,18 @@ import java.security.NoSuchAlgorithmException;
 public final class PasswordUtil {
     private static final String SHA256_PREFIX = "sha256$";
 
+    /**
+     * Performs authentication or security-related validation logic.
+     */
     private PasswordUtil() {
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param rawPassword input parameter of type {@code String}.
+     * @param storedPassword input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     public static boolean matches(String rawPassword, String storedPassword) {
         if (rawPassword == null || storedPassword == null) {
             return false;
@@ -20,6 +29,11 @@ public final class PasswordUtil {
         return storedPassword.equals(rawPassword);
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param rawPassword input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     public static String hashWithPrefix(String rawPassword) {
         if (rawPassword == null) {
             return "";
@@ -27,6 +41,11 @@ public final class PasswordUtil {
         return SHA256_PREFIX + sha256Hex(rawPassword);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private static String sha256Hex(String value) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

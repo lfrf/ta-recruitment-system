@@ -13,6 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * QuickLoginMobileServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/quick-login/mobile")
 public class QuickLoginMobileServlet extends HttpServlet {
     private static final String VIEW_PATH = "/WEB-INF/views/common/quick-login-mobile.jsp";
@@ -22,6 +28,13 @@ public class QuickLoginMobileServlet extends HttpServlet {
     private final QuickLoginRequestService quickLoginRequestService = new QuickLoginRequestService();
     private final QuickLoginBindingService quickLoginBindingService = new QuickLoginBindingService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String requestId = ValidationUtil.trimToEmpty(request.getParameter("request"));
@@ -70,6 +83,13 @@ public class QuickLoginMobileServlet extends HttpServlet {
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String requestId = ValidationUtil.trimToEmpty(request.getParameter("request"));
@@ -100,6 +120,11 @@ public class QuickLoginMobileServlet extends HttpServlet {
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @return an optional result that is present when data is available.
+     */
     private Optional<QuickLoginBinding> findBindingFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null || cookies.length == 0) {
@@ -114,6 +139,14 @@ public class QuickLoginMobileServlet extends HttpServlet {
         return Optional.empty();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param title input parameter of type {@code String}.
+     * @param message input parameter of type {@code String}.
+     * @param canConfirm input parameter of type {@code boolean}.
+     * @param action input parameter of type {@code String}.
+     */
     private void attachState(HttpServletRequest request, String title, String message, boolean canConfirm, String action) {
         request.setAttribute("stateTitle", title);
         request.setAttribute("stateMessage", message);
@@ -123,6 +156,11 @@ public class QuickLoginMobileServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String summarizeDeviceName(String value) {
         String compact = ValidationUtil.trimToEmpty(value).replaceAll("\\s+", " ");
         if (compact.isEmpty()) {

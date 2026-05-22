@@ -13,10 +13,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * LoginServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     private final AuthService authService = new AuthService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String returnTo = request.getAttribute("returnTo") == null
@@ -39,6 +52,13 @@ public class LoginServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/common/login.jsp").forward(request, response);
     }
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("username");
@@ -74,6 +94,11 @@ public class LoginServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/vacancies");
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param returnTo input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String sanitizeReturnTo(String returnTo) {
         if (ValidationUtil.isBlank(returnTo)) {
             return null;

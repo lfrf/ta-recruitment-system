@@ -11,6 +11,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * VacancyService class type.
+ *
+ * <p>Service type that centralizes business rules and multi-step domain workflows.</p>
+ * <p>Package: {@code com.group27.tarecruitment.service}</p>
+ */
 public class VacancyService {
     private static final String STATUS_OPEN = "OPEN";
     private static final String STATUS_ARCHIVED = "ARCHIVED";
@@ -23,20 +29,46 @@ public class VacancyService {
 
     private final VacancyRepository vacancyRepository = new VacancyRepository();
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return a collection containing the computed result elements.
+     */
     public List<Vacancy> getOpenVacancies() {
         return vacancyRepository.findAll().stream()
                 .filter(vacancy -> STATUS_OPEN.equalsIgnoreCase(vacancy.getStatus()))
                 .toList();
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return a collection containing the computed result elements.
+     */
     public List<Vacancy> getAllVacancies() {
         return vacancyRepository.findAll();
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param vacancyId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<Vacancy> getVacancy(String vacancyId) {
         return vacancyRepository.findById(vacancyId);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param currentUser input parameter of type {@code UserAccount}.
+     * @param moduleCode input parameter of type {@code String}.
+     * @param moduleName input parameter of type {@code String}.
+     * @param campus input parameter of type {@code String}.
+     * @param description input parameter of type {@code String}.
+     * @param requiredSkills input parameter of type {@code String}.
+     * @param preferredBackground input parameter of type {@code String}.
+     * @param workloadValue input parameter of type {@code String}.
+     * @param positionCount input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     public String validateNewVacancy(UserAccount currentUser,
                                      String moduleCode,
                                      String moduleName,
@@ -80,6 +112,20 @@ public class VacancyService {
         return null;
     }
 
+    /**
+     * Creates and initializes new business data for downstream use.
+     * @param currentUser input parameter of type {@code UserAccount}.
+     * @param moduleCode input parameter of type {@code String}.
+     * @param moduleName input parameter of type {@code String}.
+     * @param campus input parameter of type {@code String}.
+     * @param description input parameter of type {@code String}.
+     * @param requiredSkills input parameter of type {@code String}.
+     * @param preferredBackground input parameter of type {@code String}.
+     * @param workloadValue input parameter of type {@code String}.
+     * @param positionCount input parameter of type {@code String}.
+     * @param leaderRoleAvailable input parameter of type {@code boolean}.
+     * @return the computed `Vacancy` value for this operation.
+     */
     public Vacancy createVacancy(UserAccount currentUser,
                                  String moduleCode,
                                  String moduleName,
@@ -114,6 +160,11 @@ public class VacancyService {
         return vacancy;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param campus input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String normalizeCampus(String campus) {
         String value = ValidationUtil.trimToEmpty(campus);
         if (value.isEmpty()) {
@@ -126,6 +177,13 @@ public class VacancyService {
         return CAMPUS_XTC.toLowerCase().equals(lowered) ? CAMPUS_XTC : CAMPUS_SH;
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param moduleCode input parameter of type {@code String}.
+     * @param moduleName input parameter of type {@code String}.
+     * @param campus input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean hasDuplicateVacancy(String moduleCode, String moduleName, String campus) {
         String normalizedModuleCode = normalizeText(moduleCode);
         String normalizedModuleName = normalizeText(moduleName);
@@ -138,6 +196,12 @@ public class VacancyService {
                                 .equalsIgnoreCase(ValidationUtil.trimToEmpty(existing.getCampus())));
     }
 
+    /**
+     * Removes, archives, or cancels previously created business state.
+     * @param currentUser input parameter of type {@code UserAccount}.
+     * @param vacancyId input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     public String archiveVacancy(UserAccount currentUser, String vacancyId) {
         if (currentUser == null || currentUser.getRole() != UserRole.MO) {
             return "Only organiser accounts can archive course jobs.";
@@ -170,6 +234,12 @@ public class VacancyService {
         return null;
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param currentUser input parameter of type {@code UserAccount}.
+     * @param vacancy input parameter of type {@code Vacancy}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean isOwnedBy(UserAccount currentUser, Vacancy vacancy) {
         String createdBy = ValidationUtil.trimToEmpty(vacancy.getCreatedBy());
         return !createdBy.isEmpty()
@@ -177,10 +247,20 @@ public class VacancyService {
                 || createdBy.equalsIgnoreCase(ValidationUtil.trimToEmpty(currentUser.getUserId())));
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param status input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean isArchived(String status) {
         return STATUS_ARCHIVED.equalsIgnoreCase(ValidationUtil.trimToEmpty(status));
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String normalizeText(String value) {
         return ValidationUtil.trimToEmpty(value).toLowerCase();
     }

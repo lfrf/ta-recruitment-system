@@ -12,8 +12,22 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * RoleFilter class type.
+ *
+ * <p>Filter type that applies request pre-checks and access control gating.</p>
+ * <p>Package: {@code com.group27.tarecruitment.filter}</p>
+ */
 @WebFilter(urlPatterns = {"/applicant/*", "/mo/*", "/admin/*"})
 public class RoleFilter implements Filter {
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code jakarta.servlet.ServletRequest}.
+     * @param response input parameter of type {@code jakarta.servlet.ServletResponse}.
+     * @param chain input parameter of type {@code FilterChain}.
+     * @throws IOException if this operation cannot complete successfully.
+     * @throws ServletException if this operation cannot complete successfully.
+     */
     @Override
     public void doFilter(jakarta.servlet.ServletRequest request,
                          jakarta.servlet.ServletResponse response,

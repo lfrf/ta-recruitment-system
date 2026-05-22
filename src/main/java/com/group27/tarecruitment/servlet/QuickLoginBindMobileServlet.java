@@ -13,6 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * QuickLoginBindMobileServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/quick-login/bind/mobile")
 public class QuickLoginBindMobileServlet extends HttpServlet {
     private static final String VIEW_PATH = "/WEB-INF/views/common/quick-login-bind-mobile.jsp";
@@ -20,6 +26,13 @@ public class QuickLoginBindMobileServlet extends HttpServlet {
     private final QuickLoginBindRequestService quickLoginBindRequestService = new QuickLoginBindRequestService();
     private final QuickLoginBindingService quickLoginBindingService = new QuickLoginBindingService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String requestId = ValidationUtil.trimToEmpty(request.getParameter("request"));
@@ -63,6 +76,12 @@ public class QuickLoginBindMobileServlet extends HttpServlet {
         request.getRequestDispatcher(VIEW_PATH).forward(request, response);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @param bindToken input parameter of type {@code String}.
+     */
     private void attachBindingCookie(HttpServletRequest request, HttpServletResponse response, String bindToken) {
         Cookie cookie = new Cookie(QuickLoginBindingService.QUICK_LOGIN_DEVICE_COOKIE, bindToken);
         cookie.setHttpOnly(true);
@@ -72,6 +91,12 @@ public class QuickLoginBindMobileServlet extends HttpServlet {
         response.addCookie(cookie);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param title input parameter of type {@code String}.
+     * @param message input parameter of type {@code String}.
+     */
     private void attachState(HttpServletRequest request, String title, String message) {
         request.setAttribute("stateTitle", title);
         request.setAttribute("stateMessage", message);

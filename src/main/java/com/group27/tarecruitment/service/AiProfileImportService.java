@@ -24,6 +24,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * AiProfileImportService class type.
+ *
+ * <p>Service type that centralizes business rules and multi-step domain workflows.</p>
+ * <p>Package: {@code com.group27.tarecruitment.service}</p>
+ */
 public class AiProfileImportService {
     public static final String SCHEMA_VERSION = "profile-and-ranking-v1";
     private static final long TASK_TTL_MILLIS = 10 * 60 * 1000L;
@@ -52,6 +58,12 @@ public class AiProfileImportService {
     private final ApplicantProfileService applicantProfileService = new ApplicantProfileService();
     private final VacancyService vacancyService = new VacancyService();
 
+    /**
+     * Creates and initializes new business data for downstream use.
+     * @param userId input parameter of type {@code String}.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @return the computed `TaskCreationResult` value for this operation.
+     */
     public TaskCreationResult createTask(String userId, HttpServletRequest request) {
         expireOldTasks();
         long now = Instant.now().toEpochMilli();
@@ -89,12 +101,23 @@ public class AiProfileImportService {
         );
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param userId input parameter of type {@code String}.
+     * @param taskId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<AiImportTask> findTaskForUser(String userId, String taskId) {
         expireOldTasks();
         return aiImportTaskRepository.findById(taskId)
                 .filter(task -> userId.equals(task.getUserId()));
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param userId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<AiImportTask> findLatestValidatedRankingTaskForUser(String userId) {
         expireOldTasks();
         return aiImportTaskRepository.findAll().stream()
@@ -104,6 +127,11 @@ public class AiProfileImportService {
                 .max(Comparator.comparingLong(this::rankingSortKey));
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param task input parameter of type {@code AiImportTask}.
+     * @return the computed `long` value for this operation.
+     */
     private long rankingSortKey(AiImportTask task) {
         if (task.getValidatedAtEpochMillis() != null) {
             return task.getValidatedAtEpochMillis();
@@ -111,6 +139,13 @@ public class AiProfileImportService {
         return task.getCreatedAtEpochMillis();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param taskId input parameter of type {@code String}.
+     * @param callbackToken input parameter of type {@code String}.
+     * @param payloadJson input parameter of type {@code String}.
+     * @return the computed `CallbackResult` value for this operation.
+     */
     public CallbackResult acceptCallback(String taskId, String callbackToken, String payloadJson) {
         expireOldTasks();
         if (ValidationUtil.isBlank(taskId)) {
@@ -190,6 +225,9 @@ public class AiProfileImportService {
         return CallbackResult.error("VALIDATION_FAILED", "Payload failed schema validation.");
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     */
     public void expireOldTasks() {
         long now = Instant.now().toEpochMilli();
         List<AiImportTask> tasks = new ArrayList<>(aiImportTaskRepository.findAll());
@@ -207,6 +245,12 @@ public class AiProfileImportService {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param taskId input parameter of type {@code String}.
+     * @param cvToken input parameter of type {@code String}.
+     * @return the computed `CvDownloadResult` value for this operation.
+     */
     public CvDownloadResult consumeCvDownload(String taskId, String cvToken) {
         expireOldTasks();
         if (ValidationUtil.isBlank(taskId)) {
@@ -253,6 +297,10 @@ public class AiProfileImportService {
         return CvDownloadResult.ok(cvPath, ValidationUtil.trimToEmpty(profile.getCvFileName()));
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param taskId input parameter of type {@code String}.
+     */
     public void markCvDownloadConsumed(String taskId) {
         Optional<AiImportTask> optionalTask = aiImportTaskRepository.findById(taskId);
         if (optionalTask.isEmpty()) {
@@ -268,6 +316,12 @@ public class AiProfileImportService {
         aiImportTaskRepository.save(task);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param userId input parameter of type {@code String}.
+     * @param taskId input parameter of type {@code String}.
+     * @return the computed `ApplyResult` value for this operation.
+     */
     public ApplyResult applySuggestionToProfile(String userId, String taskId) {
         expireOldTasks();
         if (ValidationUtil.isBlank(taskId)) {
@@ -306,6 +360,11 @@ public class AiProfileImportService {
         return ApplyResult.ok(profile);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param userId input parameter of type {@code String}.
+     * @return the computed `ApplicantProfile` value for this operation.
+     */
     private ApplicantProfile buildEmptyProfile(String userId) {
         ApplicantProfile profile = new ApplicantProfile();
         profile.setApplicantId(userId);
@@ -313,6 +372,11 @@ public class AiProfileImportService {
         return profile;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param profile input parameter of type {@code ApplicantProfile}.
+     * @param suggestion input parameter of type {@code AiProfileSuggestion}.
+     */
     private void mergeSuggestionIntoProfile(ApplicantProfile profile, AiProfileSuggestion suggestion) {
         applyTextIfPresent(profile::setFullName, suggestion.getFullName());
         applyTextIfPresent(profile::setStudentId, suggestion.getStudentId());
@@ -331,6 +395,11 @@ public class AiProfileImportService {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param setter input parameter of type {@code Consumer<String>}.
+     * @param value input parameter of type {@code String}.
+     */
     private void applyTextIfPresent(Consumer<String> setter, String value) {
         String normalized = ValidationUtil.trimToEmpty(value);
         if (!normalized.isEmpty()) {
@@ -338,6 +407,15 @@ public class AiProfileImportService {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param task input parameter of type {@code AiImportTask}.
+     * @param payloadJson input parameter of type {@code String}.
+     * @param profileErrors input parameter of type {@code List<String>}.
+     * @param rankingErrors input parameter of type {@code List<String>}.
+     * @param sharedErrors input parameter of type {@code List<String>}.
+     * @return the computed `ParseResult` value for this operation.
+     */
     private ParseResult parsePayload(AiImportTask task,
                                      String payloadJson,
                                      List<String> profileErrors,
@@ -360,6 +438,12 @@ public class AiProfileImportService {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param profileNode input parameter of type {@code JsonNode}.
+     * @param errors input parameter of type {@code List<String>}.
+     * @return the computed `AiProfileSuggestion` value for this operation.
+     */
     private AiProfileSuggestion parseSuggestion(JsonNode profileNode, List<String> errors) {
         if (profileNode == null || !profileNode.isObject()) {
             errors.add("profile object is required.");
@@ -401,6 +485,13 @@ public class AiProfileImportService {
         return null;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param rankingsNode input parameter of type {@code JsonNode}.
+     * @param eligibleVacancyIds input parameter of type {@code List<String>}.
+     * @param errors input parameter of type {@code List<String>}.
+     * @return a collection containing the computed result elements.
+     */
     private List<AiVacancyRecommendation> parseRecommendations(JsonNode rankingsNode,
                                                                List<String> eligibleVacancyIds,
                                                                List<String> errors) {
@@ -455,6 +546,13 @@ public class AiProfileImportService {
         return recommendations;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param reasonsNode input parameter of type {@code JsonNode}.
+     * @param errors input parameter of type {@code List<String>}.
+     * @param vacancyId input parameter of type {@code String}.
+     * @return a collection containing the computed result elements.
+     */
     private List<String> readReasons(JsonNode reasonsNode, List<String> errors, String vacancyId) {
         if (reasonsNode == null || reasonsNode.isNull()) {
             return new ArrayList<>();
@@ -484,6 +582,11 @@ public class AiProfileImportService {
         return reasons;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param scoreNode input parameter of type {@code JsonNode}.
+     * @return the computed `Integer` value for this operation.
+     */
     private Integer readScore(JsonNode scoreNode) {
         if (scoreNode == null || scoreNode.isNull() || !scoreNode.isNumber()) {
             return null;
@@ -491,6 +594,13 @@ public class AiProfileImportService {
         return scoreNode.asInt();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param node input parameter of type {@code JsonNode}.
+     * @param fieldName input parameter of type {@code String}.
+     * @param errors input parameter of type {@code List<String>}.
+     * @return a collection containing the computed result elements.
+     */
     private List<String> readStringList(JsonNode node, String fieldName, List<String> errors) {
         if (node == null || node.isNull()) {
             return new ArrayList<>();
@@ -513,6 +623,11 @@ public class AiProfileImportService {
         return values;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param node input parameter of type {@code JsonNode}.
+     * @return the computed `String` value for this operation.
+     */
     private String readText(JsonNode node) {
         if (node == null || node.isNull()) {
             return "";
@@ -523,6 +638,12 @@ public class AiProfileImportService {
         return ValidationUtil.trimToEmpty(node.asText());
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param path input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String buildAbsoluteUrl(HttpServletRequest request, String path) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
@@ -532,6 +653,14 @@ public class AiProfileImportService {
         return scheme + "://" + serverName + (defaultPort ? "" : ":" + port) + path;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param task input parameter of type {@code AiImportTask}.
+     * @param userId input parameter of type {@code String}.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param now input parameter of type {@code long}.
+     * @return the computed `String` value for this operation.
+     */
     private String resolveCvDownloadUrl(AiImportTask task, String userId, HttpServletRequest request, long now) {
         Optional<ApplicantProfile> optionalProfile = applicantProfileService.findByApplicantId(userId);
         if (optionalProfile.isEmpty()) {
@@ -556,6 +685,14 @@ public class AiProfileImportService {
                 + "/ai/cv-download?taskId=" + task.getTaskId() + "&token=" + downloadToken);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param task input parameter of type {@code AiImportTask}.
+     * @param callbackUrl input parameter of type {@code String}.
+     * @param cvDownloadUrl input parameter of type {@code String}.
+     * @param candidateVacancies input parameter of type {@code List<Vacancy>}.
+     * @return the computed `String` value for this operation.
+     */
     private String buildPromptTemplate(AiImportTask task,
                                        String callbackUrl,
                                        String cvDownloadUrl,
@@ -606,12 +743,21 @@ public class AiProfileImportService {
         return builder.toString();
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return a collection containing the computed result elements.
+     */
     private List<Vacancy> getBrowsableVacancies() {
         return vacancyService.getAllVacancies().stream()
                 .filter(vacancy -> isBrowsableStatus(vacancy.getStatus()))
                 .toList();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param vacancies input parameter of type {@code List<Vacancy>}.
+     * @return the computed `String` value for this operation.
+     */
     private String buildVacancySummary(List<Vacancy> vacancies) {
         StringBuilder builder = new StringBuilder();
         for (Vacancy vacancy : vacancies) {
@@ -627,6 +773,11 @@ public class AiProfileImportService {
         return builder.toString();
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param status input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean isBrowsableStatus(String status) {
         String normalized = ValidationUtil.trimToEmpty(status);
         return "OPEN".equalsIgnoreCase(normalized) || "CLOSED".equalsIgnoreCase(normalized);
@@ -645,18 +796,34 @@ public class AiProfileImportService {
             this.promptTemplate = promptTemplate;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `AiImportTask` value for this operation.
+         */
         public AiImportTask getTask() {
             return task;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getCallbackUrl() {
             return callbackUrl;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getCvDownloadUrl() {
             return cvDownloadUrl;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getPromptTemplate() {
             return promptTemplate;
         }
@@ -673,22 +840,44 @@ public class AiProfileImportService {
             this.message = message;
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @return the computed `CallbackResult` value for this operation.
+         */
         public static CallbackResult ok() {
             return new CallbackResult(true, "OK", "Accepted");
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @param code input parameter of type {@code String}.
+         * @param message input parameter of type {@code String}.
+         * @return the computed `CallbackResult` value for this operation.
+         */
         public static CallbackResult error(String code, String message) {
             return new CallbackResult(false, code, message);
         }
 
+        /**
+         * Evaluates and returns a boolean condition for caller logic.
+         * @return true when the condition is met; otherwise false.
+         */
         public boolean isOk() {
             return ok;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getCode() {
             return code;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getMessage() {
             return message;
         }
@@ -707,26 +896,53 @@ public class AiProfileImportService {
             this.profile = profile;
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @param profile input parameter of type {@code ApplicantProfile}.
+         * @return the computed `ApplyResult` value for this operation.
+         */
         public static ApplyResult ok(ApplicantProfile profile) {
             return new ApplyResult(true, "OK", "Applied", profile);
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @param code input parameter of type {@code String}.
+         * @param message input parameter of type {@code String}.
+         * @return the computed `ApplyResult` value for this operation.
+         */
         public static ApplyResult error(String code, String message) {
             return new ApplyResult(false, code, message, null);
         }
 
+        /**
+         * Evaluates and returns a boolean condition for caller logic.
+         * @return true when the condition is met; otherwise false.
+         */
         public boolean isOk() {
             return ok;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getCode() {
             return code;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getMessage() {
             return message;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `ApplicantProfile` value for this operation.
+         */
         public ApplicantProfile getProfile() {
             return profile;
         }
@@ -747,35 +963,73 @@ public class AiProfileImportService {
             this.fileName = fileName;
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @param filePath input parameter of type {@code Path}.
+         * @param fileName input parameter of type {@code String}.
+         * @return the computed `CvDownloadResult` value for this operation.
+         */
         public static CvDownloadResult ok(Path filePath, String fileName) {
             return new CvDownloadResult(true, "OK", "Ready", filePath, fileName);
         }
 
+        /**
+         * Executes business behavior as part of the class contract.
+         * @param code input parameter of type {@code String}.
+         * @param message input parameter of type {@code String}.
+         * @return the computed `CvDownloadResult` value for this operation.
+         */
         public static CvDownloadResult error(String code, String message) {
             return new CvDownloadResult(false, code, message, null, "");
         }
 
+        /**
+         * Evaluates and returns a boolean condition for caller logic.
+         * @return true when the condition is met; otherwise false.
+         */
         public boolean isOk() {
             return ok;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getCode() {
             return code;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getMessage() {
             return message;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `Path` value for this operation.
+         */
         public Path getFilePath() {
             return filePath;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getFileName() {
             return fileName;
         }
     }
 
+    /**
+     * ParseResult record type.
+     *
+     * <p>Core module type in the TA recruitment system domain.</p>
+     * <p>Package: {@code com.group27.tarecruitment.service}</p>
+     */
     private record ParseResult(AiProfileSuggestion suggestion, List<AiVacancyRecommendation> recommendations) {
     }
 }

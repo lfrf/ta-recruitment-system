@@ -21,6 +21,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * ReviewService class type.
+ *
+ * <p>Service type that centralizes business rules and multi-step domain workflows.</p>
+ * <p>Package: {@code com.group27.tarecruitment.service}</p>
+ */
 public class ReviewService {
     public static final String ORDER_MODE_DEFAULT = "default";
     public static final String ORDER_MODE_AI = "ai";
@@ -29,6 +35,11 @@ public class ReviewService {
     private final VacancyRepository vacancyRepository = new VacancyRepository();
     private final AiImportTaskRepository aiImportTaskRepository = new AiImportTaskRepository();
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param organiser input parameter of type {@code UserAccount}.
+     * @return a collection containing the computed result elements.
+     */
     public List<Vacancy> getManagedVacancies(UserAccount organiser) {
         return vacancyRepository.findAll().stream()
                 .filter(vacancy -> vacancy.getCreatedBy() != null
@@ -38,12 +49,23 @@ public class ReviewService {
                 .toList();
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param organiser input parameter of type {@code UserAccount}.
+     * @param vacancyId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<Vacancy> getManagedVacancy(UserAccount organiser, String vacancyId) {
         return getManagedVacancies(organiser).stream()
                 .filter(vacancy -> vacancy.getVacancyId().equals(vacancyId))
                 .findFirst();
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param vacancyId input parameter of type {@code String}.
+     * @return a collection containing the computed result elements.
+     */
     public List<ApplicationRecord> getApplicationsForVacancy(String vacancyId) {
         return applicationRepository.findByVacancyId(vacancyId).stream()
                 .filter(application -> !ValidationUtil.STATUS_WITHDRAWN.equalsIgnoreCase(
@@ -51,12 +73,24 @@ public class ReviewService {
                 .toList();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param rawMode input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     public String normalizeOrderMode(String rawMode) {
         return ORDER_MODE_AI.equalsIgnoreCase(ValidationUtil.trimToEmpty(rawMode))
                 ? ORDER_MODE_AI
                 : ORDER_MODE_DEFAULT;
     }
 
+    /**
+     * Applies review or decision outcomes and related status changes.
+     * @param applications input parameter of type {@code List<ApplicationRecord>}.
+     * @param aiFitByApplicantId input parameter of type {@code Map<String, ApplicantAiFit>}.
+     * @param orderMode input parameter of type {@code String}.
+     * @return a collection containing the computed result elements.
+     */
     public List<ApplicationRecord> sortApplicationsForReview(List<ApplicationRecord> applications,
                                                              Map<String, ApplicantAiFit> aiFitByApplicantId,
                                                              String orderMode) {
@@ -68,6 +102,12 @@ public class ReviewService {
         return sorted;
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param applications input parameter of type {@code List<ApplicationRecord>}.
+     * @param vacancyId input parameter of type {@code String}.
+     * @return a mapping containing computed key/value results.
+     */
     public Map<String, ApplicantAiFit> getApplicantAiFitForVacancy(List<ApplicationRecord> applications, String vacancyId) {
         if (applications == null || applications.isEmpty() || ValidationUtil.isBlank(vacancyId)) {
             return new LinkedHashMap<>();
@@ -124,6 +164,17 @@ public class ReviewService {
         return result;
     }
 
+    /**
+     * Updates existing state while preserving consistency constraints.
+     * @param organiser input parameter of type {@code UserAccount}.
+     * @param vacancyId input parameter of type {@code String}.
+     * @param applicationId input parameter of type {@code String}.
+     * @param decision input parameter of type {@code String}.
+     * @param reviewNote input parameter of type {@code String}.
+     * @param optionalFeedback input parameter of type {@code String}.
+     * @param appointLeadTa input parameter of type {@code boolean}.
+     * @return the computed `String` value for this operation.
+     */
     public String updateDecision(UserAccount organiser,
                                  String vacancyId,
                                  String applicationId,
@@ -217,6 +268,11 @@ public class ReviewService {
         return null;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param vacancy input parameter of type {@code Vacancy}.
+     * @param applications input parameter of type {@code List<ApplicationRecord>}.
+     */
     private void syncVacancyOpenStatus(Vacancy vacancy, List<ApplicationRecord> applications) {
         if (vacancy == null || vacancy.getPositionCount() <= 0) {
             return;
@@ -247,17 +303,31 @@ public class ReviewService {
         vacancyRepository.saveAll(vacancies);
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param status input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean isManageableStatus(String status) {
         String normalized = ValidationUtil.trimToEmpty(status);
         return "OPEN".equalsIgnoreCase(normalized) || "CLOSED".equalsIgnoreCase(normalized);
     }
 
+    /**
+     * Applies review or decision outcomes and related status changes.
+     * @return the computed `Comparator<ApplicationRecord>` value for this operation.
+     */
     private Comparator<ApplicationRecord> defaultReviewComparator() {
         return Comparator.comparingInt(this::reviewStatusPriority)
                 .thenComparingLong(this::submittedAtSortKey)
                 .thenComparing(item -> ValidationUtil.trimToEmpty(item.getApplicationId()), String.CASE_INSENSITIVE_ORDER);
     }
 
+    /**
+     * Applies review or decision outcomes and related status changes.
+     * @param aiFitByApplicantId input parameter of type {@code Map<String, ApplicantAiFit>}.
+     * @return the computed `Comparator<ApplicationRecord>` value for this operation.
+     */
     private Comparator<ApplicationRecord> aiReviewComparator(Map<String, ApplicantAiFit> aiFitByApplicantId) {
         return Comparator.comparingInt(this::reviewStatusPriority)
                 .thenComparingInt(item -> aiPresencePriority(item, aiFitByApplicantId))
@@ -266,6 +336,11 @@ public class ReviewService {
                 .thenComparing(item -> ValidationUtil.trimToEmpty(item.getApplicationId()), String.CASE_INSENSITIVE_ORDER);
     }
 
+    /**
+     * Applies review or decision outcomes and related status changes.
+     * @param application input parameter of type {@code ApplicationRecord}.
+     * @return the computed `int` value for this operation.
+     */
     private int reviewStatusPriority(ApplicationRecord application) {
         String status = ValidationUtil.normalizeApplicationStatus(application.getStatus());
         if (ValidationUtil.STATUS_SUBMITTED.equals(status)) {
@@ -280,6 +355,12 @@ public class ReviewService {
         return 3;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param application input parameter of type {@code ApplicationRecord}.
+     * @param aiFitByApplicantId input parameter of type {@code Map<String, ApplicantAiFit>}.
+     * @return the computed `int` value for this operation.
+     */
     private int aiPresencePriority(ApplicationRecord application, Map<String, ApplicantAiFit> aiFitByApplicantId) {
         if (reviewStatusPriority(application) != 0) {
             return 0;
@@ -288,6 +369,12 @@ public class ReviewService {
         return fit == null || fit.getScore() == null ? 1 : 0;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param application input parameter of type {@code ApplicationRecord}.
+     * @param aiFitByApplicantId input parameter of type {@code Map<String, ApplicantAiFit>}.
+     * @return the computed `int` value for this operation.
+     */
     private int aiScoreSortKey(ApplicationRecord application, Map<String, ApplicantAiFit> aiFitByApplicantId) {
         if (reviewStatusPriority(application) != 0) {
             return 0;
@@ -299,6 +386,11 @@ public class ReviewService {
         return -fit.getScore();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param application input parameter of type {@code ApplicationRecord}.
+     * @return the computed `long` value for this operation.
+     */
     private long submittedAtSortKey(ApplicationRecord application) {
         String submittedAt = ValidationUtil.trimToEmpty(application.getSubmittedAt());
         if (submittedAt.isEmpty()) {
@@ -314,6 +406,11 @@ public class ReviewService {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param task input parameter of type {@code AiImportTask}.
+     * @return the computed `long` value for this operation.
+     */
     private long aiTaskSortKey(AiImportTask task) {
         if (task.getValidatedAtEpochMillis() != null) {
             return task.getValidatedAtEpochMillis();
@@ -327,34 +424,66 @@ public class ReviewService {
         private String taskId;
         private Long validatedAtEpochMillis;
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `Integer` value for this operation.
+         */
         public Integer getScore() {
             return score;
         }
 
+        /**
+         * Updates existing state while preserving consistency constraints.
+         * @param score input parameter of type {@code Integer}.
+         */
         public void setScore(Integer score) {
             this.score = score;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return a collection containing the computed result elements.
+         */
         public List<String> getReasons() {
             return reasons;
         }
 
+        /**
+         * Updates existing state while preserving consistency constraints.
+         * @param reasons input parameter of type {@code List<String>}.
+         */
         public void setReasons(List<String> reasons) {
             this.reasons = reasons;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getTaskId() {
             return taskId;
         }
 
+        /**
+         * Updates existing state while preserving consistency constraints.
+         * @param taskId input parameter of type {@code String}.
+         */
         public void setTaskId(String taskId) {
             this.taskId = taskId;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `Long` value for this operation.
+         */
         public Long getValidatedAtEpochMillis() {
             return validatedAtEpochMillis;
         }
 
+        /**
+         * Updates existing state while preserving consistency constraints.
+         * @param validatedAtEpochMillis input parameter of type {@code Long}.
+         */
         public void setValidatedAtEpochMillis(Long validatedAtEpochMillis) {
             this.validatedAtEpochMillis = validatedAtEpochMillis;
         }

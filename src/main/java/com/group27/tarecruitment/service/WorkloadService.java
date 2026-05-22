@@ -20,6 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * WorkloadService class type.
+ *
+ * <p>Service type that centralizes business rules and multi-step domain workflows.</p>
+ * <p>Package: {@code com.group27.tarecruitment.service}</p>
+ */
 public class WorkloadService {
     private final ApplicantProfileRepository applicantProfileRepository = new ApplicantProfileRepository();
     private final ApplicationRepository applicationRepository = new ApplicationRepository();
@@ -27,10 +33,23 @@ public class WorkloadService {
     private final UserRepository userRepository = new UserRepository();
     private final VacancyRepository vacancyRepository = new VacancyRepository();
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param maxWorkload input parameter of type {@code int}.
+     * @return a collection containing the computed result elements.
+     */
     public List<ApplicantWorkloadSummary> getApplicantSummaries(int maxWorkload) {
         return filterSummaries(maxWorkload, "", "", false);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param maxWorkload input parameter of type {@code int}.
+     * @param applicantKeyword input parameter of type {@code String}.
+     * @param moduleKeyword input parameter of type {@code String}.
+     * @param flaggedOnly input parameter of type {@code boolean}.
+     * @return a collection containing the computed result elements.
+     */
     public List<ApplicantWorkloadSummary> filterSummaries(int maxWorkload,
                                                           String applicantKeyword,
                                                           String moduleKeyword,
@@ -135,6 +154,10 @@ public class WorkloadService {
         return summaries;
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return a mapping containing computed key/value results.
+     */
     public Map<String, Integer> getActiveCountByApplicantId() {
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (ApplicationRecord application : applicationRepository.findAll()) {
@@ -147,6 +170,12 @@ public class WorkloadService {
         return counts;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param summary input parameter of type {@code ApplicantWorkloadSummary}.
+     * @param keyword input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean matchesApplicant(ApplicantWorkloadSummary summary, String keyword) {
         if (keyword.isBlank()) {
             return true;
@@ -156,6 +185,12 @@ public class WorkloadService {
                 || contains(summary.getEmail(), keyword);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param summary input parameter of type {@code ApplicantWorkloadSummary}.
+     * @param keyword input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean matchesModule(ApplicantWorkloadSummary summary, String keyword) {
         if (keyword.isBlank()) {
             return true;
@@ -168,6 +203,12 @@ public class WorkloadService {
         return false;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @param keyword input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean contains(String value, String keyword) {
         return value != null && value.toLowerCase().contains(keyword);
     }

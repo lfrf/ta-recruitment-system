@@ -22,6 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * MOApplicantListServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/mo/applicants")
 public class MOApplicantListServlet extends HttpServlet {
     private final ApplicantProfileRepository applicantProfileRepository = new ApplicantProfileRepository();
@@ -29,6 +35,13 @@ public class MOApplicantListServlet extends HttpServlet {
     private final UserRepository userRepository = new UserRepository();
     private final WorkloadService workloadService = new WorkloadService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);

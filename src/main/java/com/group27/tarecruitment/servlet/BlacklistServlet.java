@@ -18,12 +18,25 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * BlacklistServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/admin/blacklist")
 public class BlacklistServlet extends HttpServlet {
     private final AdminService adminService = new AdminService();
     private final ApplicantProfileRepository applicantProfileRepository = new ApplicantProfileRepository();
     private final UserRepository userRepository = new UserRepository();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -58,6 +71,13 @@ public class BlacklistServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/admin/blacklist.jsp").forward(request, response);
     }
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);

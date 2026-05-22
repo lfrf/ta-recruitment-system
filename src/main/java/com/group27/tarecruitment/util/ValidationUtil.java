@@ -26,17 +26,35 @@ public final class ValidationUtil {
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
+    /**
+     * Executes business behavior as part of the class contract.
+     */
     private ValidationUtil() {
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param value input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     public static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     public static String trimToEmpty(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `Integer` value for this operation.
+     */
     public static Integer parsePositiveInt(String value) {
         if (isBlank(value)) {
             return null;
@@ -49,6 +67,11 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return a collection containing the computed result elements.
+     */
     public static List<String> splitCsv(String value) {
         if (isBlank(value)) {
             return Collections.emptyList();
@@ -60,14 +83,29 @@ public final class ValidationUtil {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param value input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     public static boolean isValidEmail(String value) {
         return !isBlank(value) && EMAIL_PATTERN.matcher(value.trim()).matches();
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param value input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     public static boolean isPositiveInteger(String value) {
         return parsePositiveInt(value) != null;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     public static String normalizeApplicationStatus(String value) {
         String normalized = trimToEmpty(value);
         if (STATUS_SUBMITTED.equalsIgnoreCase(normalized)) {
@@ -85,6 +123,11 @@ public final class ValidationUtil {
         return normalized;
     }
 
+    /**
+     * Evaluates and returns a boolean condition for caller logic.
+     * @param value input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     public static boolean isValidApplicationStatus(String value) {
         return ALLOWED_APPLICATION_STATUSES.contains(normalizeApplicationStatus(value));
     }

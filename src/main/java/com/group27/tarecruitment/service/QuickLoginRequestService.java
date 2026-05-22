@@ -7,10 +7,20 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * QuickLoginRequestService class type.
+ *
+ * <p>Service type that centralizes business rules and multi-step domain workflows.</p>
+ * <p>Package: {@code com.group27.tarecruitment.service}</p>
+ */
 public class QuickLoginRequestService {
     private static final long REQUEST_TTL_MILLIS = 3 * 60 * 1000;
     private static final Map<String, QuickLoginRequest> REQUESTS = new ConcurrentHashMap<>();
 
+    /**
+     * Creates and initializes new business data for downstream use.
+     * @return the computed `QuickLoginRequest` value for this operation.
+     */
     public QuickLoginRequest createRequest() {
         cleanup();
         String requestId = UUID.randomUUID().toString().replace("-", "");
@@ -20,6 +30,11 @@ public class QuickLoginRequestService {
         return request;
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param requestId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<QuickLoginRequest> findRequest(String requestId) {
         cleanup();
         if (ValidationUtil.isBlank(requestId)) {
@@ -35,6 +50,12 @@ public class QuickLoginRequestService {
         return Optional.of(request);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param requestId input parameter of type {@code String}.
+     * @param userId input parameter of type {@code String}.
+     * @return true when the condition is met; otherwise false.
+     */
     public boolean confirmRequest(String requestId, String userId) {
         Optional<QuickLoginRequest> optional = findRequest(requestId);
         if (optional.isEmpty()) {
@@ -53,6 +74,11 @@ public class QuickLoginRequestService {
         return true;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param requestId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<String> consumeConfirmedRequest(String requestId) {
         Optional<QuickLoginRequest> optional = findRequest(requestId);
         if (optional.isEmpty()) {
@@ -66,11 +92,20 @@ public class QuickLoginRequestService {
         return Optional.of(request.getConfirmedUserId());
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     */
     private void cleanup() {
         long now = Instant.now().toEpochMilli();
         REQUESTS.entrySet().removeIf(entry -> entry.getValue().getExpiresAtEpochMillis() + 60_000 < now);
     }
 
+    /**
+     * Status enum type.
+     *
+     * <p>Core module type in the TA recruitment system domain.</p>
+     * <p>Package: {@code com.group27.tarecruitment.service}</p>
+     */
     public enum Status {
         PENDING,
         CONFIRMED,
@@ -93,38 +128,74 @@ public class QuickLoginRequestService {
             this.expiresAtEpochMillis = expiresAtEpochMillis;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getRequestId() {
             return requestId;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `Status` value for this operation.
+         */
         public Status getStatus() {
             return status;
         }
 
+        /**
+         * Updates existing state while preserving consistency constraints.
+         * @param status input parameter of type {@code Status}.
+         */
         public void setStatus(Status status) {
             this.status = status;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `long` value for this operation.
+         */
         public long getCreatedAtEpochMillis() {
             return createdAtEpochMillis;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `long` value for this operation.
+         */
         public long getExpiresAtEpochMillis() {
             return expiresAtEpochMillis;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `String` value for this operation.
+         */
         public String getConfirmedUserId() {
             return confirmedUserId;
         }
 
+        /**
+         * Updates existing state while preserving consistency constraints.
+         * @param confirmedUserId input parameter of type {@code String}.
+         */
         public void setConfirmedUserId(String confirmedUserId) {
             this.confirmedUserId = confirmedUserId;
         }
 
+        /**
+         * Retrieves data using the provided criteria and current business rules.
+         * @return the computed `Long` value for this operation.
+         */
         public Long getConfirmedAtEpochMillis() {
             return confirmedAtEpochMillis;
         }
 
+        /**
+         * Updates existing state while preserving consistency constraints.
+         * @param confirmedAtEpochMillis input parameter of type {@code Long}.
+         */
         public void setConfirmedAtEpochMillis(Long confirmedAtEpochMillis) {
             this.confirmedAtEpochMillis = confirmedAtEpochMillis;
         }

@@ -25,6 +25,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * ApplicantProfileServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/applicant/profile")
 @MultipartConfig(maxFileSize = 10 * 1024 * 1024, maxRequestSize = 12 * 1024 * 1024)
 public class ApplicantProfileServlet extends HttpServlet {
@@ -33,6 +39,13 @@ public class ApplicantProfileServlet extends HttpServlet {
     private final QuickLoginBindingService quickLoginBindingService = new QuickLoginBindingService();
     private final ApplicationService applicationService = new ApplicationService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -52,6 +65,13 @@ public class ApplicantProfileServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/applicant/profile.jsp").forward(request, response);
     }
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -104,6 +124,12 @@ public class ApplicantProfileServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/vacancies");
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param currentUser input parameter of type {@code UserAccount}.
+     * @param profile input parameter of type {@code ApplicantProfile}.
+     */
     private void attachProfileAttributes(HttpServletRequest request, UserAccount currentUser, ApplicantProfile profile) {
         request.setAttribute("currentUser", currentUser);
         request.setAttribute("profile", profile);
@@ -121,6 +147,13 @@ public class ApplicantProfileServlet extends HttpServlet {
         request.setAttribute("flashError", SessionUtil.consumeFlashError(request));
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param currentUser input parameter of type {@code UserAccount}.
+     * @param existing input parameter of type {@code ApplicantProfile}.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @return the computed `ApplicantProfile` value for this operation.
+     */
     private ApplicantProfile buildProfileFromRequest(UserAccount currentUser, ApplicantProfile existing, HttpServletRequest request) {
         ApplicantProfile profile = new ApplicantProfile();
         profile.setApplicantId(currentUser.getUserId());
@@ -143,6 +176,13 @@ public class ApplicantProfileServlet extends HttpServlet {
         return profile;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param profile input parameter of type {@code ApplicantProfile}.
+     * @param cvFilePart input parameter of type {@code Part}.
+     * @return the computed `String` value for this operation.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     private String attachUploadedCv(ApplicantProfile profile, Part cvFilePart) throws IOException {
         if (cvFilePart == null || cvFilePart.getSize() == 0) {
             return null;
@@ -172,6 +212,11 @@ public class ApplicantProfileServlet extends HttpServlet {
         return null;
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param part input parameter of type {@code Part}.
+     * @return the computed `String` value for this operation.
+     */
     private String extractSubmittedFileName(Part part) {
         String submitted = part.getSubmittedFileName();
         if (ValidationUtil.isBlank(submitted)) {
@@ -180,11 +225,21 @@ public class ApplicantProfileServlet extends HttpServlet {
         return Path.of(submitted).getFileName().toString();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param fileName input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String extractExtension(String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
         return dotIndex >= 0 ? fileName.substring(dotIndex) : "";
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param values input parameter of type {@code List<String>}.
+     * @return the computed `String` value for this operation.
+     */
     private String join(List<String> values) {
         return values == null ? "" : String.join(", ", values);
     }

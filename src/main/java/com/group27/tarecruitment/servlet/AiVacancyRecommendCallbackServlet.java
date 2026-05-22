@@ -11,12 +11,25 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+/**
+ * AiVacancyRecommendCallbackServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/ai/recommend/callback")
 public class AiVacancyRecommendCallbackServlet extends HttpServlet {
     private static final String CALLBACK_TOKEN_HEADER = "X-Callback-Token";
 
     private final AiVacancyRecommendService recommendService = new AiVacancyRecommendService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String taskId = ValidationUtil.trimToEmpty(request.getParameter("taskId"));
@@ -46,6 +59,13 @@ public class AiVacancyRecommendCallbackServlet extends HttpServlet {
         writeJson(response, statusCode, body);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @param statusCode input parameter of type {@code int}.
+     * @param body input parameter of type {@code String}.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     private void writeJson(HttpServletResponse response, int statusCode, String body) throws IOException {
         response.setStatus(statusCode);
         response.setContentType("application/json");
@@ -53,6 +73,11 @@ public class AiVacancyRecommendCallbackServlet extends HttpServlet {
         response.getWriter().write(body);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String escapeJson(String value) {
         if (value == null) {
             return "";

@@ -12,15 +12,35 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * ApplicantQuickLoginBindingServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/applicant/quick-login-binding")
 public class ApplicantQuickLoginBindingServlet extends HttpServlet {
     private final QuickLoginBindingService quickLoginBindingService = new QuickLoginBindingService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.sendRedirect(request.getContextPath() + "/applicant/profile");
     }
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);

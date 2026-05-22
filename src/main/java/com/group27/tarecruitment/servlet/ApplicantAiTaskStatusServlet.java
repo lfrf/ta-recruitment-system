@@ -17,10 +17,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * ApplicantAiTaskStatusServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet("/applicant/ai/tasks/status")
 public class ApplicantAiTaskStatusServlet extends HttpServlet {
     private final AiProfileImportService aiProfileImportService = new AiProfileImportService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -61,6 +74,11 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
         writeJson(response, HttpServletResponse.SC_OK, body);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param rankings input parameter of type {@code Iterable<AiVacancyRecommendation>}.
+     * @return the computed `String` value for this operation.
+     */
     private String toRankingJson(Iterable<AiVacancyRecommendation> rankings) {
         if (rankings == null) {
             return "[]";
@@ -82,6 +100,11 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
         return builder.toString();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param suggestion input parameter of type {@code AiProfileSuggestion}.
+     * @return the computed `String` value for this operation.
+     */
     private String toProfileJson(AiProfileSuggestion suggestion) {
         if (suggestion == null) {
             return "null";
@@ -101,6 +124,11 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
                 + "}";
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param values input parameter of type {@code Iterable<String>}.
+     * @return the computed `String` value for this operation.
+     */
     private String toJsonArray(Iterable<String> values) {
         if (values == null) {
             return "[]";
@@ -118,6 +146,13 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
         return builder.toString();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @param statusCode input parameter of type {@code int}.
+     * @param body input parameter of type {@code String}.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     private void writeJson(HttpServletResponse response, int statusCode, String body) throws IOException {
         response.setStatus(statusCode);
         response.setContentType("application/json");
@@ -125,6 +160,11 @@ public class ApplicantAiTaskStatusServlet extends HttpServlet {
         response.getWriter().write(body);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String escapeJson(String value) {
         if (value == null) {
             return "";

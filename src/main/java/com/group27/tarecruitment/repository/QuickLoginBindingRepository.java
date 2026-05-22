@@ -10,9 +10,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * QuickLoginBindingRepository class type.
+ *
+ * <p>Repository type that encapsulates persistence and query behavior.</p>
+ * <p>Package: {@code com.group27.tarecruitment.repository}</p>
+ */
 public class QuickLoginBindingRepository {
     private static final String QUICK_LOGIN_BINDINGS_RESOURCE = "data/quick_login_bindings.json";
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @return a collection containing the computed result elements.
+     */
     public List<QuickLoginBinding> findAll() {
         try {
             return JsonFileUtil.readList(QUICK_LOGIN_BINDINGS_RESOURCE, QuickLoginBinding.class);
@@ -22,18 +32,32 @@ public class QuickLoginBindingRepository {
         }
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param userId input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<QuickLoginBinding> findActiveByUserId(String userId) {
         return findAll().stream()
                 .filter(binding -> binding.isActive() && userId.equals(binding.getUserId()))
                 .findFirst();
     }
 
+    /**
+     * Retrieves data using the provided criteria and current business rules.
+     * @param bindToken input parameter of type {@code String}.
+     * @return an optional result that is present when data is available.
+     */
     public Optional<QuickLoginBinding> findActiveByBindToken(String bindToken) {
         return findAll().stream()
                 .filter(binding -> binding.isActive() && bindToken.equals(binding.getBindToken()))
                 .findFirst();
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param target input parameter of type {@code QuickLoginBinding}.
+     */
     public void saveOrReplace(QuickLoginBinding target) {
         List<QuickLoginBinding> all = new ArrayList<>(findAll());
         all.removeIf(binding -> target.getUserId().equals(binding.getUserId()));
@@ -41,6 +65,10 @@ public class QuickLoginBindingRepository {
         JsonFileUtil.writeList(QUICK_LOGIN_BINDINGS_RESOURCE, all);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param userId input parameter of type {@code String}.
+     */
     public void deactivateByUserId(String userId) {
         List<QuickLoginBinding> all = new ArrayList<>(findAll());
         boolean changed = false;
@@ -55,6 +83,10 @@ public class QuickLoginBindingRepository {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param originalException input parameter of type {@code IllegalStateException}.
+     */
     private void recoverCorruptedFile(IllegalStateException originalException) {
         Path runtimeFile = JsonFileUtil.getRuntimeDataDirectory().resolve("quick_login_bindings.json");
         try {

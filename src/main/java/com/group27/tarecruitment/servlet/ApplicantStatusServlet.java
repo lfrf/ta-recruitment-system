@@ -23,6 +23,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * ApplicantStatusServlet class type.
+ *
+ * <p>Servlet/controller type that handles HTTP input, output, and endpoint orchestration.</p>
+ * <p>Package: {@code com.group27.tarecruitment.servlet}</p>
+ */
 @WebServlet({"/applicant/status", "/applicant/dashboard"})
 public class ApplicantStatusServlet extends HttpServlet {
     private static final DateTimeFormatter DISPLAY_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -30,6 +36,13 @@ public class ApplicantStatusServlet extends HttpServlet {
     private final ApplicationService applicationService = new ApplicationService();
     private final VacancyService vacancyService = new VacancyService();
 
+    /**
+     * Handles the primary HTTP/filter entrypoint workflow for this operation.
+     * @param request input parameter of type {@code HttpServletRequest}.
+     * @param response input parameter of type {@code HttpServletResponse}.
+     * @throws ServletException if this operation cannot complete successfully.
+     * @throws IOException if this operation cannot complete successfully.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserAccount currentUser = SessionUtil.getCurrentUser(request);
@@ -82,6 +95,11 @@ public class ApplicantStatusServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/applicant/status.jsp").forward(request, response);
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param originalIndexById input parameter of type {@code Map<String, Integer>}.
+     * @return the computed `Comparator<ApplicationRecord>` value for this operation.
+     */
     private Comparator<ApplicationRecord> buildHistoryComparator(Map<String, Integer> originalIndexById) {
         return Comparator
                 .comparingInt((ApplicationRecord item) -> isUnreadDecision(item) ? 0 : 1)
@@ -91,6 +109,11 @@ public class ApplicantStatusServlet extends HttpServlet {
                 .thenComparingInt(item -> originalIndexById.getOrDefault(item.getApplicationId(), Integer.MAX_VALUE));
     }
 
+    /**
+     * Applies review or decision outcomes and related status changes.
+     * @param application input parameter of type {@code ApplicationRecord}.
+     * @return true when the condition is met; otherwise false.
+     */
     private boolean isUnreadDecision(ApplicationRecord application) {
         String status = ValidationUtil.normalizeApplicationStatus(application.getStatus());
         if (!ValidationUtil.STATUS_OFFERED.equals(status)
@@ -103,6 +126,11 @@ public class ApplicantStatusServlet extends HttpServlet {
         return !Boolean.TRUE.equals(application.getDecisionRead());
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param value input parameter of type {@code String}.
+     * @return the computed `long` value for this operation.
+     */
     private long parseEpochMillis(String value) {
         if (ValidationUtil.isBlank(value)) {
             return 0L;
@@ -114,6 +142,11 @@ public class ApplicantStatusServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Executes business behavior as part of the class contract.
+     * @param submittedAt input parameter of type {@code String}.
+     * @return the computed `String` value for this operation.
+     */
     private String formatTimestamp(String submittedAt) {
         if (ValidationUtil.isBlank(submittedAt)) {
             return "-";

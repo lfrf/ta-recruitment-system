@@ -569,6 +569,26 @@ body {
     min-height: 1.2rem;
 }
 
+.lead-ta-toggle-card {
+    border-color: #bfdacc;
+    background: linear-gradient(180deg, #ffffff 0%, #f2fbf7 100%);
+}
+
+.lead-ta-toggle-control {
+    min-width: 250px;
+    justify-content: center;
+}
+
+.lead-ta-toggle-control input {
+    width: 1.45rem;
+    height: 1.45rem;
+}
+
+.lead-ta-toggle-control span {
+    font-weight: 600;
+    color: #0f766e;
+}
+
 .config-submit-bar {
     display: flex;
     align-items: center;

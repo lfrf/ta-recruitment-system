@@ -87,3 +87,12 @@ This version is the initial test case set. In later iterations, the team should 
 ## 7. Conclusion
 
 These test cases provide an initial basis for structured testing of the TA Recruitment System. They are designed to support early validation of the most critical system functions and to give the team a clear starting point for future test execution and evidence collection.
+
+## 8. Current Execution Status Mapping
+
+For the latest execution state and evidence mapping, use:
+
+- `docs/testing-coverage-matrix.md` (TC01-TC28 status: Auto-Pass / Manual-Pass / Partial / Pending)
+- `docs/test-execution-record.md` (actual run records and test totals)
+- `test/e2e/system_flow_batch_2026-05-22.md` (manual system-flow checklist)
+- `test/e2e/ai_import_e2e_checklist.md` (AI callback end-to-end checklist)

@@ -71,14 +71,17 @@
                 <label for="preferredBackground">Preferred Background</label>
                 <textarea id="preferredBackground" name="preferredBackground" rows="3" placeholder="Describe any preferred background, prior modules, or experience">${preferredBackground}</textarea>
             </div>
-            <div class="field field-span-2 checkbox-card">
-                <label class="checkbox-wrap checkbox-wrap-emphasis" for="leaderRoleAvailable">
-                    <input id="leaderRoleAvailable" type="checkbox" name="leaderRoleAvailable" <c:if test="${leaderRoleAvailable}">checked</c:if>>
-                    <span>
+            <div class="field field-span-2">
+                <div class="config-toggle-card lead-ta-toggle-card">
+                    <div class="config-toggle-copy">
                         <strong>Allow one selected TA to be appointed as course lead later</strong>
-                        <span class="hint">Use this only when the course needs one lead TA to coordinate the rest of the team.</span>
-                    </span>
-                </label>
+                        <div class="hint">Use this only when the course needs one lead TA to coordinate the rest of the team.</div>
+                    </div>
+                    <label class="toggle-switch lead-ta-toggle-control" for="leaderRoleAvailable">
+                        <input id="leaderRoleAvailable" type="checkbox" name="leaderRoleAvailable" <c:if test="${leaderRoleAvailable}">checked</c:if>>
+                        <span>Enable lead TA option</span>
+                    </label>
+                </div>
             </div>
             <div class="field field-span-2">
                 <div class="config-submit-bar">
